@@ -1,3 +1,6 @@
+import { config } from 'dotenv';
+config()
+
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -7,9 +10,7 @@ import { BitsoModule } from './modules/exchange/bitso/bitso.module';
 import { BitsoService } from './modules/exchange/bitso/bitso.service';
 import { HttpService } from './modules/_common/http/http.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-
-import { config } from 'dotenv';
-config()
+import { BitsoSchedulerService } from './modules/exchange/bitso/bitso-scheduler.service';
 
 @Module({
   imports: [
@@ -29,6 +30,6 @@ config()
     BitsoModule,
   ],
   controllers: [AppController],
-  providers: [AppService, BitsoService, HttpService],
+  providers: [AppService, BitsoService, HttpService, BitsoSchedulerService],
 })
 export class AppModule {}
