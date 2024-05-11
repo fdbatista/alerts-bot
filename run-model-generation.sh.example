@@ -1,1 +1,0 @@
-typeorm-model-generator -h <host> -d <db> -p <port> -u <user> -x <password> -e <dialect> -o <output>
