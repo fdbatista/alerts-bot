@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TickerService } from './modules/ticker/ticker.service';
 import { TickerModule } from './modules/ticker/ticker.module';
-import { IndicatorsModule } from './modules/indicators/indicators.module';
+import { IndicatorsModule } from './modules/indicator/indicators.module';
 import { EnvModule } from './modules/_commons/env/env.module';
 
 @Module({
