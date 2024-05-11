@@ -1,8 +1,16 @@
 import { Injectable } from '@nestjs/common';
+import { EnvService } from './modules/_commons/env/env.service';
 
 @Injectable()
 export class AppService {
-  getHello(): string {
-    return 'Hello World!';
+
+  constructor(private readonly envService: EnvService) {}
+
+  getVersion(): number {
+    return this.envService.getAppVersion();
+  }
+
+  getAppDescription(): string {
+    return this.envService.getAppDescription();
   }
 }
