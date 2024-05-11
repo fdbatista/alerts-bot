@@ -18,3 +18,8 @@ Revert migrations:
 ```bash
 npm run migration:revert
 ```
+
+Start development server:
+```bash
+nest start --watch
+```
