@@ -1,0 +1,26 @@
+services:
+
+  crc-alerts-db:
+    image: timescale/timescaledb:latest-pg15
+    container_name: crc-alerts-db
+    restart: always
+    ports:
+      - 5434:5432
+    volumes:
+      - crc-alerts-volume:/bitnami/mariadb
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_HOST=${DB_HOST}
+      - POSTGRES_PORT=${DB_PORT}
+      - POSTGRES_DATABASE=${DB_DATABASE}
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+
+networks:
+  default:
+    name: crc-alerts-network
+
+volumes:
+  crc-alerts-volume:
+    name: crc-alerts-volume

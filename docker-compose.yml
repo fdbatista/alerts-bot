@@ -1,0 +1,24 @@
+services:
+  crc-alerts-service:
+    build:
+      context: .
+    environment:
+      NODE_ENV: production
+    ports:
+      - 3000:3000
+
+  crc-alerts-db:
+    image: timescale/timescaledb:latest-pg15
+    container_name: alerts-postgres
+    restart: always
+    ports:
+      - 5432:5432
+    volumes:
+      - ecoplanet-postgres:/bitnami/mariadb
+    env_file:
+      - .env
+
+networks:
+  default:
+    name: crc-alerts-network
+    external: true
