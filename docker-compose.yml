@@ -14,7 +14,7 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - ecoplanet-postgres:/bitnami/mariadb
+      - crc-alerts-volume:/home/postgres/pgdata/data
     env_file:
       - .env
 
@@ -22,3 +22,7 @@ networks:
   default:
     name: crc-alerts-network
     external: true
+
+volumes:
+  crc-alerts-volume:
+    name: crc-alerts-volume
