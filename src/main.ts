@@ -1,10 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { config } from 'dotenv';
 import { VersioningType } from '@nestjs/common';
 import { DEFAULT_VALUES } from './modules/_common/env/_constants';
-
-config()
+import 'reflect-metadata';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -13,7 +11,8 @@ async function bootstrap() {
     type: VersioningType.URI,
   });
 
-  const appPort = parseInt(process.env.APP_PORT ?? DEFAULT_VALUES.APP_PORT)
+  const appPort = parseInt(process.env.APP_PORT ?? DEFAULT_VALUES.APP_PORT);
+  console.log(`Service listening on port ${appPort}`);
 
   await app.listen(appPort);
 }
