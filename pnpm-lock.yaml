@@ -14,6 +14,9 @@ dependencies:
   '@nestjs/platform-express':
     specifier: ^10.0.0
     version: 10.3.8(@nestjs/common@10.3.8)(@nestjs/core@10.3.8)
+  indicatorts:
+    specifier: ^2.2.1
+    version: 2.2.1
   reflect-metadata:
     specifier: ^0.2.0
     version: 0.2.2
@@ -59,7 +62,7 @@ devDependencies:
     specifier: ^5.0.0
     version: 5.1.3(eslint-config-prettier@9.1.0)(eslint@8.57.0)(prettier@3.2.5)
   jest:
-    specifier: ^29.5.0
+    specifier: ^29.7.0
     version: 29.7.0(@types/node@20.12.11)(ts-node@10.9.2)
   prettier:
     specifier: ^3.0.0
@@ -2965,6 +2968,10 @@ packages:
     resolution: {integrity: sha512-JmXMZ6wuvDmLiHEml9ykzqO6lwFbof0GG4IkcGaENdCRDDmMVnny7s5HsIgHCbaq0w2MyPhDqkhTUgS2LU2PHA==}
     engines: {node: '>=0.8.19'}
     dev: true
+
+  /indicatorts@2.2.1:
+    resolution: {integrity: sha512-+FoViRlN2q0vX7d5jErCsqTrDdhDxBX6hd2R56q+eC55qXVnFUdEhgJjsaMHcCxosxeaYVSGTvI+0zYub7XEVw==}
+    dev: false
 
   /inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
