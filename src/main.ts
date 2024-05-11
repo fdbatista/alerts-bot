@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { config } from 'dotenv';
 import { VersioningType } from '@nestjs/common';
-import { DEFAULT_VALUES } from './modules/_commons/env/_constants';
+import { DEFAULT_VALUES } from './modules/_common/env/_constants';
 
 config()
 
