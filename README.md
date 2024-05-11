@@ -23,3 +23,8 @@ Start development server:
 ```bash
 nest start --watch
 ```
+
+Run DB locally:
+```bash
+docker-compose -f docker-compose.local.yml up --force-recreate --build -d
+```
