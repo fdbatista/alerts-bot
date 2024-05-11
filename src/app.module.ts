@@ -1,14 +1,15 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { TickerService } from './modules/ticker/ticker.service';
-import { TickerModule } from './modules/ticker/ticker.module';
 import { IndicatorsModule } from './modules/indicator/indicators.module';
 import { EnvModule } from './modules/_common/env/env.module';
+import { BitsoModule } from './modules/exchange/bitso/bitso.module';
+import { BitsoService } from './modules/exchange/bitso/bitso.service';
+import { HttpService } from './modules/_common/http/http.service';
 
 @Module({
-  imports: [TickerModule, IndicatorsModule, EnvModule],
+  imports: [IndicatorsModule, EnvModule, BitsoModule],
   controllers: [AppController],
-  providers: [AppService, TickerService],
+  providers: [AppService, BitsoService, HttpService],
 })
 export class AppModule {}

@@ -1,18 +1,14 @@
-import { Controller, Get, Version } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Controller, Get } from '@nestjs/common';
+import { AppService, IServiceStatus } from './app.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
-
-  @Version('1')
-  @Get(['/', '/app'])
-  getVersion(): number {
-    return this.appService.getVersion();
-  }
+  constructor(
+    private readonly appService: AppService,
+  ) {}
 
   @Get()
-  getDefault(): string {
-    return this.appService.getAppDescription();
+  getDefault(): IServiceStatus {
+    return this.appService.getServiceStatus();
   }
 }

@@ -9,11 +9,7 @@ export class EnvService {
     this.env = process.env
   }
   
-  getAppVersion(): number {
-    return this.env.APP_VERSION ?? DEFAULT_VALUES.APP_VERSION
-  }
-
-  getAppDescription(): string {
-    return this.env.APP_DESCRIPTION ?? DEFAULT_VALUES.APP_DESCRIPTION
+  getValue(key: string): string {
+    return this.env[key] ?? DEFAULT_VALUES.EMPTY_STRING
   }
 }
