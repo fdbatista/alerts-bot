@@ -15,6 +15,7 @@ export class TickerRemoteResponse {
 export class TickerDTO {
   constructor(
     readonly book: string,
+    readonly bookId: number,
     readonly timestamp: Date,
     readonly low: number,
     readonly high: number,

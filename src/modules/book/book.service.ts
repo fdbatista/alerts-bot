@@ -9,7 +9,7 @@ import { Book } from 'src/database/entities/book';
 export class BookService {
     constructor(
         private readonly bitsoService: BitsoService,
-        @InjectRepository(Book) 
+        @InjectRepository(Book)
         private bookRepository: Repository<Book>,
     ) { }
 

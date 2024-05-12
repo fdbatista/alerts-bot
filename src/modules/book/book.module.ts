@@ -8,7 +8,6 @@ import { BookController } from './book.controller';
 @Module({
   imports: [TypeOrmModule.forFeature([Book]), BitsoModule],
   providers: [BookService],
-  exports: [TypeOrmModule],
   controllers: [BookController],
 })
 export class BookModule { }

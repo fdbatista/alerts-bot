@@ -10,11 +10,9 @@ import { BitsoModule } from './modules/exchange/bitso/bitso.module';
 import { BitsoService } from './modules/exchange/bitso/bitso.service';
 import { HttpService } from './modules/_common/http/http.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { BitsoSchedulerService } from './modules/exchange/bitso/bitso-scheduler.service';
+import { TickerSchedulerService } from './modules/ticker/ticker-scheduler.service';
 import { BookModule } from './modules/book/book.module';
 import { TickerModule } from './modules/ticker/ticker.module';
-import { Book } from './database/entities/book';
-import { Ticker } from './database/entities/ticker';
 
 @Module({
   imports: [
@@ -36,6 +34,6 @@ import { Ticker } from './database/entities/ticker';
     TickerModule,
   ],
   controllers: [AppController],
-  providers: [AppService, BitsoService, HttpService, BitsoSchedulerService],
+  providers: [AppService, BitsoService, HttpService],
 })
 export class AppModule {}
