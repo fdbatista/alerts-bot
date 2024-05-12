@@ -1,4 +1,3 @@
-import _ from "lodash";
 import { GenericDTO } from "./generic-dto";
 
 export interface ITicker {

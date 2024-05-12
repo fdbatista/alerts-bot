@@ -1,3 +1,3 @@
 export class GenericDTO<T> {
-  constructor(readonly data: T) {}
+  constructor(readonly payload: T) {}
 }
