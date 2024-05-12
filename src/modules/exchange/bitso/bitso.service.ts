@@ -1,15 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { IExchangeConnector, ISymbol } from '../exchange-connector.interface';
+import { IExchangeConnector } from '../exchange-connector.interface';
 import { EnvService } from 'src/modules/_common/env/env.service';
 import { HttpService } from 'src/modules/_common/http/http.service';
 import { TickerDTO } from 'src/modules/_common/dto/ticker-dto';
 import { DTOFactory } from 'src/modules/_common/dto/dto-factory';
+import { BookDTO, IBook } from 'src/modules/_common/dto/book-dto';
 
 export interface IBitsoConnectionParams {
   baseUrl: string;
   apiKey: string;
   apiSecret: string;
 }
+
+const RELEVANT_BOOKS = ['btc_usd'];
 
 @Injectable()
 export class BitsoService implements IExchangeConnector {
@@ -26,16 +29,26 @@ export class BitsoService implements IExchangeConnector {
     };
   }
 
-  async getSymbols(): Promise<ISymbol[]> {
+  async getBooks(): Promise<BookDTO[]> {
     const endpoint = this.buildEndpointURL(`available_books`);
-    return await this.httpService.get(endpoint);
+    const result = await this.httpService.get(endpoint);
+
+    return result
+      .filter((item: any) => {
+        const { book } = item;
+        return RELEVANT_BOOKS.includes(book);
+      })
+      .map((item: any) => {
+        const { book: name, description } = item;
+        return DTOFactory.buildBookDTO({ name, description });
+      })
   }
 
   async getTicker(symbol: string): Promise<TickerDTO> {
     const endpoint = this.buildEndpointURL(`ticker?book=${symbol}`);
     const result = await this.httpService.get(endpoint);
 
-    return DTOFactory.buildTickerDTO(result)
+    return DTOFactory.buildTickerDTO(result);
   }
 
   private buildEndpointURL(slug: string): string {
