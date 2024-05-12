@@ -23,7 +23,7 @@ import { TickerModule } from './modules/ticker/ticker.module';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      entities: ["./database/entities/*.ts"],
+      entities: ["/src/database/entities/*.ts"],
       synchronize: false,
       autoLoadEntities: true,
     }),
