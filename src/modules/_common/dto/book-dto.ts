@@ -1,8 +1,13 @@
-import { GenericDTO } from "./generic-dto";
-
-export interface IBook {
-  readonly name: string
-  readonly description: string
+export class BookRemoteResponse {
+  constructor(
+    readonly book: string,
+    readonly description: string,
+  ) { }
 }
 
-export class BookDTO extends GenericDTO<IBook> {}
+export class BookDTO {
+  constructor(
+    readonly name: string,
+    readonly description: string
+  ) { }
+}
