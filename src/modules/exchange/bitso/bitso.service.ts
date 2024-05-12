@@ -6,7 +6,7 @@ import { TickerDTO, TickerRemoteResponse } from 'src/modules/_common/dto/ticker-
 import { DTOFactory } from 'src/modules/_common/dto/dto-factory';
 import { BookDTO, BookRemoteResponse } from 'src/modules/_common/dto/book-dto';
 
-export interface IBitsoConnectionParams {
+interface IBitsoConnectionParams {
   baseUrl: string;
   apiKey: string;
   apiSecret: string;

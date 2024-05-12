@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Interval } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
 import { TickerService } from './ticker.service';
 
 @Injectable()
@@ -8,7 +8,7 @@ export class TickerSchedulerService {
     private readonly tickerService: TickerService,
   ) { }
 
-  @Interval(5000)
+  @Cron('*/5 * * * * *')
   handleInterval() {
     this.tickerService.upsertTicker()
     console.log('Called every 5 seconds');
