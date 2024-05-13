@@ -11,6 +11,5 @@ export class TickerSchedulerService {
   @Cron('*/5 * * * * *')
   handleInterval() {
     this.tickerService.upsertTicker()
-    console.log('Called every 5 seconds');
   }
 }
