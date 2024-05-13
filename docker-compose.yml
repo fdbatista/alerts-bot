@@ -3,22 +3,10 @@ services:
     build:
       context: .
     container_name: crc-alerts-service
-    command: npm run migration:run
-#    depends_on:
-#      - crc-alerts-migrations
+    depends_on:
+      - crc-alerts-db
     env_file:
-      - .env
-
-#  crc-alerts-migrations:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    container_name: crc-alerts-migrations
-#    command: npm run migration:run && node dist/src/main.js
-#    depends_on:
-#      - crc-alerts-db
-#    env_file:
-#      - .env
+      - .env.production
 
   crc-alerts-db:
     image: timescale/timescaledb:latest-pg15

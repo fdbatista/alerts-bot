@@ -63,6 +63,7 @@ USER node
 # Copy package.json so that package manager commands can be used.
 COPY package.json .
 COPY data-source.ts .
+COPY src/ ./src/
 
 # Copy the production dependencies from the deps stage and also
 # the built application from the build stage into the image.
@@ -73,4 +74,5 @@ COPY --from=build /usr/src/app/dist ./dist
 EXPOSE 3000
 
 # Run the application.
+# ENTRYPOINT ["chmod +x run.sh && ./run.sh"]
 CMD node dist/src/main.js
