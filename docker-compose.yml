@@ -2,12 +2,13 @@ services:
   crc-alerts-service:
     build:
       context: .
+    container_name: crc-alerts-service
     environment:
       NODE_ENV: production
 
   crc-alerts-db:
     image: timescale/timescaledb:latest-pg15
-    container_name: alerts-postgres
+    container_name: crc-alerts-db
     restart: always
     volumes:
       - crc-alerts-volume:/home/postgres/pgdata/data
