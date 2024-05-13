@@ -4,19 +4,21 @@ services:
       context: .
     environment:
       NODE_ENV: production
-    ports:
-      - 3000:3000
 
   crc-alerts-db:
     image: timescale/timescaledb:latest-pg15
     container_name: alerts-postgres
     restart: always
-    ports:
-      - 5432:5432
     volumes:
       - crc-alerts-volume:/home/postgres/pgdata/data
     env_file:
       - .env
+    environment:
+      - POSTGRES_HOST=${DB_HOST}
+      - POSTGRES_PORT=${DB_PORT}
+      - POSTGRES_DATABASE=${DB_DATABASE}
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
 
 networks:
   default:
