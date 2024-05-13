@@ -13,11 +13,16 @@ export class TickerService {
     ) { }
 
     async upsertTicker(): Promise<void> {
-        let ticker = await this.bitsoService.getTicker('btc_usd');
+        try {
+            let ticker = await this.bitsoService.getTicker('btc_usd');
 
-        let { book, ...entityAttribs } = ticker
-        entityAttribs.bookId = 1
+            let { book, ...entityAttribs } = ticker
+            entityAttribs.bookId = 1
 
-        await this.tickerRepository.upsert([entityAttribs], ['bookId', 'timestamp'])
+            await this.tickerRepository.upsert([entityAttribs], ['bookId', 'timestamp'])
+        } catch (error) {
+            const { message } = error
+            console.log(`ERROR: ${message}`)
+        }
     }
 }
