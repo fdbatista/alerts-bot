@@ -1,5 +1,3 @@
-# syntax=docker/dockerfile:1
-
 # Comments are provided throughout this file to help you get started.
 # If you need more help, visit the Dockerfile reference guide at
 # https://docs.docker.com/engine/reference/builder/
@@ -44,6 +42,10 @@ RUN --mount=type=bind,source=package.json,target=package.json \
 
 # Copy the rest of the source files into the image.
 COPY . .
+
+# Run the install command
+RUN pnpm install
+
 # Run the build script.
 RUN pnpm run build
 
@@ -60,15 +62,15 @@ USER node
 
 # Copy package.json so that package manager commands can be used.
 COPY package.json .
+COPY data-source.ts .
 
 # Copy the production dependencies from the deps stage and also
 # the built application from the build stage into the image.
 COPY --from=deps /usr/src/app/node_modules ./node_modules
 COPY --from=build /usr/src/app/dist ./dist
 
-
 # Expose the port that the application listens on.
 EXPOSE 3000
 
 # Run the application.
-CMD node dist/main
+CMD node dist/src/main.js
