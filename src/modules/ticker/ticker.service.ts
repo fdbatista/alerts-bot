@@ -3,6 +3,7 @@ import { BitsoService } from '../exchange/bitso/bitso.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Ticker } from 'src/database/entities/ticker';
+import { LoggerUtil } from 'src/utils/logger.util';
 
 @Injectable()
 export class TickerService {
@@ -16,13 +17,15 @@ export class TickerService {
         try {
             let ticker = await this.bitsoService.getTicker('btc_usd');
 
-            let { book, ...entityAttribs } = ticker
-            entityAttribs.bookId = 1
+            let { book, ...entityAttribs } = ticker;
+            entityAttribs.bookId = 1;
 
-            await this.tickerRepository.upsert([entityAttribs], ['bookId', 'timestamp'])
+            await this.tickerRepository.upsert([entityAttribs], ['bookId', 'timestamp']);
+            
+            LoggerUtil.log('Ticker inserted');
         } catch (error) {
-            const { message } = error
-            console.log(`ERROR: ${message}`)
+            const { message } = error;
+            LoggerUtil.error(message);
         }
     }
 }
