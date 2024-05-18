@@ -26,13 +26,9 @@ export class IndicatorsService {
         const groupedTickers = this.groupTickersByMinute(tickers);
         const closingPrices = this.getClosingPrices(groupedTickers);
 
-        const result = {
-            bullish: false,
-            bearish: false,
-        }
-
         const peaks = this.findMaxPeaks(closingPrices);
 
+        const result = { bullish: false, bearish: false }
         result.bullish = this.isPotentialBullishDivergence(peaks, closingPrices);
 
         if (!result.bullish) {
