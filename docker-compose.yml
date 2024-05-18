@@ -13,7 +13,7 @@ services:
     container_name: crc-alerts-db
     restart: always
     volumes:
-      - crc-alerts-volume:/home/postgres/pgdata/data
+      - ./docker/pg:/home/postgres/pgdata/data
     env_file:
       - .env.production
     environment:
@@ -27,7 +27,3 @@ networks:
   default:
     name: crc-network
     external: true
-
-volumes:
-  crc-alerts-volume:
-    name: crc-alerts-volume
