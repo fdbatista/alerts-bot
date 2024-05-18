@@ -14,7 +14,7 @@ export class NotificatorService {
         private readonly telegramService: TelegramService,
     ) { }
 
-    @Cron('* * * * *')
+    @Cron('* 7-23 * * *')
     async notifyPotentialDivergence() {
         const { bullish, bearish } = await this.indicatorsService.isPotentialDivergence();
 
