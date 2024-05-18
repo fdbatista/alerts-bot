@@ -2,10 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { rsi } from 'indicatorts';
 import { RSI_CONFIG } from './_config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Ticker } from 'src/database/entities/ticker';
+
 import { Repository } from 'typeorm';
 import * as _ from 'lodash';
-import { DateUtil } from 'src/utils/date.util';
+
+import { Ticker } from '../../database/entities/ticker';
+import { DateUtil } from '../../utils/date.util';
 
 @Injectable()
 export class IndicatorsService {
