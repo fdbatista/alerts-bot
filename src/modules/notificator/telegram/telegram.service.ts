@@ -17,10 +17,7 @@ export class TelegramService {
 
     async sendMessage(text: string): Promise<void> {
         const url = `${this.apiUrl}${this.apiToken}/sendMessage`;
-        const params = {
-            chat_id: this.recipient,
-            text,
-        };
+        const params = { chat_id: this.recipient, text };
 
         try {
             await this.httpService.post(url, params);

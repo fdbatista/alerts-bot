@@ -30,7 +30,7 @@ export class IndicatorsService {
     }
 
     async isPotentialDivergence(): Promise<IPotentialTendencyChange> {
-        const tickers = await this.getLastPrices(1, 90);
+        const tickers = await this.getLastPrices(1, 60);
         const groupedTickers = this.groupTickersByMinute(tickers);
         const closingPrices = this.getClosingPrices(groupedTickers);
 

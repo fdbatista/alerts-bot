@@ -5,8 +5,6 @@ import { IndicatorsService } from '../indicator/indicator.service';
 import { TelegramService } from './telegram/telegram.service';
 import { POTENTIAL_DIVERGENCE_MESSAGE } from './_config';
 
-
-
 @Injectable()
 export class NotificatorService {
     constructor(
