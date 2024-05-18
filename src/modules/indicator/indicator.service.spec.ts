@@ -43,7 +43,7 @@ describe('IndicatorsService', () => {
 
   it('Should detect all min peaks', () => {
     const prices = [
-      67113, 67113, 67110, 67105, 67123, 67077, 67077, 67090, 67100, 67020, 67030, 67040, 67010, 66990
+      67113, 67113, 67110, 67105, 67123, 67130, 67077, 67090, 67100, 67020, 67030, 67040, 67010, 66990
     ]
 
     const detectedPeaks = service.findMinPeaks(prices);
