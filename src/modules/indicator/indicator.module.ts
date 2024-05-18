@@ -7,6 +7,7 @@ import { Ticker } from 'src/database/entities/ticker';
 @Module({
   imports: [TypeOrmModule.forFeature([Ticker])],
   providers: [IndicatorsService],
-  controllers: [IndicatorController]
+  controllers: [IndicatorController],
+  exports: [IndicatorsService],
 })
 export class IndicatorsModule {}

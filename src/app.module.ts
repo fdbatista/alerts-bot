@@ -12,9 +12,12 @@ import { HttpService } from './modules/_common/http/http.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BookModule } from './modules/book/book.module';
 import { TickerModule } from './modules/ticker/ticker.module';
+import { NotificatorModule } from './modules/notificator/notificator.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
@@ -31,6 +34,7 @@ import { TickerModule } from './modules/ticker/ticker.module';
     BitsoModule,
     BookModule,
     TickerModule,
+    NotificatorModule,
   ],
   controllers: [AppController],
   providers: [AppService, BitsoService, HttpService],

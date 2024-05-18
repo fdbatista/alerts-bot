@@ -20,6 +20,14 @@ export class IndicatorsService {
         @InjectRepository(Ticker)
         private readonly tickerRepository: Repository<Ticker>
     ) { }
+    
+    async getRSI(): Promise<number[]> {
+        const tickers = await this.getLastPrices(1, 720);
+        const groupedTickers = this.groupTickersByMinute(tickers);
+        const closingPrices = this.getClosingPrices(groupedTickers);
+
+        return rsi(closingPrices, RSI_CONFIG);
+    }
 
     async isPotentialDivergence(): Promise<IPotentialTendencyChange> {
         const tickers = await this.getLastPrices(1, 90);
@@ -38,7 +46,7 @@ export class IndicatorsService {
         return result
     }
 
-    isPotentialBullishDivergence(peaks: number[], closingPrices: number[]): boolean {
+    private isPotentialBullishDivergence(peaks: number[], closingPrices: number[]): boolean {
         const { length: peakCount } = peaks;
 
         let result = false;
@@ -53,7 +61,7 @@ export class IndicatorsService {
         return result
     }
 
-    isPotentialBearishDivergence(peaks: number[], closingPrices: number[]): boolean {
+    private isPotentialBearishDivergence(peaks: number[], closingPrices: number[]): boolean {
         const { length: peakCount } = peaks;
 
         let result = false;
@@ -68,7 +76,7 @@ export class IndicatorsService {
         return result
     }
 
-    findMaxPeaks(prices: number[]): number[] {
+    private findMaxPeaks(prices: number[]): number[] {
         if (prices.length < 3) {
             return [];
         }
@@ -84,15 +92,7 @@ export class IndicatorsService {
         return peaks;
     }
 
-    async getRSI(): Promise<number[]> {
-        const tickers = await this.getLastPrices(1, 720);
-        const groupedTickers = this.groupTickersByMinute(tickers);
-        const closingPrices = this.getClosingPrices(groupedTickers);
-
-        return rsi(closingPrices, RSI_CONFIG);
-    }
-
-    async getLastPrices(bookId: number, count: number): Promise<Ticker[]> {
+    private async getLastPrices(bookId: number, count: number): Promise<Ticker[]> {
         const result = await this.tickerRepository.find({
             select: ['last', 'timestamp'],
             where: { bookId },
@@ -103,7 +103,7 @@ export class IndicatorsService {
         return result.reverse();
     }
 
-    groupTickersByMinute(tickers: Ticker[]): _.Dictionary<Ticker[]> {
+    private groupTickersByMinute(tickers: Ticker[]): _.Dictionary<Ticker[]> {
         return _.groupBy(tickers, (ticker) => {
             const { timestamp } = ticker
 
@@ -111,7 +111,7 @@ export class IndicatorsService {
         })
     }
 
-    getClosingPrices(groupedTickers: _.Dictionary<Ticker[]>): number[] {
+    private getClosingPrices(groupedTickers: _.Dictionary<Ticker[]>): number[] {
         return Object.entries(groupedTickers).map(([, tickers]) => {
             const lastItem = _.last(tickers)
             return lastItem?.last ?? 0
