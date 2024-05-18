@@ -10,4 +10,10 @@ export class IndicatorController {
     getRSI(): Promise<number[]> {
         return this.indicatorService.getRSI();
     }
+
+    @Version('1')
+    @Get('price-break')
+    getPriceBreak(): Promise<boolean> {
+        return this.indicatorService.getPriceBreak();
+    }
 }
