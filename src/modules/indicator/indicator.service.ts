@@ -31,24 +31,25 @@ export class IndicatorsService {
             bearish: false,
         }
 
-        result.bullish = this.isPotentialBullishDivergence(closingPrices);
+        const peaks = this.findMaxPeaks(closingPrices);
+
+        result.bullish = this.isPotentialBullishDivergence(peaks, closingPrices);
 
         if (!result.bullish) {
-            result.bearish = this.isPotentialBearishDivergence(closingPrices);
+            result.bearish = this.isPotentialBearishDivergence(peaks, closingPrices);
         }
 
         return result
     }
 
-    isPotentialBullishDivergence(closingPrices: number[]): boolean {
-        const maxPeaks = this.findMaxPeaks(closingPrices);
-        const { length: peakCount } = maxPeaks;
+    isPotentialBullishDivergence(peaks: number[], closingPrices: number[]): boolean {
+        const { length: peakCount } = peaks;
 
         let result = false;
 
         if (peakCount > 0) {
             const [lastPrice] = closingPrices.slice(-1);
-            const maxPeak = Math.max(...maxPeaks);
+            const maxPeak = Math.max(...peaks);
 
             result = lastPrice >= maxPeak;
         }
@@ -56,15 +57,14 @@ export class IndicatorsService {
         return result
     }
 
-    isPotentialBearishDivergence(closingPrices: number[]): boolean {
-        const minPeaks = this.findMinPeaks(closingPrices);
-        const { length: peakCount } = minPeaks;
+    isPotentialBearishDivergence(peaks: number[], closingPrices: number[]): boolean {
+        const { length: peakCount } = peaks;
 
         let result = false;
 
         if (peakCount > 0) {
             const [lastPrice] = closingPrices.slice(-1);
-            const minPeak = Math.min(...minPeaks);
+            const minPeak = Math.min(...peaks);
 
             result = lastPrice <= minPeak;
         }
@@ -86,22 +86,6 @@ export class IndicatorsService {
         }
 
         return peaks;
-    }
-
-    findMinPeaks(prices: number[]): number[] {
-        if (prices.length < 3) {
-            return [];
-        }
-
-        let minPeaks: number[] = [];
-
-        for (let i = 1; i < prices.length - 1; i++) {
-            if (prices[i] < prices[i - 1] && prices[i] < prices[i + 1]) {
-                minPeaks.push(prices[i]);
-            }
-        }
-
-        return minPeaks;
     }
 
     async getRSI(): Promise<number[]> {

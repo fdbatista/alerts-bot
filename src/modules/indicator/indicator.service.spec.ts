@@ -33,21 +33,10 @@ describe('IndicatorsService', () => {
   it('Should detect all max peaks', () => {
     const prices = [
       67113, 67113, 67110, 67105, 67123, 67077, 67077, 67090, 67100, 67020, 67030, 67040, 67010, 66990, 67115, 67150
-    ]
+    ];
 
     const detectedPeaks = service.findMaxPeaks(prices);
     const expectedPeaks = [67123, 67100, 67040];
-
-    expect(detectedPeaks).toEqual(expectedPeaks);
-  });
-
-  it('Should detect all min peaks', () => {
-    const prices = [
-      67113, 67113, 67110, 67105, 67123, 67130, 67077, 67090, 67100, 67020, 67030, 67040, 67010, 66990
-    ]
-
-    const detectedPeaks = service.findMinPeaks(prices);
-    const expectedPeaks = [67105, 67077, 67020];
 
     expect(detectedPeaks).toEqual(expectedPeaks);
   });
