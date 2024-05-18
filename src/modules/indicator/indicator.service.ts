@@ -20,7 +20,7 @@ export class IndicatorsService {
         @InjectRepository(Ticker)
         private readonly tickerRepository: Repository<Ticker>
     ) { }
-    
+
     async getRSI(): Promise<number[]> {
         const tickers = await this.getLastPrices(1, 720);
         const groupedTickers = this.groupTickersByMinute(tickers);
@@ -51,7 +51,7 @@ export class IndicatorsService {
 
         let result = false;
 
-        if (peakCount > 0) {
+        if (peakCount > 0 && this.isDescending(peaks)) {
             const [lastPrice] = closingPrices.slice(-1);
             const maxPeak = Math.max(...peaks);
 
@@ -66,7 +66,7 @@ export class IndicatorsService {
 
         let result = false;
 
-        if (peakCount > 0) {
+        if (peakCount > 0 && this.isAscending(peaks)) {
             const [lastPrice] = closingPrices.slice(-1);
             const minPeak = Math.min(...peaks);
 
@@ -74,6 +74,24 @@ export class IndicatorsService {
         }
 
         return result
+    }
+
+    private isDescending(arr: number[]): boolean {
+        for (let i = 0; i < arr.length - 1; i++) {
+            if (arr[i] < arr[i + 1]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private isAscending(arr: number[]): boolean {
+        for (let i = 0; i < arr.length - 1; i++) {
+            if (arr[i] > arr[i + 1]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private findMaxPeaks(prices: number[]): number[] {
