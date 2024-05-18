@@ -15,7 +15,7 @@ services:
     volumes:
       - crc-alerts-volume:/home/postgres/pgdata/data
     env_file:
-      - .env
+      - .env.production
     environment:
       - POSTGRES_HOST=${DB_HOST}
       - POSTGRES_PORT=${DB_PORT}
