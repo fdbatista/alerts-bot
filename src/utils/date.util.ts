@@ -1,11 +1,13 @@
-import { formatInTimeZone } from 'date-fns-tz'
-const DEFAULT_TZ = 'Europe/Berlin'
+import { formatInTimeZone } from 'date-fns-tz';
+
+const DEFAULT_TZ = 'Europe/Berlin';
+const DATE_FORMAT = 'yyyy-MM-dd HH:mm:ss';
 
 export class DateUtil {
     static formatCurrentDate() {
         const now: Date = new Date();
-        const timezone = process.env.TZ ?? DEFAULT_TZ
+        const timezone: string = process.env.TZ ?? DEFAULT_TZ;
 
-        return formatInTimeZone(now, timezone, 'yyyy-MM-dd HH:mm:ss');
+        return formatInTimeZone(now, timezone, DATE_FORMAT);
     }
 }
