@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Ticker } from 'src/database/entities/ticker';
 import { Repository } from 'typeorm';
 import * as _ from 'lodash';
-import { format } from 'date-fns';
+import { DateUtil } from 'src/utils/date.util';
 
 @Injectable()
 export class IndicatorsService {
@@ -37,17 +37,7 @@ export class IndicatorsService {
         return _.groupBy(tickers, (ticker) => {
             const { timestamp } = ticker
 
-            return format(timestamp, 'yyyy-MM-dd HH:mm');
-
-            // const year = timestamp.getFullYear();
-            // const month = ('0' + (timestamp.getMonth() + 1)).slice(-2);
-            // const day = ('0' + timestamp.getDate()).slice(-2);
-            // const hours = ('0' + timestamp.getHours()).slice(-2);
-            // const minutes = ('0' + timestamp.getMinutes()).slice(-2);
-
-            // const date = `${year}-${month}-${day} ${hours}:${minutes}`;
-
-            // return date
+            return DateUtil.formatDateUntilMinutes(timestamp);
         })
     }
 
