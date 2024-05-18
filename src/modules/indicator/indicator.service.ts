@@ -9,6 +9,11 @@ import * as _ from 'lodash';
 import { Ticker } from '../../database/entities/ticker';
 import { DateUtil } from '../../utils/date.util';
 
+export interface IPotentialTendencyChange {
+    bullish: boolean
+    bearish: boolean
+}
+
 @Injectable()
 export class IndicatorsService {
     constructor(
@@ -16,24 +21,55 @@ export class IndicatorsService {
         private readonly tickerRepository: Repository<Ticker>
     ) { }
 
-    async isPotentialPriceBreakUp(): Promise<boolean> {
-        const tickers = await this.getLastPrices(1, 180);
+    async isPotentialDivergence(): Promise<IPotentialTendencyChange> {
+        const tickers = await this.getLastPrices(1, 90);
         const groupedTickers = this.groupTickersByMinute(tickers);
         const closingPrices = this.getClosingPrices(groupedTickers);
 
+        const result = {
+            bullish: false,
+            bearish: false,
+        }
+
+        result.bullish = this.isPotentialBullishDivergence(closingPrices);
+
+        if (!result.bullish) {
+            result.bearish = this.isPotentialBearishDivergence(closingPrices);
+        }
+
+        return result
+    }
+
+    isPotentialBullishDivergence(closingPrices: number[]): boolean {
         const maxPeaks = this.findMaxPeaks(closingPrices);
-        
         const { length: peakCount } = maxPeaks;
+
         let result = false;
 
-        if (peakCount > 0 && this.isDescending(maxPeaks)) {
+        if (peakCount > 0) {
             const [lastPrice] = closingPrices.slice(-1);
-            const [maxPeak] = maxPeaks;
+            const maxPeak = Math.max(...maxPeaks);
 
             result = lastPrice >= maxPeak;
         }
 
-        return result;
+        return result
+    }
+
+    isPotentialBearishDivergence(closingPrices: number[]): boolean {
+        const minPeaks = this.findMinPeaks(closingPrices);
+        const { length: peakCount } = minPeaks;
+
+        let result = false;
+
+        if (peakCount > 0) {
+            const [lastPrice] = closingPrices.slice(-1);
+            const minPeak = Math.min(...minPeaks);
+
+            result = lastPrice <= minPeak;
+        }
+
+        return result
     }
 
     findMaxPeaks(prices: number[]): number[] {
@@ -52,14 +88,20 @@ export class IndicatorsService {
         return peaks;
     }
 
-    isDescending(arr: number[]): boolean {
-        for (let i = 0; i < arr.length - 1; i++) {
-            if (arr[i] < arr[i + 1]) {
-                return false;
+    findMinPeaks(prices: number[]): number[] {
+        if (prices.length < 3) {
+            return [];
+        }
+
+        let minPeaks: number[] = [];
+
+        for (let i = 1; i < prices.length - 1; i++) {
+            if (prices[i] < prices[i - 1] && prices[i] < prices[i + 1]) {
+                minPeaks.push(prices[i]);
             }
         }
 
-        return true;
+        return minPeaks;
     }
 
     async getRSI(): Promise<number[]> {

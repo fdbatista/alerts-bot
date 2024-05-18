@@ -1,5 +1,5 @@
 import { Controller, Get, Version } from '@nestjs/common';
-import { IndicatorsService } from './indicator.service';
+import { IPotentialTendencyChange, IndicatorsService } from './indicator.service';
 
 @Controller('indicators')
 export class IndicatorController {
@@ -13,7 +13,7 @@ export class IndicatorController {
 
     @Version('1')
     @Get('price-break')
-    getPriceBreak(): Promise<boolean> {
-        return this.indicatorService.isPotentialPriceBreakUp();
+    getPriceBreak(): Promise<IPotentialTendencyChange> {
+        return this.indicatorService.isPotentialDivergence();
     }
 }
