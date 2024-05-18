@@ -16,48 +16,50 @@ export class IndicatorsService {
         private readonly tickerRepository: Repository<Ticker>
     ) { }
 
-    async getPriceBreak(): Promise<boolean> {
-        const tickers = await this.getLastPrices(1, 120);
+    async isPotentialPriceBreakUp(): Promise<boolean> {
+        const tickers = await this.getLastPrices(1, 180);
         const groupedTickers = this.groupTickersByMinute(tickers);
         const closingPrices = this.getClosingPrices(groupedTickers);
 
-        const [lastPrice] = closingPrices.slice(-1);
-        const recentMaxPeaks = this.findTwoMaxPeaks(closingPrices);
+        const maxPeaks = this.findMaxPeaks(closingPrices);
+        
+        const { length: peakCount } = maxPeaks;
+        let result = false;
 
-        for (const peak of recentMaxPeaks) {
-            if (lastPrice <= peak) {
+        if (peakCount > 0 && this.isDescending(maxPeaks)) {
+            const [lastPrice] = closingPrices.slice(-1);
+            const [maxPeak] = maxPeaks;
+
+            result = lastPrice >= maxPeak;
+        }
+
+        return result;
+    }
+
+    findMaxPeaks(prices: number[]): number[] {
+        if (prices.length < 3) {
+            return [];
+        }
+
+        let peaks: number[] = [];
+
+        for (let i = 1; i < prices.length - 1; i++) {
+            if (prices[i] > prices[i - 1] && prices[i] > prices[i + 1]) {
+                peaks.push(prices[i]);
+            }
+        }
+
+        return peaks;
+    }
+
+    isDescending(arr: number[]): boolean {
+        for (let i = 0; i < arr.length - 1; i++) {
+            if (arr[i] < arr[i + 1]) {
                 return false;
             }
         }
 
         return true;
-    }
-
-    findTwoMaxPeaks(prices: number[]): number[] {
-        if (prices.length < 3) {
-            throw new Error("Array must contain at least 3 elements to have a peak.");
-        }
-    
-        // Find all peaks
-        let peaks: { value: number, index: number }[] = [];
-        for (let i = 1; i < prices.length - 1; i++) {
-            if (prices[i] > prices[i - 1] && prices[i] > prices[i + 1]) {
-                peaks.push({ value: prices[i], index: i });
-            }
-        }
-    
-        // Sort peaks by value in descending order
-        peaks.sort((a, b) => b.value - a.value);
-    
-        // Get the top two peaks
-        const topPeaks = peaks.slice(0, 2).map(peak => peak.value);
-    
-        // If less than 2 peaks found, fill with -Infinity
-        while (topPeaks.length < 2) {
-            topPeaks.push(-Infinity);
-        }
-    
-        return topPeaks;
     }
 
     async getRSI(): Promise<number[]> {

@@ -14,6 +14,6 @@ export class IndicatorController {
     @Version('1')
     @Get('price-break')
     getPriceBreak(): Promise<boolean> {
-        return this.indicatorService.getPriceBreak();
+        return this.indicatorService.isPotentialPriceBreakUp();
     }
 }
