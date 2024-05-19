@@ -8,7 +8,7 @@ export class TickerSchedulerService {
     private readonly tickerService: TickerService,
   ) { }
 
-  @Cron('*/10 * * * * *')
+  @Cron('*/5 * * * * *')
   handleInterval() {
     this.tickerService.upsertTicker()
   }
