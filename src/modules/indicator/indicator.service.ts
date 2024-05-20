@@ -40,7 +40,7 @@ export class IndicatorsService {
         result.bullish = this.isPotentialBullishDivergence(peaks, closingPrices);
 
         if (!result.bullish) {
-            result.bearish = this.isPotentialBearishDivergence(peaks, closingPrices);
+            result.bearish = this.isPotentialShoulderHeadShoulder(peaks, closingPrices);
         }
 
         return result
@@ -61,16 +61,22 @@ export class IndicatorsService {
         return result
     }
 
-    private isPotentialBearishDivergence(peaks: number[], closingPrices: number[]): boolean {
-        const { length: peakCount } = peaks;
+    private isPotentialShoulderHeadShoulder(peaks: number[], closingPrices: number[]): boolean {
+        const lastPeaks = peaks.slice(-3)
+        const { length: peakCount } = lastPeaks;
 
         let result = false;
 
-        if (peakCount > 0 && this.isAscending(peaks)) {
+        if (peakCount > 0) {
             const [lastPrice] = closingPrices.slice(-1);
-            const minPeak = Math.min(...peaks);
 
-            result = lastPrice <= minPeak;
+            if (peakCount === 2) {
+                const minPeak = Math.min(...peaks);
+                result = lastPrice <= minPeak;
+            } else {
+                const [firstPeak, secondPeak, thirdPeak] = lastPeaks;
+                result = secondPeak > firstPeak && secondPeak > thirdPeak && lastPrice <= thirdPeak
+            }
         }
 
         return result
@@ -85,16 +91,7 @@ export class IndicatorsService {
         return true;
     }
 
-    private isAscending(arr: number[]): boolean {
-        for (let i = 0; i < arr.length - 1; i++) {
-            if (arr[i] > arr[i + 1]) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private findMaxPeaks(prices: number[]): number[] {
+    findMaxPeaks(prices: number[]): number[] {
         if (prices.length < 3) {
             return [];
         }
