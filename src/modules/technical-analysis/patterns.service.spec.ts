@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { IndicatorsService } from './indicator.service';
+import { IndicatorsService } from './indicators.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Ticker } from '../../database/entities/ticker';
-import { PatternsService } from './pattern.service';
+import { PatternsService } from './patterns.service';
 
 describe('IndicatorsService', () => {
   let service: PatternsService;
