@@ -1,10 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { IndicatorsService } from './indicators.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Ticker } from '../../database/entities/ticker';
 import { PatternsService } from './patterns.service';
 
-describe('IndicatorsService', () => {
+describe('PatternsService', () => {
   let service: PatternsService;
 
   beforeEach(async () => {
@@ -36,7 +35,7 @@ describe('IndicatorsService', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        IndicatorsService,
+        PatternsService,
         {
           provide: getRepositoryToken(Ticker),
           useValue: mockedTickerRepository
@@ -44,7 +43,7 @@ describe('IndicatorsService', () => {
       ],
     }).compile();
 
-    service = module.get<PatternsService>(IndicatorsService);
+    service = module.get<PatternsService>(PatternsService);
   });
 
   it('should be defined', () => {
