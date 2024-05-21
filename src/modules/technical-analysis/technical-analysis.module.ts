@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { IndicatorsService } from './indicator.service';
+import { IndicatorsService } from './indicators.service';
 import { TechnicalAnalysisController } from './technical-analysis.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Ticker } from 'src/database/entities/ticker';
-import { PatternsService } from './pattern.service';
+import { PatternsService } from './patterns.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Ticker])],

@@ -4,7 +4,7 @@ config()
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { IndicatorsModule } from './modules/indicator/indicator.module';
+import { TechnicalAnalysisModule } from './modules/technical-analysis/technical-analysis.module';
 import { EnvModule } from './modules/_common/env/env.module';
 import { BitsoModule } from './modules/exchange/bitso/bitso.module';
 import { BitsoService } from './modules/exchange/bitso/bitso.service';
@@ -29,7 +29,7 @@ import { ScheduleModule } from '@nestjs/schedule';
       synchronize: false,
       autoLoadEntities: true,
     }),
-    IndicatorsModule,
+    TechnicalAnalysisModule,
     EnvModule,
     BitsoModule,
     BookModule,

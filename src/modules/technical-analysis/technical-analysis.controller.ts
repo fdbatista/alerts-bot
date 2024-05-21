@@ -1,6 +1,6 @@
 import { Controller, Get, Version } from '@nestjs/common';
-import { IPotentialTendencyChange, IndicatorsService } from './indicator.service';
-import { PatternsService } from './pattern.service';
+import { IPotentialTendencyChange, IndicatorsService } from './indicators.service';
+import { PatternsService } from './patterns.service';
 
 @Controller('technical-analysis')
 export class TechnicalAnalysisController {
