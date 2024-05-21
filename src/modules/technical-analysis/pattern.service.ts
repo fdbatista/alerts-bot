@@ -1,13 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { rsi } from 'indicatorts';
-import { RSI_CONFIG } from './_config';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { Repository } from 'typeorm';
-import * as _ from 'lodash';
 
 import { Ticker } from '../../database/entities/ticker';
-import { DateUtil } from '../../utils/date.util';
+import { TechnicalAnalyzerAbstract } from './technical-analyzer.abstract';
 
 export interface IPotentialTendencyChange {
     bullish: boolean
@@ -15,18 +12,12 @@ export interface IPotentialTendencyChange {
 }
 
 @Injectable()
-export class IndicatorsService {
+export class PatternsService extends TechnicalAnalyzerAbstract {
     constructor(
         @InjectRepository(Ticker)
-        private readonly tickerRepository: Repository<Ticker>
-    ) { }
-
-    async getRSI(): Promise<number[]> {
-        const tickers = await this.getLastPrices(1, 720);
-        const groupedTickers = this.groupTickersByMinute(tickers);
-        const closingPrices = this.getClosingPrices(groupedTickers);
-
-        return rsi(closingPrices, RSI_CONFIG);
+        readonly tickerRepository: Repository<Ticker>
+    ) {
+        super(tickerRepository);
     }
 
     async isPotentialDivergence(): Promise<IPotentialTendencyChange> {
@@ -35,24 +26,24 @@ export class IndicatorsService {
         const closingPrices = this.getClosingPrices(groupedTickers);
 
         const peaks = this.findMaxPeaks(closingPrices);
+        const [lastPrice] = closingPrices.slice(-1);
 
         const result = { bullish: false, bearish: false }
-        result.bullish = this.isPotentialBullishDivergence(peaks, closingPrices);
+        result.bullish = this.isPotentialBullishDivergence(peaks, lastPrice);
 
         if (!result.bullish) {
-            result.bearish = this.isPotentialShoulderHeadShoulder(peaks, closingPrices);
+            result.bearish = this.isPotentialShoulderHeadShoulder(peaks, lastPrice);
         }
 
         return result
     }
 
-    private isPotentialBullishDivergence(peaks: number[], closingPrices: number[]): boolean {
+    private isPotentialBullishDivergence(peaks: number[], lastPrice: number): boolean {
         const { length: peakCount } = peaks;
 
         let result = false;
 
         if (peakCount > 0 && this.isDescending(peaks)) {
-            const [lastPrice] = closingPrices.slice(-1);
             const maxPeak = Math.max(...peaks);
 
             result = lastPrice >= maxPeak;
@@ -61,15 +52,13 @@ export class IndicatorsService {
         return result
     }
 
-    private isPotentialShoulderHeadShoulder(peaks: number[], closingPrices: number[]): boolean {
+    private isPotentialShoulderHeadShoulder(peaks: number[], lastPrice: number): boolean {
         const lastPeaks = peaks.slice(-3)
         const { length: peakCount } = lastPeaks;
 
         let result = false;
 
         if (peakCount > 0) {
-            const [lastPrice] = closingPrices.slice(-1);
-
             if (peakCount === 2) {
                 const minPeak = Math.min(...peaks);
                 result = lastPrice <= minPeak;
@@ -105,32 +94,5 @@ export class IndicatorsService {
         }
 
         return peaks;
-    }
-
-    private async getLastPrices(bookId: number, count: number): Promise<Ticker[]> {
-        const result = await this.tickerRepository.find({
-            select: ['last', 'timestamp'],
-            where: { bookId },
-            order: { timestamp: 'desc' },
-            take: count,
-        });
-
-        return result.reverse();
-    }
-
-    private groupTickersByMinute(tickers: Ticker[]): _.Dictionary<Ticker[]> {
-        return _.groupBy(tickers, (ticker) => {
-            const { timestamp } = ticker
-
-            return DateUtil.formatDateUntilMinutes(timestamp);
-        })
-    }
-
-    private getClosingPrices(groupedTickers: _.Dictionary<Ticker[]>): number[] {
-        return Object.entries(groupedTickers).map(([, tickers]) => {
-            const lastItem = _.last(tickers)
-            return lastItem?.last ?? 0
-        }).filter(item => item > 0)
-
     }
 }
