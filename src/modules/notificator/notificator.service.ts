@@ -15,7 +15,7 @@ export class NotificatorService {
 
     @Cron('* 7-23 * * *')
     async notifyPotentialDivergence() {
-        const { bullish, bearish } = await this.patternsService.isPotentialDivergence();
+        const { bullish, bearish } = await this.patternsService.isPotentialBreakage();
 
         if (bullish) {
             LoggerUtil.debug(POTENTIAL_BULLISH_DIVERGENCE_MESSAGE);

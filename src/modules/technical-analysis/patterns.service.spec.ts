@@ -62,7 +62,7 @@ describe('PatternsService', () => {
   });
 
   it('Should detect potential bullish divergence', async () => {
-    const result = await service.isPotentialDivergence();
+    const result = await service.isPotentialBreakage();
     const expectedResult = { bullish: false, bearish: true };
 
     expect(result).toEqual(expectedResult);

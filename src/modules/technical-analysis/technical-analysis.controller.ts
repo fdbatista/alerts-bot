@@ -18,6 +18,6 @@ export class TechnicalAnalysisController {
     @Version('1')
     @Get('divergences')
     getPriceBreak(): Promise<boolean> {
-        return this.patternsService.isPotentialDivergence();
+        return this.patternsService.isPotentialBreakage();
     }
 }
