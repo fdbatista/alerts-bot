@@ -21,12 +21,12 @@ export abstract class TechnicalAnalyzerAbstract {
         protected readonly tickerRepository: Repository<Ticker>
     ) { }
 
-    protected async getLastPrices(bookId: number, count: number): Promise<Ticker[]> {
+    protected async getLastPrices(): Promise<Ticker[]> {
         const result = await this.tickerRepository.find({
             select: ['last', 'timestamp'],
-            where: { bookId },
+            where: { bookId: 1 },
             order: { timestamp: 'desc' },
-            take: count,
+            take: 720,
         });
 
         return result.reverse();
@@ -67,7 +67,7 @@ export abstract class TechnicalAnalyzerAbstract {
     }
 
     protected async getClosingPrices(candlestickDuration: number): Promise<number[]> {
-        const tickers = await this.getLastPrices(1, 720);
+        const tickers = await this.getLastPrices();
         const candlesticks = this.buildCandlesticks(tickers, candlestickDuration);
 
         return candlesticks.map((candle: Candle) => candle.close);
