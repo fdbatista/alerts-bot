@@ -1,12 +1,12 @@
 import { Controller, Get, Version } from '@nestjs/common';
 import { IndicatorsService } from './indicators.service';
-import { PatternsService } from './patterns.service';
+import { EntrypointDetectorService } from './entrypoint-detector.service';
 
 @Controller('technical-analysis')
 export class TechnicalAnalysisController {
     constructor(
         private readonly indicatorService: IndicatorsService,
-        private readonly patternsService: PatternsService
+        private readonly entrypointDetectorService: EntrypointDetectorService,
         ) { }
 
     @Version('1')
@@ -16,8 +16,8 @@ export class TechnicalAnalysisController {
     }
 
     @Version('1')
-    @Get('divergences')
-    getPriceBreak(): Promise<boolean> {
-        return this.patternsService.isPotentialBreakage();
+    @Get('detection/entrypoint')
+    async getPotentialEntrypoint(): Promise<object> {
+        return await this.entrypointDetectorService.isPotentialGoodEntrypoint();
     }
 }
