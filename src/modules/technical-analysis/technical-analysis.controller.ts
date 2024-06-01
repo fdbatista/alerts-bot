@@ -7,7 +7,7 @@ export class TechnicalAnalysisController {
     constructor(
         private readonly indicatorService: IndicatorsService,
         private readonly entrypointDetectorService: EntrypointDetectorService,
-        ) { }
+    ) { }
 
     @Version('1')
     @Get('rsi')
