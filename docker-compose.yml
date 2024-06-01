@@ -3,6 +3,7 @@ services:
     build:
       context: .
     container_name: crc-alerts-service
+    restart: always
     depends_on:
       - crc-alerts-db
     env_file:
