@@ -1,17 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { rsi } from 'indicatorts';
 import { RSI_CONFIG } from './_config';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { Repository } from 'typeorm';
 
 import { Ticker } from '../../database/entities/ticker';
-import { TechnicalAnalyzerAbstract } from './technical-analyzer.abstract';
+import { Candle, TechnicalAnalyzerAbstract } from './technical-analyzer.abstract';
 
-export interface IPotentialTendencyChange {
-    bullish: boolean
-    bearish: boolean
-}
+type Stoch = {
+    K: number;
+    D: number;
+};
 
 @Injectable()
 export class IndicatorsService extends TechnicalAnalyzerAbstract {
@@ -22,11 +21,53 @@ export class IndicatorsService extends TechnicalAnalyzerAbstract {
         super(tickerRepository);
     }
 
-    async getRSI(): Promise<number[]> {
-        const tickers = await this.getLastPrices(1, 720);
-        const groupedTickers = this.groupTickersByMinute(tickers);
-        const closingPrices = this.getClosingPrices(groupedTickers);
+    async rsi(candlestickDuration: number): Promise<number> {
+        const closingPrices = await this.getClosingPrices(candlestickDuration);
 
-        return rsi(closingPrices, RSI_CONFIG);
+        return this.calculateRSI(closingPrices, RSI_CONFIG.period);
+    }
+
+    private calculateRSI(prices: number[], period: number): number {
+        let gains = 0;
+        let losses = 0;
+
+        for (let i = 1; i < period; i++) {
+            const change = prices[i] - prices[i - 1];
+
+            if (change > 0) {
+                gains += change;
+            }
+            else {
+                losses -= change;
+            }
+        }
+
+        const relativeStrength = gains / losses;
+
+        return 100 - 100 / (1 + relativeStrength);
+    }
+
+    calculateStoch(candles: Candle[], period: number, smoothing: number): Stoch[] {
+        const result: Stoch[] = [];
+
+        for (let i = period - 1; i < candles.length; i++) {
+            const lookBackCandles = candles.slice(i - period + 1, i + 1);
+            const high = Math.max(...lookBackCandles.map(c => c.high));
+            const low = Math.min(...lookBackCandles.map(c => c.low));
+            const currentClose = candles[i].close;
+
+            const K = ((currentClose - low) / (high - low)) * 100;
+
+            let D = K;
+
+            if (i >= period + smoothing - 2) {
+                const recentKs = result.slice(-smoothing).map(s => s.K);
+                D = recentKs.reduce((acc, val) => acc + val, 0) / smoothing;
+            }
+
+            result.push({ K, D });
+        }
+
+        return result;
     }
 }

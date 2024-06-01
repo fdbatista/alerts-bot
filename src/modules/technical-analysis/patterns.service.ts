@@ -6,11 +6,6 @@ import { Repository } from 'typeorm';
 import { Ticker } from '../../database/entities/ticker';
 import { TechnicalAnalyzerAbstract } from './technical-analyzer.abstract';
 
-export interface IPotentialTendencyChange {
-    bullish: boolean
-    bearish: boolean
-}
-
 @Injectable()
 export class PatternsService extends TechnicalAnalyzerAbstract {
     constructor(
@@ -20,22 +15,13 @@ export class PatternsService extends TechnicalAnalyzerAbstract {
         super(tickerRepository);
     }
 
-    async isPotentialDivergence(): Promise<IPotentialTendencyChange> {
-        const tickers = await this.getLastPrices(1, 60);
-        const groupedTickers = this.groupTickersByMinute(tickers);
-        const closingPrices = this.getClosingPrices(groupedTickers);
+    async isPotentialDivergence(): Promise<boolean> {
+        const closingPrices = await this.getClosingPrices(5);
 
         const peaks = this.findMaxPeaks(closingPrices);
         const [lastPrice] = closingPrices.slice(-1);
 
-        const result = { bullish: false, bearish: false }
-        result.bullish = this.isPotentialBullishDivergence(peaks, lastPrice);
-
-        if (!result.bullish) {
-            result.bearish = this.isPotentialShoulderHeadShoulder(peaks, lastPrice);
-        }
-
-        return result
+        return this.isPotentialBullishDivergence(peaks, lastPrice);
     }
 
     private isPotentialBullishDivergence(peaks: number[], lastPrice: number): boolean {
@@ -52,7 +38,7 @@ export class PatternsService extends TechnicalAnalyzerAbstract {
         return result
     }
 
-    private isPotentialShoulderHeadShoulder(peaks: number[], lastPrice: number): boolean {
+    isPotentialShoulderHeadShoulder(peaks: number[], lastPrice: number): boolean {
         const lastPeaks = peaks.slice(-3)
         const { length: peakCount } = lastPeaks;
 

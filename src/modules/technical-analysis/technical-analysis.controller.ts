@@ -1,5 +1,5 @@
 import { Controller, Get, Version } from '@nestjs/common';
-import { IPotentialTendencyChange, IndicatorsService } from './indicators.service';
+import { IndicatorsService } from './indicators.service';
 import { PatternsService } from './patterns.service';
 
 @Controller('technical-analysis')
@@ -11,13 +11,13 @@ export class TechnicalAnalysisController {
 
     @Version('1')
     @Get('rsi')
-    getRSI(): Promise<number[]> {
-        return this.indicatorService.getRSI();
+    getRSI(candlestickDuration: number): Promise<number> {
+        return this.indicatorService.rsi(candlestickDuration);
     }
 
     @Version('1')
     @Get('divergences')
-    getPriceBreak(): Promise<IPotentialTendencyChange> {
+    getPriceBreak(): Promise<boolean> {
         return this.patternsService.isPotentialDivergence();
     }
 }

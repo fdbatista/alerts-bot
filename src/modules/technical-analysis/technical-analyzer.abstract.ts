@@ -5,12 +5,14 @@ import { Repository } from 'typeorm';
 import * as _ from 'lodash';
 
 import { Ticker } from '../../database/entities/ticker';
-import { DateUtil } from '../../utils/date.util';
 
-export interface IPotentialTendencyChange {
-    bullish: boolean
-    bearish: boolean
-}
+export type Candle = {
+    startTime: number;
+    open: number;
+    high: number;
+    low: number;
+    close: number;
+};
 
 @Injectable()
 export abstract class TechnicalAnalyzerAbstract {
@@ -30,19 +32,44 @@ export abstract class TechnicalAnalyzerAbstract {
         return result.reverse();
     }
 
-    protected getClosingPrices(groupedTickers: _.Dictionary<Ticker[]>): number[] {
-        return Object.entries(groupedTickers).map(([, tickers]) => {
-            const lastItem = _.last(tickers)
-            return lastItem?.last ?? 0
-        }).filter(item => item > 0)
+    buildCandlesticks(priceData: Ticker[], intervalMinutes: number): Candle[] {
+        const candles: Candle[] = [];
+        let currentCandle: Candle | null = null;
 
+        for (const data of priceData) {
+            const date = new Date(data.timestamp);
+            const intervalStart = Math.floor(date.getTime() / (intervalMinutes * 60 * 1000)) * (intervalMinutes * 60 * 1000);
+            const candleStartTime = Math.floor(intervalStart / 1000);
+
+            if (!currentCandle || candleStartTime !== currentCandle.startTime) {
+                if (currentCandle) {
+                    candles.push(currentCandle);
+                }
+                currentCandle = {
+                    startTime: candleStartTime,
+                    open: data.last,
+                    high: data.last,
+                    low: data.last,
+                    close: data.last,
+                };
+            } else {
+                currentCandle.high = Math.max(currentCandle.high, data.last);
+                currentCandle.low = Math.min(currentCandle.low, data.last);
+                currentCandle.close = data.last;
+            }
+        }
+
+        if (currentCandle) {
+            candles.push(currentCandle);
+        }
+
+        return candles;
     }
 
-    protected groupTickersByMinute(tickers: Ticker[]): _.Dictionary<Ticker[]> {
-        return _.groupBy(tickers, (ticker) => {
-            const { timestamp } = ticker
+    protected async getClosingPrices(candlestickDuration: number): Promise<number[]> {
+        const tickers = await this.getLastPrices(1, 720);
+        const candlesticks = this.buildCandlesticks(tickers, candlestickDuration);
 
-            return DateUtil.formatDateUntilMinutes(timestamp);
-        })
+        return candlesticks.map((candle: Candle) => candle.close);
     }
 }
