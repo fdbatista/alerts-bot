@@ -27,6 +27,8 @@ export class CreateBookTable1715462693945 implements MigrationInterface {
       }),
       true,
     );
+
+    await queryRunner.query(`insert into book (name, description) values ('BTC_USD', 'Bitcoin/USD book')`);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
