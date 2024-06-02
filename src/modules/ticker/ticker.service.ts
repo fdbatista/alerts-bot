@@ -22,7 +22,7 @@ export class TickerService {
 
             await this.tickerRepository.upsert([entityAttribs], ['bookId', 'timestamp']);
             
-            LoggerUtil.log('Ticker inserted');
+            LoggerUtil.log('Ticker inserted', ticker);
         } catch (error) {
             const { message } = error;
             LoggerUtil.error(message);
