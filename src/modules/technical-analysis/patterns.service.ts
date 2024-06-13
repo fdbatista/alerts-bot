@@ -21,6 +21,10 @@ export class PatternsService extends TechnicalAnalyzerAbstract {
         const peaks = this.findMaxPeaks(closingPrices);
         const [lastPrice] = closingPrices.slice(-1);
 
+        console.log('Closing prices', closingPrices);
+        console.log('Peaks', peaks);
+        console.log('Last price', lastPrice);
+
         return this.isCurrentPriceOverLastPeak(peaks, lastPrice);
     }
 

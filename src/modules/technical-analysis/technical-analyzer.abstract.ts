@@ -26,7 +26,7 @@ export abstract class TechnicalAnalyzerAbstract {
             select: ['last', 'timestamp'],
             where: { bookId: 1 },
             order: { timestamp: 'desc' },
-            take: 2160,
+            take: 15,
         });
 
         return result.reverse();
