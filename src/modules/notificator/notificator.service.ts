@@ -12,7 +12,7 @@ export class NotificatorService {
         private readonly entrypointDetectorService: EntrypointDetectorService,
     ) { }
 
-    @Cron('* * * * *')
+    @Cron('3 * * * * *')
     async notifyPotentialDivergence() {
         const { isPotentialBreakage, isGoodStochSignal } = await this.entrypointDetectorService.isPotentialGoodEntrypoint();
 
