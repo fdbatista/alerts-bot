@@ -16,12 +16,16 @@ export class PatternsService extends TechnicalAnalyzerAbstract {
     }
 
     async isPotentialBreakage(): Promise<boolean> {
-        const closingPrices = await this.getClosingPrices(5);
+        const closingPrices = await this.getClosingPrices(1);
 
-        const peaks = this.findMaxPeaks(closingPrices);
+        return this.isCurrentPriceOverTrendLine(closingPrices);
+    }
+
+    isCurrentPriceOverTrendLine(closingPrices: number[]): boolean {
         const [currentPrice] = closingPrices.slice(-1);
 
-        const nextPeak = this.calculateNextPeak(peaks);
+        const peaks = this.findMaxPeaks(closingPrices);
+        const nextPeak = this.calculateNextPointInTendencyLine(peaks);
 
         return currentPrice > nextPeak;
     }
@@ -40,6 +44,13 @@ export class PatternsService extends TechnicalAnalyzerAbstract {
         }
 
         return peaks;
+    }
+
+    calculateNextPointInTendencyLine(peaks: number[]): number {
+        const [penultimatePeak, lastPeak] = peaks.slice(-2);
+        const peakSlope = (penultimatePeak - lastPeak)
+        
+        return lastPeak - peakSlope;
     }
 
     isCurrentPriceOverLastPeak(peaks: number[], lastPrice: number): boolean {
@@ -62,12 +73,5 @@ export class PatternsService extends TechnicalAnalyzerAbstract {
             }
         }
         return true;
-    }
-
-    private calculateNextPeak(peaks: number[]): number {
-        const [penultimatePeak, lastPeak] = peaks.slice(-2);
-        const peakSlope = (penultimatePeak - lastPeak)
-        
-        return lastPeak - peakSlope;
     }
 }

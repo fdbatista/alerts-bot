@@ -61,9 +61,26 @@ describe('PatternsService', () => {
     expect(result).toEqual(expectedResult);
   });
 
-  it('Should detect potential breakage', async () => {
-    const result = await service.isPotentialBreakage();
+  it('Should detect that current price is over last peak', () => {
+    const peaks = [67123, 67100, 67040];
+    const lastPrice = 67150;
 
-    expect(result).toEqual(false);
+    const result = service.isCurrentPriceOverLastPeak(peaks, lastPrice);
+
+    expect(result).toBe(true);
+  });
+
+  it('Should calculate the next point in the trend line', async () => {
+    const peaks = [67123, 67100, 67040];
+    const result = service.calculateNextPointInTendencyLine(peaks);
+
+    expect(result).toBe(66980);
+  });
+
+  it('Should detect that current price is over the trend line', async () => {
+    const closingPrices = [67113, 67113, 67110, 67105, 67123, 67077, 67077, 67090, 67100, 67020, 67030, 67040, 67010, 66990, 67030];
+    const result = service.isCurrentPriceOverTrendLine(closingPrices);
+
+    expect(result).toBe(true);
   });
 });
