@@ -78,9 +78,29 @@ describe('PatternsService', () => {
   });
 
   it('Should detect that current price is over the trend line', async () => {
-    const closingPrices = [67113, 67113, 67110, 67105, 67123, 67077, 67077, 67090, 67100, 67020, 67030, 67040, 67010, 66990, 67030];
-    const result = service.isCurrentPriceOverTrendLine(closingPrices);
+    const peaks = [67123, 67100, 67040];
+    const lastPrice = 67030;
+
+    const result = service.isCurrentPriceOverTrendLine(peaks, lastPrice);
 
     expect(result).toBe(true);
+  });
+
+  it('Should detect that current price is over the previous peak', async () => {
+    const peaks = [67123, 67100, 67040];
+    const lastPrice = 67043;
+
+    const result = service.isCurrentPriceOverLastPeak(peaks, lastPrice);
+
+    expect(result).toBe(true);
+  });
+  
+  it('Should detect that current price is not over the previous peak', async () => {
+    const peaks = [67123, 67100, 67040];
+    const lastPrice = 67039;
+
+    const result = service.isCurrentPriceOverLastPeak(peaks, lastPrice);
+
+    expect(result).toBe(false);
   });
 });

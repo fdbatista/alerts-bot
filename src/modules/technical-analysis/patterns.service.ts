@@ -17,17 +17,17 @@ export class PatternsService extends TechnicalAnalyzerAbstract {
 
     async isPotentialBreakage(): Promise<boolean> {
         const closingPrices = await this.getClosingPrices(1);
+        
+        const peaks = this.findMaxPeaks(closingPrices);
+        const [lastPrice] = closingPrices.slice(-1);
 
-        return this.isCurrentPriceOverTrendLine(closingPrices);
+        return this.isCurrentPriceOverLastPeak(peaks, lastPrice);
     }
 
-    isCurrentPriceOverTrendLine(closingPrices: number[]): boolean {
-        const [currentPrice] = closingPrices.slice(-1);
-
-        const peaks = this.findMaxPeaks(closingPrices);
+    isCurrentPriceOverTrendLine(peaks: number[], lastPrice: number): boolean {
         const nextPeak = this.calculateNextPointInTendencyLine(peaks);
-
-        return currentPrice > nextPeak;
+        
+        return lastPrice > nextPeak;
     }
 
     findMaxPeaks(prices: number[]): number[] {
@@ -58,7 +58,7 @@ export class PatternsService extends TechnicalAnalyzerAbstract {
 
         let result = false;
 
-        if (peakCount > 0 && this.isDescending(peaks)) {
+        if (peakCount > 1 && this.isDescending(peaks)) {
             const [lastPeak] = peaks.slice(-1);
             result = lastPrice >= lastPeak;
         }
