@@ -21,11 +21,24 @@ export class TickerService {
             entityAttribs.bookId = 1;
 
             await this.tickerRepository.upsert([entityAttribs], ['bookId', 'timestamp']);
-            
+
             LoggerUtil.log('Ticker inserted');
         } catch (error) {
             const { message } = error;
             LoggerUtil.error(message);
         }
+    }
+
+    async deleteOldTickers(): Promise<void> {
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+        const timestamp = sevenDaysAgo.getTime();
+
+        await this.tickerRepository
+            .createQueryBuilder('ticker')
+            .delete()
+            .where('ticker.timestamp < :timestamp', { timestamp })
+            .execute();
     }
 }

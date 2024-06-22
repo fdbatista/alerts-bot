@@ -9,7 +9,12 @@ export class TickerSchedulerService {
   ) { }
 
   @Cron('*/10 * * * * *')
-  handleInterval() {
+  upsertTicker() {
     this.tickerService.upsertTicker()
+  }
+
+  @Cron('0 0 * * * *')
+  deleteOldTickers() {
+    this.tickerService.deleteOldTickers()
   }
 }
