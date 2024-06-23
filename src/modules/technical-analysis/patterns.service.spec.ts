@@ -10,22 +10,22 @@ describe('PatternsService', () => {
     const mockedTickerRepository = {
       find: jest.fn(() => {
         return [
-          { timestamp: new Date('2024-05-20 23:55:00'), last: 66980 },
-          { timestamp: new Date('2024-05-20 23:54:00'), last: 67113 },
-          { timestamp: new Date('2024-05-20 23:53:00'), last: 67110 },
-          { timestamp: new Date('2024-05-20 23:52:00'), last: 67105 },
-          { timestamp: new Date('2024-05-20 23:51:00'), last: 67123 },
-          { timestamp: new Date('2024-05-20 23:50:00'), last: 67077 },
-          { timestamp: new Date('2024-05-20 23:49:00'), last: 67077 },
-          { timestamp: new Date('2024-05-20 23:48:00'), last: 67090 },
-          { timestamp: new Date('2024-05-20 23:47:00'), last: 67100 },
-          { timestamp: new Date('2024-05-20 23:46:00'), last: 67020 },
-          { timestamp: new Date('2024-05-20 23:45:00'), last: 67030 },
-          { timestamp: new Date('2024-05-20 23:44:00'), last: 67040 },
-          { timestamp: new Date('2024-05-20 23:43:00'), last: 67010 },
-          { timestamp: new Date('2024-05-20 23:42:00'), last: 66990 },
-          { timestamp: new Date('2024-05-20 23:41:00'), last: 67115 },
-          { timestamp: new Date('2024-05-20 23:40:00'), last: 67114 },
+          { timestamp: new Date('2024-05-20 23:55:00'), ask: 66980 },
+          { timestamp: new Date('2024-05-20 23:54:00'), ask: 67113 },
+          { timestamp: new Date('2024-05-20 23:53:00'), ask: 67110 },
+          { timestamp: new Date('2024-05-20 23:52:00'), ask: 67105 },
+          { timestamp: new Date('2024-05-20 23:51:00'), ask: 67123 },
+          { timestamp: new Date('2024-05-20 23:50:00'), ask: 67077 },
+          { timestamp: new Date('2024-05-20 23:49:00'), ask: 67077 },
+          { timestamp: new Date('2024-05-20 23:48:00'), ask: 67090 },
+          { timestamp: new Date('2024-05-20 23:47:00'), ask: 67100 },
+          { timestamp: new Date('2024-05-20 23:46:00'), ask: 67020 },
+          { timestamp: new Date('2024-05-20 23:45:00'), ask: 67030 },
+          { timestamp: new Date('2024-05-20 23:44:00'), ask: 67040 },
+          { timestamp: new Date('2024-05-20 23:43:00'), ask: 67010 },
+          { timestamp: new Date('2024-05-20 23:42:00'), ask: 66990 },
+          { timestamp: new Date('2024-05-20 23:41:00'), ask: 67115 },
+          { timestamp: new Date('2024-05-20 23:40:00'), ask: 67114 },
         ];
       }),
       findOne: jest.fn(),
@@ -94,7 +94,7 @@ describe('PatternsService', () => {
 
     expect(result).toBe(true);
   });
-  
+
   it('Should detect that current price is not over the previous peak', async () => {
     const peaks = [67123, 67100, 67040];
     const lastPrice = 67039;

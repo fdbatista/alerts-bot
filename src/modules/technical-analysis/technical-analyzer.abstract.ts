@@ -41,7 +41,7 @@ export abstract class TechnicalAnalyzerAbstract {
         let currentCandle: Candle | null = null;
 
         for (const data of tickerData) {
-            const { timestamp: date } = data;
+            const { timestamp: date, ask } = data;
             const intervalStart = Math.floor(date.getTime() / (intervalMinutes * 60 * 1000)) * (intervalMinutes * 60 * 1000);
             const candleStartTime = new Date(intervalStart).toISOString();
 
@@ -52,15 +52,15 @@ export abstract class TechnicalAnalyzerAbstract {
 
                 currentCandle = {
                     startTime: candleStartTime,
-                    open: data.last,
-                    high: data.last,
-                    low: data.last,
-                    close: data.last,
+                    open: ask,
+                    high: ask,
+                    low: ask,
+                    close: ask,
                 };
             } else {
-                currentCandle.high = Math.max(currentCandle.high, data.last);
-                currentCandle.low = Math.min(currentCandle.low, data.last);
-                currentCandle.close = data.last;
+                currentCandle.high = Math.max(currentCandle.high, ask);
+                currentCandle.low = Math.min(currentCandle.low, ask);
+                currentCandle.close = ask;
             }
         }
 
