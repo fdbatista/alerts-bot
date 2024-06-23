@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { Ticker } from '../../database/entities/ticker';
-import { Candle, TechnicalAnalyzerAbstract } from './technical-analyzer.abstract';
+import { Candle, MINUTES_TO_ANALYZE, TICKERS_PER_MINUTE, TechnicalAnalyzerAbstract } from './technical-analyzer.abstract';
 
 type Stoch = {
     K: number;
@@ -28,7 +28,9 @@ export class IndicatorsService extends TechnicalAnalyzerAbstract {
     }
 
     async stoch(candlestickDuration: number): Promise<Stoch[]> {
-        const tickers = await this.getLastTickers();
+        const tickerCount = MINUTES_TO_ANALYZE * TICKERS_PER_MINUTE * candlestickDuration;
+        const tickers = await this.getLastTickers(tickerCount);
+        
         const candlesticks = this.buildCandlesticks(tickers, candlestickDuration);
 
         return this.calculateStoch(candlesticks, RSI_CONFIG.period, 3);

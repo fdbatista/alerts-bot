@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { TickerService } from './ticker.service';
+import { TICKERS_PER_MINUTE } from '../technical-analysis/technical-analyzer.abstract';
 
-export const TICKERS_PER_MINUTE = 3;
 const TICKERS_INTERVAL = 60 / TICKERS_PER_MINUTE;
 
 @Injectable()
