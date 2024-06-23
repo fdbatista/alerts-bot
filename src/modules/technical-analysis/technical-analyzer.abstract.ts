@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import * as _ from 'lodash';
 
 import { Ticker } from '../../database/entities/ticker';
+import { LoggerUtil } from 'src/utils/logger.util';
 
 export type Candle = {
     startTime: string;
@@ -14,6 +15,9 @@ export type Candle = {
     close: number;
 };
 
+const MINUTES_TO_ANALYZE = 30;
+const TICKERS_PER_MINUTE = 6;
+
 @Injectable()
 export abstract class TechnicalAnalyzerAbstract {
     constructor(
@@ -21,12 +25,12 @@ export abstract class TechnicalAnalyzerAbstract {
         protected readonly tickerRepository: Repository<Ticker>
     ) { }
 
-    protected async getLastPrices(): Promise<Ticker[]> {
+    protected async getLastTickers(count: number): Promise<Ticker[]> {
         const result = await this.tickerRepository.find({
             select: ['last', 'timestamp'],
             where: { bookId: 1 },
             order: { timestamp: 'desc' },
-            take: 150,
+            take: count,
         });
 
         return result.reverse();
@@ -68,7 +72,10 @@ export abstract class TechnicalAnalyzerAbstract {
     }
 
     public async getClosingPrices(candlestickDuration: number): Promise<number[]> {
-        const tickers = await this.getLastPrices();
+        const tickerCount = MINUTES_TO_ANALYZE * TICKERS_PER_MINUTE * candlestickDuration;
+        LoggerUtil.log(`Taking ${tickerCount} tickers for analysis`);
+
+        const tickers = await this.getLastTickers(tickerCount);
         const candlesticks = this.buildCandlesticks(tickers, candlestickDuration);
 
         return candlesticks.map((candle: Candle) => candle.close);

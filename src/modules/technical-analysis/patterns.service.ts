@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 
 import { Ticker } from '../../database/entities/ticker';
 import { TechnicalAnalyzerAbstract } from './technical-analyzer.abstract';
+import { LoggerUtil } from 'src/utils/logger.util';
 
 @Injectable()
 export class PatternsService extends TechnicalAnalyzerAbstract {
@@ -20,13 +21,13 @@ export class PatternsService extends TechnicalAnalyzerAbstract {
         const peaks = this.findMaxPeaks(closingPrices);
 
         const [lastPrice] = closingPrices.slice(-1);
-        
+
         const isCurrentPriceOverTrendLine = this.isCurrentPriceOverTrendLine(peaks, lastPrice);
         const isCurrentPriceOverLastPeak = this.isCurrentPriceOverLastPeak(peaks, lastPrice);
-
-        console.log('Closing prices', closingPrices);
-        console.log('Peaks', peaks);
-        console.log('Current price', lastPrice);
+        
+        LoggerUtil.log('Closing prices', closingPrices);
+        LoggerUtil.log('Peaks', peaks);
+        LoggerUtil.log('Current price', lastPrice);
 
         return isCurrentPriceOverTrendLine && isCurrentPriceOverLastPeak;
     }

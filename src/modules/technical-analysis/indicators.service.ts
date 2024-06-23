@@ -28,7 +28,7 @@ export class IndicatorsService extends TechnicalAnalyzerAbstract {
     }
 
     async stoch(candlestickDuration: number): Promise<Stoch[]> {
-        const tickers = await this.getLastPrices();
+        const tickers = await this.getLastTickers();
         const candlesticks = this.buildCandlesticks(tickers, candlestickDuration);
 
         return this.calculateStoch(candlesticks, RSI_CONFIG.period, 3);

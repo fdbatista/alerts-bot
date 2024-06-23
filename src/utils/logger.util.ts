@@ -2,7 +2,7 @@ import { DateUtil } from './date.util'
 import { StringUtil } from './string.util';
 
 export class LoggerUtil {
-    static log(message: string, data?: object): void {
+    static log(message: string, data?: any): void {
         const logMessage = this.formatMessage(message);
         console.log(logMessage, data ?? StringUtil.EMPTY_STRING);
     }
