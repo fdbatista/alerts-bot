@@ -6,6 +6,7 @@ import * as _ from 'lodash';
 
 import { Ticker } from '../../database/entities/ticker';
 import { LoggerUtil } from 'src/utils/logger.util';
+import { TICKERS_PER_MINUTE } from '../ticker/ticker-scheduler.service';
 
 export type Candle = {
     startTime: string;
@@ -16,7 +17,6 @@ export type Candle = {
 };
 
 const MINUTES_TO_ANALYZE = 30;
-const TICKERS_PER_MINUTE = 6;
 
 @Injectable()
 export abstract class TechnicalAnalyzerAbstract {
