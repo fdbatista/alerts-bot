@@ -16,16 +16,19 @@ export class PatternsService extends TechnicalAnalyzerAbstract {
     }
 
     async isPotentialBreakage(): Promise<boolean> {
-        const closingPrices = await this.getClosingPrices(1);
+        const closingPrices = await this.getClosingPrices(5);
         
         const peaks = this.findMaxPeaks(closingPrices);
         const [lastPrice] = closingPrices.slice(-1);
 
         console.log('Closing prices', closingPrices);
         console.log('Peaks', peaks);
-        console.log('Last price', lastPrice);
+        console.log('Current price', lastPrice);
 
-        return this.isCurrentPriceOverLastPeak(peaks, lastPrice);
+        const isCurrentPriceOverTrendLine = this.isCurrentPriceOverTrendLine(peaks, lastPrice);
+        const isCurrentPriceOverLastPeak = this.isCurrentPriceOverLastPeak(peaks, lastPrice);
+
+        return isCurrentPriceOverTrendLine && isCurrentPriceOverLastPeak;
     }
 
     isCurrentPriceOverTrendLine(peaks: number[], lastPrice: number): boolean {
