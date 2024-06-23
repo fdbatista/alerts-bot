@@ -27,7 +27,6 @@ export abstract class TechnicalAnalyzerAbstract {
 
     protected async getLastTickers(count: number): Promise<Ticker[]> {
         const result = await this.tickerRepository.find({
-            select: ['last', 'timestamp'],
             where: { bookId: 1 },
             order: { timestamp: 'desc' },
             take: count,
