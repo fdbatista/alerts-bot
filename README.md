@@ -11,12 +11,22 @@ npx typeorm migration:create ./src/database/migrations/create-random-table
 
 Apply migrations:
 ```bash
-npm run migration:run
+pnpm run migration:run
 ```
 
 Revert migrations:
 ```bash
-npm run migration:revert
+pnpm run migration:revert
+```
+
+Apply seeders:
+```bash
+pnpm run seeder:run
+```
+
+Revert seeders:
+```bash
+pnpm run seeder:revert
 ```
 
 Start development server:
