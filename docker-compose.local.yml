@@ -5,9 +5,9 @@ services:
     container_name: crc-alerts-db
     restart: always
     ports:
-      - 5432:5432
+      - 5433:5432
     volumes:
-      - ./docker/pg:/var/lib/postgresql/data
+      - crc-alerts:/var/lib/postgresql/data
     env_file:
       - .env.production
     environment:
@@ -20,3 +20,6 @@ services:
 networks:
   default:
     name: crc-alerts-network
+
+volumes:
+  crc-alerts:
