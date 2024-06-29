@@ -14,6 +14,17 @@ export class CreateBookTable1715462693945 implements MigrationInterface {
             generationStrategy: 'increment',
           },
           {
+            name: 'external_id',
+            type: 'varchar',
+            isNullable: false,
+          },
+          {
+            name: 'symbol',
+            type: 'varchar',
+            isNullable: false,
+            isUnique: true,
+          },
+          {
             name: 'name',
             type: 'varchar',
             isNullable: false,
@@ -22,13 +33,17 @@ export class CreateBookTable1715462693945 implements MigrationInterface {
           {
             name: 'description',
             type: 'varchar',
+            isNullable: true,
+          },
+          {
+            name: 'is_active',
+            type: 'boolean',
+            isNullable: false,
           },
         ],
       }),
       true,
     );
-
-    await queryRunner.query(`insert into book (name, description) values ('BTC_USD', 'Bitcoin/USD book')`);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
