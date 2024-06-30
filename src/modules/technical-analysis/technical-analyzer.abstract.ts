@@ -25,9 +25,9 @@ export abstract class TechnicalAnalyzerAbstract {
         protected readonly tickerRepository: Repository<Ticker>
     ) { }
 
-    protected async getLastTickers(count: number): Promise<Ticker[]> {
+    protected async getLastTickers(count: number, assetId: number = 1): Promise<Ticker[]> {
         const result = await this.tickerRepository.find({
-            where: { bookId: 1 },
+            where: { assetId },
             order: { timestamp: 'desc' },
             take: count,
         });
@@ -40,26 +40,20 @@ export abstract class TechnicalAnalyzerAbstract {
         let currentCandle: Candle | null = null;
 
         for (const data of tickerData) {
-            const { timestamp: date, ask } = data;
+            const { timestamp: date, open, high, low, close } = data;
             const intervalStart = Math.floor(date.getTime() / (intervalMinutes * 60 * 1000)) * (intervalMinutes * 60 * 1000);
-            const candleStartTime = new Date(intervalStart).toISOString();
+            const startTime = new Date(intervalStart).toISOString();
 
-            if (!currentCandle || candleStartTime !== currentCandle.startTime) {
+            if (!currentCandle || startTime !== currentCandle.startTime) {
                 if (currentCandle) {
                     candles.push(currentCandle);
                 }
 
-                currentCandle = {
-                    startTime: candleStartTime,
-                    open: ask,
-                    high: ask,
-                    low: ask,
-                    close: ask,
-                };
+                currentCandle = { startTime, open, high, low, close };
             } else {
-                currentCandle.high = Math.max(currentCandle.high, ask);
-                currentCandle.low = Math.min(currentCandle.low, ask);
-                currentCandle.close = ask;
+                currentCandle.high = Math.max(currentCandle.high, high);
+                currentCandle.low = Math.min(currentCandle.low, low);
+                currentCandle.close = close;
             }
         }
 
