@@ -10,9 +10,9 @@ import { LoggerUtil } from 'src/utils/logger.util';
 export type Candle = {
     startTime: string;
     open: number;
+    close: number;
     high: number;
     low: number;
-    close: number;
 };
 
 export const MINUTES_TO_ANALYZE = 30;

@@ -1,21 +1,22 @@
 import { MigrationInterface, QueryRunner, Table } from "typeorm";
 
 const DATA = [
-    { id: 1, name: 'Cryptocurrency', },
-    { id: 2, name: 'Stock', },
-    { id: 3, name: 'Forex', },
-    { id: 4, name: 'Commodity', },
-    { id: 5, name: 'Index', },
+    { id: 1, name: 'RSI below 35 in 1 minute candles', candlestick_minutes: 1 },
+    { id: 2, name: 'RSI below 35 in 5 minute candles', candlestick_minutes: 5 },
+    { id: 3, name: 'STOCH values below 20 in 1 minute candles', candlestick_minutes: 1 },
+    { id: 4, name: 'STOCH values below 20 in 5 minute candles', candlestick_minutes: 5 },
+    { id: 5, name: 'Current price over last peak', candlestick_minutes: 1 },
+    { id: 6, name: 'Current price over tendency line', candlestick_minutes: 1 },
 ]
 
-const UP_QUERY = `insert into asset_type (id, name) values ($1, $2)`
+const UP_QUERY = `insert into signal (id, name, candlestick_minutes) values ($1, $2, $3)`
 
-export class CreateAssetTypeTable1715436219306 implements MigrationInterface {
+export class CreateSignalTable1719743409075 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.createTable(
             new Table({
-                name: 'asset_type',
+                name: 'signal',
                 columns: [
                     {
                         name: 'id',
@@ -30,6 +31,11 @@ export class CreateAssetTypeTable1715436219306 implements MigrationInterface {
                         isNullable: false,
                         isUnique: true,
                     },
+                    {
+                        name: 'candlestick_minutes',
+                        type: 'int',
+                        isNullable: false,
+                    },
                 ],
             }),
             true,
@@ -40,7 +46,7 @@ export class CreateAssetTypeTable1715436219306 implements MigrationInterface {
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.dropTable('asset_type');
+        await queryRunner.dropTable('signal');
     }
 
 }
