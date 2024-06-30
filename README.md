@@ -1,7 +1,7 @@
 Generate models:
 
 ```bash
-npx typeorm-model-generator -h 127.0.0.1 -d alerts -p 5434 -u test -x test -e test -o ./src/database/entities --skipTables "migrations" --noConfig --case-file param --lazy --strictMode
+npx typeorm-model-generator -h 127.0.0.1 -d alerts -p 5433 -u alerts -x Alerts123* -e postgres -o ./src/database/entities --skipTables "migrations" --noConfig --case-file param --lazy --strictMode
 ```
 
 Create a new migration:
