@@ -17,9 +17,32 @@ export class TickerService {
         private readonly webullService: WebullService,
     ) { }
 
-    async upsertTickers(): Promise<void> {
+    async loadAllAssetsTickers() {
+        const ids = await this.webullService.getExternalIdsOfActiveAssets();
+        this.upsertTickers(ids)
+    }
+
+    async loadCryptoTickers() {
+        const ids = await this.webullService.getExternalIdsOfActiveAssetsByType('Cryptocurrency');
+        this.upsertTickers(ids)
+    }
+
+    async deleteOldTickers(): Promise<void> {
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 3650);
+
+        const timestamp = startDate.getTime();
+
+        await this.tickerRepository
+            .createQueryBuilder('ticker')
+            .delete()
+            .where('ticker.timestamp < :timestamp', { timestamp })
+            .execute();
+    }
+
+    private async upsertTickers(ids: string[]): Promise<void> {
         try {
-            const tickers = await this.webullService.getTickers();
+            const tickers = await this.webullService.getTickers(ids);
 
             const promises = tickers
                 .map(async (ticker: TickerDTO) => {
@@ -46,16 +69,4 @@ export class TickerService {
         }
     }
 
-    async deleteOldTickers(): Promise<void> {
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-        const timestamp = sevenDaysAgo.getTime();
-
-        await this.tickerRepository
-            .createQueryBuilder('ticker')
-            .delete()
-            .where('ticker.timestamp < :timestamp', { timestamp })
-            .execute();
-    }
 }

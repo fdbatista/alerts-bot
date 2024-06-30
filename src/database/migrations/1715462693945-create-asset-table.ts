@@ -32,7 +32,6 @@ export class CreateAssetTable1715462693945 implements MigrationInterface {
             type: 'int',
             isNullable: false,
           },
-
           {
             name: 'external_id',
             type: 'varchar',
