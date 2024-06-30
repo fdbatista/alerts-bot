@@ -41,8 +41,6 @@ COPY src/ ./src/
 COPY --from=deps /usr/src/app/node_modules ./node_modules
 COPY --from=build /usr/src/app/dist ./dist
 
-RUN pnpm run migration:run
-
 EXPOSE 3000
 
 CMD node dist/main.js
