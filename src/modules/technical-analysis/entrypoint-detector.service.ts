@@ -4,7 +4,7 @@ import { IndicatorsService } from './indicators.service';
 import { PatternsService } from './patterns.service';
 
 export interface PotentialEntrypoint {
-    isPotentialBreakage: boolean;
+    isPotentialBreak: boolean;
     isGoodStochSignal: boolean;
 }
 
@@ -16,7 +16,7 @@ export class EntrypointDetectorService {
     ) { }
 
     async isPotentialGoodEntrypoint(): Promise<PotentialEntrypoint> {
-        const isPotentialBreakage = await this.patternsService.isPotentialBreakage();
+        const isPotentialBreak = await this.patternsService.isPotentialBreak();
         
         const stoch = await this.indicatorService.stoch(5);
         const [lastStoch] = stoch.slice(-1);
@@ -24,6 +24,6 @@ export class EntrypointDetectorService {
 
         const isGoodStochSignal = dValue <= 20 && kValue <= 20;
 
-        return { isPotentialBreakage, isGoodStochSignal };
+        return { isPotentialBreak, isGoodStochSignal };
     }
 }

@@ -16,7 +16,7 @@ export class PatternsService extends TechnicalAnalyzerAbstract {
         super(tickerRepository);
     }
 
-    async isPotentialBreakage(): Promise<boolean> {
+    async isPotentialBreak(): Promise<boolean> {
         const closingPrices = await this.getClosingPrices(1);
         const peaks = this.findMaxPeaks(closingPrices);
 
