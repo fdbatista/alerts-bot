@@ -17,7 +17,7 @@ export class PatternsService extends TechnicalAnalyzerAbstract {
     }
 
     async isPotentialBreak(): Promise<boolean> {
-        const closingPrices = await this.getClosingPrices(1);
+        const closingPrices = await this.getClosingPrices(4, 1);
         const peaks = this.findMaxPeaks(closingPrices);
 
         const [lastPrice] = closingPrices.slice(-1);

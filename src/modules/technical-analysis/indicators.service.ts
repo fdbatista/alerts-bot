@@ -22,14 +22,14 @@ export class IndicatorsService extends TechnicalAnalyzerAbstract {
     }
 
     async rsi(candlestickDuration: number): Promise<number> {
-        const closingPrices = await this.getClosingPrices(candlestickDuration);
+        const closingPrices = await this.getClosingPrices(4, candlestickDuration);
 
         return this.calculateRSI(closingPrices, RSI_CONFIG.period);
     }
 
     async stoch(candlestickDuration: number): Promise<Stoch[]> {
         const tickerCount = MINUTES_TO_ANALYZE * TICKERS_PER_MINUTE * candlestickDuration;
-        const tickers = await this.getLastTickers(tickerCount);
+        const tickers = await this.getLastTickers(4, tickerCount);
         
         const candlesticks = this.buildCandlesticks(tickers, candlestickDuration);
 

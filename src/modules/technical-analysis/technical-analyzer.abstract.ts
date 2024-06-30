@@ -25,7 +25,7 @@ export abstract class TechnicalAnalyzerAbstract {
         protected readonly tickerRepository: Repository<Ticker>
     ) { }
 
-    protected async getLastTickers(count: number, assetId: number = 1): Promise<Ticker[]> {
+    protected async getLastTickers(assetId: number, count: number): Promise<Ticker[]> {
         const result = await this.tickerRepository.find({
             where: { assetId },
             order: { timestamp: 'desc' },
@@ -64,11 +64,11 @@ export abstract class TechnicalAnalyzerAbstract {
         return candles;
     }
 
-    public async getClosingPrices(candlestickDuration: number): Promise<number[]> {
+    public async getClosingPrices(assetId: number, candlestickDuration: number): Promise<number[]> {
         const tickerCount = MINUTES_TO_ANALYZE * TICKERS_PER_MINUTE * candlestickDuration;
         LoggerUtil.log(`Taking ${tickerCount} tickers for analysis`);
 
-        const tickers = await this.getLastTickers(tickerCount);
+        const tickers = await this.getLastTickers(assetId, tickerCount);
         const candlesticks = this.buildCandlesticks(tickers, candlestickDuration);
 
         return candlesticks.map((candle: Candle) => candle.close);
