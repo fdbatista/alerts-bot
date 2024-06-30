@@ -13,7 +13,7 @@ export class TickerSchedulerService {
 
   @Cron(`*/${TICKERS_INTERVAL} * * * * *`)
   upsertTicker() {
-    this.tickerService.upsertTicker()
+    this.tickerService.upsertTickers()
   }
 
   @Cron('0 0 * * * *')

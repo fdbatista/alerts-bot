@@ -1,28 +1,22 @@
 export class TickerRemoteResponse {
   constructor(
-    readonly book: string,
-    readonly created_at: Date,
+    readonly tickerId: number,
+    readonly tradeTime: Date,
     readonly low: number,
     readonly high: number,
-    readonly last: number,
-    readonly volume: number,
-    readonly vwap: number,
-    readonly ask: number,
-    readonly bid: number,
+    readonly open: number,
+    readonly close: number,
   ) { }
 }
 
 export class TickerDTO {
   constructor(
-    readonly book: string,
-    readonly bookId: number,
+    public assetId: number,
+    readonly externalId: string,
     readonly timestamp: Date,
     readonly low: number,
     readonly high: number,
-    readonly last: number,
-    readonly volume: number,
-    readonly vwap: number,
-    readonly ask: number,
-    readonly bid: number,
+    readonly open: number,
+    readonly close: number,
   ) { }
 }

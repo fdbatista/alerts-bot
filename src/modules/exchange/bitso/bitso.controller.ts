@@ -8,9 +8,9 @@ export class BitsoController {
   constructor(private readonly bitsoService: BitsoService) {}
 
   @Version('1')
-  @Get('ticker/:symbol')
-  async getTicker(@Param('symbol') symbol: string): Promise<TickerDTO> {
-    return await this.bitsoService.getTicker(symbol)
+  @Get('ticker')
+  async getTicker(): Promise<TickerDTO[]> {
+    return await this.bitsoService.getTickers()
   }
 
   @Version('1')

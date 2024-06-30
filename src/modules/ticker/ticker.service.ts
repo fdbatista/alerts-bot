@@ -1,28 +1,45 @@
 import { Injectable } from '@nestjs/common';
-import { BitsoService } from '../exchange/bitso/bitso.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Ticker } from 'src/database/entities/ticker';
 import { LoggerUtil } from 'src/utils/logger.util';
+import { TickerDTO } from '../_common/dto/ticker-dto';
+import { Asset } from 'src/database/entities/asset';
+import { WebullService } from './webull.service';
 
 @Injectable()
 export class TickerService {
     constructor(
-        private readonly bitsoService: BitsoService,
         @InjectRepository(Ticker)
-        private tickerRepository: Repository<Ticker>,
+        private readonly tickerRepository: Repository<Ticker>,
+        @InjectRepository(Asset)
+        private readonly assetRepository: Repository<Asset>,
+        private readonly webullService: WebullService,
     ) { }
 
-    async upsertTicker(): Promise<void> {
+    async upsertTickers(): Promise<void> {
         try {
-            let ticker = await this.bitsoService.getTicker('btc_usd');
+            const tickers = await this.webullService.getTickers();
 
-            let { book, ...entityAttribs } = ticker;
-            entityAttribs.bookId = 1;
+            const promises = tickers
+                .map(async (ticker: TickerDTO) => {
+                    const { externalId } = ticker;
+                    const asset = await this.assetRepository.findOne({
+                        where: { externalId }
+                    });
 
-            await this.tickerRepository.upsert([entityAttribs], ['bookId', 'timestamp']);
+                    if (asset) {
+                        ticker.assetId = asset.id
+                    }
+                    return ticker;
+                })
 
-            LoggerUtil.log('Ticker inserted');
+            const data = await Promise.all(promises)
+            const validData = data.filter((ticker: TickerDTO) => ticker.assetId > -1);
+
+            await this.tickerRepository.upsert(validData, ['assetId', 'timestamp']);
+
+            LoggerUtil.log('Tickers inserted');
         } catch (error) {
             const { message } = error;
             LoggerUtil.error(message);

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { IExchangeConnector } from '../exchange-connector.interface';
+import { IExchangeConnector } from '../_abstraction/exchange-connector.interface';
 import { EnvService } from 'src/modules/_common/env/env.service';
 import { HttpService } from 'src/modules/_common/http/http.service';
 import { TickerDTO, TickerRemoteResponse } from 'src/modules/_common/dto/ticker-dto';
@@ -41,11 +41,13 @@ export class BitsoService implements IExchangeConnector {
     })
   }
 
-  async getTicker(symbol: string): Promise<TickerDTO> {
-    const endpoint = this.buildEndpointURL(`ticker?book=${symbol}`);
+  async getTickers(): Promise<TickerDTO[]> {
+    const endpoint = this.buildEndpointURL(`ticker?book=${RELEVANT_BOOKS[0]}`);
     const result: TickerRemoteResponse = await this.httpService.get(endpoint);
 
-    return DTOFactory.buildTickerDTO(result);
+    const dto = DTOFactory.buildTickerDTO(result);
+
+    return [dto];
   }
 
   private buildEndpointURL(slug: string): string {

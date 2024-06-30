@@ -6,9 +6,7 @@ import axios from 'axios';
 @Injectable()
 export class HttpService implements IHttpService {
   async get(uri: string, headers?: any) {
-    const {
-      data: { payload },
-    } = await axios.get(uri, { headers });
+    const { data: { payload } } = await axios.get(uri, { headers });
 
     return payload;
   }

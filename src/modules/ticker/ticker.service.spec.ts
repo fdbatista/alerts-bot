@@ -2,29 +2,37 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TickerService } from './ticker.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Ticker } from 'src/database/entities/ticker';
-import { BitsoModule } from '../exchange/bitso/bitso.module';
+import { Asset } from 'src/database/entities/asset';
+import { WebullService } from './webull.service';
+import { HttpModule } from '../_common/http/http.module';
+import { EnvModule } from '../_common/env/env.module';
+
+const mockRepository = () => {
+  return {
+    find: jest.fn(),
+    findOne: jest.fn(),
+    save: jest.fn(),
+    remove: jest.fn(),
+  };
+}
 
 describe('TickerService', () => {
   let service: TickerService;
 
   beforeEach(async () => {
-    const mockedTickerRepository = {
-      find: jest.fn(() => {
-        return [];
-      }),
-      findOne: jest.fn(),
-      save: jest.fn(),
-      remove: jest.fn(),
-    };
-
     const module: TestingModule = await Test.createTestingModule({
-      imports: [BitsoModule],
+      imports: [EnvModule, HttpModule],
       providers: [
         TickerService,
+        WebullService,
         {
           provide: getRepositoryToken(Ticker),
-          useValue: mockedTickerRepository,
+          useValue: mockRepository(),
         },
+        {
+          provide: getRepositoryToken(Asset),
+          useValue: mockRepository(),
+        }
       ],
     }).compile();
 

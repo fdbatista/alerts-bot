@@ -8,7 +8,7 @@ export class DTOFactory {
   }
 
   static buildTickerDTO(source: TickerRemoteResponse): TickerDTO {
-    const { book, created_at: timestamp, low, high, last, volume, vwap, ask, bid } = source
-    return new TickerDTO(book, -1, timestamp, low, high, last, volume, vwap, ask, bid );
+    const { tickerId: externalId, tradeTime: timestamp, low, high, open, close } = source
+    return new TickerDTO(-1, `${externalId}`, timestamp, low, high, open, close);
   }
 }
