@@ -1,9 +1,4 @@
-import {
-  MigrationInterface,
-  QueryRunner,
-  Table,
-  TableForeignKey,
-} from 'typeorm';
+import { MigrationInterface, QueryRunner, Table, TableForeignKey } from 'typeorm';
 
 export class CreateTickerTable1715462707099 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -19,7 +14,7 @@ export class CreateTickerTable1715462707099 implements MigrationInterface {
             generationStrategy: 'increment',
           },
           {
-            name: 'book_id',
+            name: 'asset_id',
             type: 'int',
             isNullable: false,
           },
@@ -39,34 +34,24 @@ export class CreateTickerTable1715462707099 implements MigrationInterface {
             isNullable: false,
           },
           {
-            name: 'last',
+            name: 'open',
+            type: 'float',
+            isNullable: false,
+          },
+          {
+            name: 'close',
             type: 'float',
             isNullable: false,
           },
           {
             name: 'volume',
             type: 'float',
-            isNullable: false,
-          },
-          {
-            name: 'vwap',
-            type: 'float',
-            isNullable: false,
-          },
-          {
-            name: 'ask',
-            type: 'float',
-            isNullable: false,
-          },
-          {
-            name: 'bid',
-            type: 'float',
-            isNullable: false,
+            isNullable: true,
           },
         ],
         indices: [
           {
-            columnNames: ['book_id', 'timestamp'],
+            columnNames: ['asset_id', 'timestamp'],
             isUnique: true,
           },
         ],
@@ -77,8 +62,8 @@ export class CreateTickerTable1715462707099 implements MigrationInterface {
     await queryRunner.createForeignKey(
       'ticker',
       new TableForeignKey({
-        columnNames: ['book_id'],
-        referencedTableName: 'book',
+        columnNames: ['asset_id'],
+        referencedTableName: 'asset',
         referencedColumnNames: ['id'],
         onUpdate: 'cascade',
         onDelete: 'cascade',
