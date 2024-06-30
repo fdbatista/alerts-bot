@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { TickerService } from './ticker.service';
 import { TICKERS_PER_MINUTE } from '../technical-analysis/technical-analyzer.abstract';
-import { WebullService } from './webull.service';
 
 const TICKERS_INTERVAL = 60 / TICKERS_PER_MINUTE;
 
@@ -10,7 +9,6 @@ const TICKERS_INTERVAL = 60 / TICKERS_PER_MINUTE;
 export class TickerSchedulerService {
   constructor(
     private readonly tickerService: TickerService,
-    private readonly webullService: WebullService,
   ) { }
 
   

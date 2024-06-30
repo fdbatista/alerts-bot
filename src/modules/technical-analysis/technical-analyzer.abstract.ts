@@ -16,7 +16,7 @@ export type Candle = {
 };
 
 export const MINUTES_TO_ANALYZE = 30;
-export const TICKERS_PER_MINUTE = 3;
+export const TICKERS_PER_MINUTE = 12;
 
 @Injectable()
 export abstract class TechnicalAnalyzerAbstract {

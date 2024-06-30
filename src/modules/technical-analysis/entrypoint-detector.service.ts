@@ -18,7 +18,7 @@ export class EntrypointDetectorService {
     async isPotentialGoodEntrypoint(): Promise<PotentialEntrypoint> {
         const isPotentialBreak = await this.patternsService.isPotentialBreak();
         
-        const stoch = await this.indicatorService.stoch(5);
+        const stoch = await this.indicatorService.stoch(8, 1);
         const [lastStoch] = stoch.slice(-1);
         const { K: kValue, D: dValue } = lastStoch ?? {};
 

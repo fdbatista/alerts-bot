@@ -7,10 +7,14 @@ import { Repository } from 'typeorm';
 import { Ticker } from '../../database/entities/ticker';
 import { Candle, MINUTES_TO_ANALYZE, TICKERS_PER_MINUTE, TechnicalAnalyzerAbstract } from './technical-analyzer.abstract';
 
+import { stoch } from 'indicatorts';
+
 type Stoch = {
     K: number;
     D: number;
 };
+
+const STOCH_CONFIG = { kPeriod: 14, dPeriod: 3 };
 
 @Injectable()
 export class IndicatorsService extends TechnicalAnalyzerAbstract {
@@ -27,13 +31,13 @@ export class IndicatorsService extends TechnicalAnalyzerAbstract {
         return this.calculateRSI(closingPrices, RSI_CONFIG.period);
     }
 
-    async stoch(candlestickDuration: number): Promise<Stoch[]> {
+    async stoch(assetId: number, candlestickDuration: number): Promise<Stoch[]> {
         const tickerCount = MINUTES_TO_ANALYZE * TICKERS_PER_MINUTE * candlestickDuration;
-        const tickers = await this.getLastTickers(4, tickerCount);
-        
+        const tickers = await this.getLastTickers(assetId, tickerCount);
+
         const candlesticks = this.buildCandlesticks(tickers, candlestickDuration);
 
-        return this.calculateStoch(candlesticks, RSI_CONFIG.period, 3);
+        return this.calculateStoch(candlesticks);
     }
 
     private calculateRSI(prices: number[], period: number): number {
@@ -56,27 +60,13 @@ export class IndicatorsService extends TechnicalAnalyzerAbstract {
         return 100 - 100 / (1 + relativeStrength);
     }
 
-    calculateStoch(candles: Candle[], period: number, smoothing: number): Stoch[] {
-        const result: Stoch[] = [];
+    calculateStoch(candles: Candle[]): Stoch[] {
+        const highs = candles.map(c => c.high);
+        const lows = candles.map(c => c.low);
+        const closings = candles.map(c => c.close);
 
-        for (let i = period - 1; i < candles.length; i++) {
-            const lookBackCandles = candles.slice(i - period + 1, i + 1);
-            const high = Math.max(...lookBackCandles.map(c => c.high));
-            const low = Math.min(...lookBackCandles.map(c => c.low));
-            const currentClose = candles[i].close;
+        const { k, d } = stoch(highs, lows, closings, STOCH_CONFIG);
 
-            const K = ((currentClose - low) / (high - low)) * 100;
-
-            let D = K;
-
-            if (i >= period + smoothing - 2) {
-                const recentKs = result.slice(-smoothing).map(s => s.K);
-                D = recentKs.reduce((acc, val) => acc + val, 0) / smoothing;
-            }
-
-            result.push({ K, D });
-        }
-
-        return result;
+        return k.map((v, i) => ({ K: v, D: d[i] }));
     }
 }
