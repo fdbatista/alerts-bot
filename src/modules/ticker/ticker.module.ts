@@ -10,9 +10,12 @@ import { TickerService } from './ticker.service';
 import { WebullService } from './webull.service';
 import { EnvModule } from '../_common/env/env.module';
 import { HttpModule } from '../_common/http/http.module';
+import { AssetType } from 'src/database/entities/asset-type';
+import { Strategy } from 'src/database/entities/strategy';
+import { StrategySignal } from 'src/database/entities/strategy-signal';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Ticker, Asset]), EnvModule, HttpModule],
+  imports: [TypeOrmModule.forFeature([Ticker, Asset, AssetType, Strategy, StrategySignal]), EnvModule, HttpModule],
   providers: [TickerService, TickerSchedulerService, WebullService],
   exports: [TickerService, TickerSchedulerService],
   controllers: [TickerController],

@@ -22,8 +22,12 @@ export class WebullService implements IExchangeConnector {
         const endpoint = this.envService.getValue('WEBULL_REALTIME_ENDPOINT');
         const ids = await this.getListOfExternalAssetsIds();
         const fullURL = `${endpoint}?ids=${ids}&includeSecu=1&delay=0&more=1`;
+
+        const headers = {
+            'User-Agent': this.envService.getValue('WEBULL_USER_AGENT'),
+        }
         
-        const result = await this.httpService.get(fullURL);
+        const result = await this.httpService.get(fullURL, headers);
 
         return result.map((item: TickerRemoteResponse) => {    
             return DTOFactory.buildTickerDTO(item);

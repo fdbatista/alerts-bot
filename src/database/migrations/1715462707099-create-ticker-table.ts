@@ -7,10 +7,16 @@ export class CreateTickerTable1715462707099 implements MigrationInterface {
         name: 'ticker',
         columns: [
           {
+            name: 'id',
+            type: 'int',
+            isPrimary: true,
+            isGenerated: true,
+            generationStrategy: 'increment',
+          },
+          {
             name: 'timestamp',
             type: 'timestamp with time zone',
             isNullable: false,
-            isPrimary: true,
           },
           {
             name: 'asset_id',
@@ -44,7 +50,7 @@ export class CreateTickerTable1715462707099 implements MigrationInterface {
           },
         ],
         indices: [
-          { columnNames: ['asset_id'], isUnique: false },
+          { columnNames: ['asset_id', 'timestamp'], isUnique: true },
         ],
       }),
       true,
@@ -60,9 +66,6 @@ export class CreateTickerTable1715462707099 implements MigrationInterface {
         onDelete: 'cascade',
       }),
     );
-
-    await queryRunner.query(`create extension if not exists timescaledb cascade`);
-    await queryRunner.query(`select create_hypertable('ticker', 'timestamp')`);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

@@ -31,7 +31,7 @@ export class BitsoService implements IExchangeConnector {
 
   async getBooks(): Promise<BookDTO[]> {
     const endpoint = this.buildEndpointURL(`available_books`);
-    const result = await this.httpService.get(endpoint);
+    const { payload: result } = await this.httpService.get(endpoint);
 
     return result.filter((item: BookRemoteResponse) => {
       const { book } = item;

@@ -1,10 +1,22 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne } from "typeorm";
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { Asset } from "./asset";
 
-@Index("IDX_4882fe46c9e9b471f3313b53a8", ["assetId"], {})
+@Index("IDX_78e85f67bf7b11254c2e7aaa8c", ["assetId", "timestamp"], {
+  unique: true,
+})
 @Entity("ticker", { schema: "public" })
 export class Ticker {
-  @Column("timestamp with time zone", { primary: true, name: "timestamp" })
+  @PrimaryGeneratedColumn({ type: "integer", name: "id" })
+  id: number;
+
+  @Column("timestamp with time zone", { name: "timestamp" })
   timestamp: Date;
 
   @Column("integer", { name: "asset_id" })
