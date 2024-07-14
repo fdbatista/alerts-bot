@@ -4,38 +4,29 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { Ticker } from '../../database/entities/ticker';
-import { TechnicalAnalyzerAbstract } from './technical-analyzer.abstract';
 import { LoggerUtil } from 'src/utils/logger.util';
 
 @Injectable()
-export class PatternsService extends TechnicalAnalyzerAbstract {
+export class PatternsService {
     constructor(
         @InjectRepository(Ticker)
         readonly tickerRepository: Repository<Ticker>
     ) {
-        super(tickerRepository);
     }
 
-    async isPotentialBreak(): Promise<boolean> {
-        const closingPrices = await this.getClosingPrices(8, 1);
-        const peaks = this.findMaxPeaks(closingPrices);
+    async isPotentialBreak(closings: number[]): Promise<boolean> {
+        const peaks = this.findMaxPeaks(closings);
 
-        const [lastPrice] = closingPrices.slice(-1);
+        const [lastPrice] = closings.slice(-1);
 
-        const isCurrentPriceOverTrendLine = this.isCurrentPriceOverTrendLine(peaks, lastPrice);
         const isCurrentPriceOverLastPeak = this.isCurrentPriceOverLastPeak(peaks, lastPrice);
+        const isCurrentPriceOverTrendLine = this.isCurrentPriceOverTrendLine(peaks, lastPrice);
         
-        LoggerUtil.log('Closing prices', closingPrices);
+        LoggerUtil.log('Closing prices', closings);
         LoggerUtil.log('Peaks', peaks);
         LoggerUtil.log('Current price', lastPrice);
 
-        return isCurrentPriceOverTrendLine && isCurrentPriceOverLastPeak;
-    }
-
-    isCurrentPriceOverTrendLine(peaks: number[], lastPrice: number): boolean {
-        const nextPeak = this.calculateNextPointInTendencyLine(peaks);
-        
-        return lastPrice > nextPeak;
+        return isCurrentPriceOverLastPeak && isCurrentPriceOverTrendLine;
     }
 
     findMaxPeaks(prices: number[]): number[] {
@@ -52,13 +43,6 @@ export class PatternsService extends TechnicalAnalyzerAbstract {
         }
 
         return peaks;
-    }
-
-    calculateNextPointInTendencyLine(peaks: number[]): number {
-        const [penultimatePeak, lastPeak] = peaks.slice(-2);
-        const peakSlope = (penultimatePeak - lastPeak)
-        
-        return lastPeak - peakSlope;
     }
 
     isCurrentPriceOverLastPeak(peaks: number[], lastPrice: number): boolean {
@@ -81,5 +65,18 @@ export class PatternsService extends TechnicalAnalyzerAbstract {
             }
         }
         return true;
+    }
+
+    isCurrentPriceOverTrendLine(peaks: number[], lastPrice: number): boolean {
+        const nextPeak = this.calculateNextPointInTendencyLine(peaks);
+        
+        return lastPrice > nextPeak;
+    }
+
+    calculateNextPointInTendencyLine(peaks: number[]): number {
+        const [penultimatePeak, lastPeak] = peaks.slice(-2);
+        const peakSlope = (penultimatePeak - lastPeak)
+        
+        return lastPeak - peakSlope;
     }
 }

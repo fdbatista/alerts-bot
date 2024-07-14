@@ -1,17 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Ticker } from 'src/database/entities/ticker';
 import { LoggerUtil } from 'src/utils/logger.util';
 import { TickerDTO } from '../_common/dto/ticker-dto';
 import { Asset } from 'src/database/entities/asset';
 import { WebullService } from './webull.service';
+import { TickerRepository } from './ticker.repository';
 
 @Injectable()
 export class TickerService {
     constructor(
-        @InjectRepository(Ticker)
-        private readonly tickerRepository: Repository<Ticker>,
+        private readonly tickerRepository: TickerRepository,
         @InjectRepository(Asset)
         private readonly assetRepository: Repository<Asset>,
         private readonly webullService: WebullService,
@@ -31,7 +30,7 @@ export class TickerService {
         const ids = await this.getExternalIdsOfActiveAssetsByType('Cryptocurrency');
         this.upsertTickers(ids)
     }
-    
+
     async getExternalIdsOfActiveAssetsByType(type: string): Promise<string[]> {
         const assets = await this.getActiveAssets();
 
@@ -45,7 +44,7 @@ export class TickerService {
                 result.push(asset.externalId)
             }
         }
-        
+
         return result;
     }
 
@@ -57,16 +56,7 @@ export class TickerService {
     }
 
     async deleteOldTickers(): Promise<void> {
-        const startDate = new Date();
-        startDate.setDate(startDate.getDate() - 3650);
-
-        const timestamp = startDate.getTime();
-
-        await this.tickerRepository
-            .createQueryBuilder('ticker')
-            .delete()
-            .where('ticker.timestamp < :timestamp', { timestamp })
-            .execute();
+        await this.tickerRepository.deleteOldTickers();
     }
 
     private async upsertTickers(ids: string[]): Promise<void> {
@@ -87,9 +77,18 @@ export class TickerService {
                 })
 
             const data = await Promise.all(promises)
-            const validData = data.filter((ticker: TickerDTO) => ticker.assetId > -1);
+            
+            const validData = data
+                .filter((ticker: TickerDTO) => ticker.assetId > -1)
+                .map((ticker: TickerDTO) => {
+                    const timestamp = new Date(ticker.timestamp);
+                    timestamp.setSeconds(0);
+                    timestamp.setMilliseconds(0);
 
-            await this.tickerRepository.upsert(validData, ['assetId', 'timestamp']);
+                    return { ...ticker, timestamp };
+                });
+
+            await this.tickerRepository.upsertTickers(validData);
 
             LoggerUtil.log('Tickers inserted');
         } catch (error) {

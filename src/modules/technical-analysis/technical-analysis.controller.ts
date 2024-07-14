@@ -9,15 +9,16 @@ export class TechnicalAnalysisController {
         private readonly entrypointDetectorService: EntrypointDetectorService,
     ) { }
 
-    @Version('1')
-    @Get('rsi')
-    getRSI(candlestickDuration: number): Promise<number> {
-        return this.indicatorService.rsi(candlestickDuration);
-    }
+    // @Version('1')
+    // @Get('rsi')
+    // getRSI(candlestickDuration: number): Promise<number> {
+    //     // return this.indicatorService.rsi(candlestickDuration);
+    //     return candlestickDuration;
+    // }
 
-    @Version('1')
-    @Get('detection/entrypoint')
-    async getPotentialEntrypoint(): Promise<object> {
-        return await this.entrypointDetectorService.isPotentialGoodEntrypoint();
-    }
+    // @Version('1')
+    // @Get('detection/entrypoint')
+    // async getPotentialEntrypoint(): Promise<object> {
+    //     return await this.entrypointDetectorService.isPotentialGoodEntrypoint();
+    // }
 }

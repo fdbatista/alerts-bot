@@ -16,14 +16,15 @@ export class EntrypointDetectorService {
     ) { }
 
     async isPotentialGoodEntrypoint(): Promise<PotentialEntrypoint> {
-        const isPotentialBreak = await this.patternsService.isPotentialBreak();
+        // const isPotentialBreak = await this.patternsService.isPotentialBreak();
         
-        const stoch = await this.indicatorService.stoch(8, 1);
-        const [lastStoch] = stoch.slice(-1);
-        const { K: kValue, D: dValue } = lastStoch ?? {};
+        // const stoch = await this.indicatorService.stoch(8, 1);
+        // const [lastStoch] = stoch.slice(-1);
+        // const { K: kValue, D: dValue } = lastStoch ?? {};
 
-        const isGoodStochSignal = dValue <= 20 && kValue <= 20;
+        // const isGoodStochSignal = dValue <= 20 && kValue <= 20;
 
-        return { isPotentialBreak, isGoodStochSignal };
+        // return { isPotentialBreak, isGoodStochSignal };
+        return { isPotentialBreak: false, isGoodStochSignal: false };
     }
 }

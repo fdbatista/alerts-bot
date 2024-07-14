@@ -13,10 +13,11 @@ import { HttpModule } from '../_common/http/http.module';
 import { AssetType } from 'src/database/entities/asset-type';
 import { Strategy } from 'src/database/entities/strategy';
 import { StrategySignal } from 'src/database/entities/strategy-signal';
+import { TickerRepository } from './ticker.repository';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Ticker, Asset, AssetType, Strategy, StrategySignal]), EnvModule, HttpModule],
-  providers: [TickerService, TickerSchedulerService, WebullService],
+  providers: [TickerService, TickerSchedulerService, WebullService, TickerRepository],
   exports: [TickerService, TickerSchedulerService],
   controllers: [TickerController],
 })
