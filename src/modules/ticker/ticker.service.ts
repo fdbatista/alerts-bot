@@ -18,13 +18,42 @@ export class TickerService {
     ) { }
 
     async loadAllAssetsTickers() {
-        const ids = await this.webullService.getExternalIdsOfActiveAssets();
+        const ids = await this.getExternalIdsOfActiveAssets();
         this.upsertTickers(ids)
     }
 
+    async getExternalIdsOfActiveAssets(): Promise<string[]> {
+        const assets = await this.getActiveAssets();
+        return assets.map((asset: Asset) => asset.externalId)
+    }
+
     async loadCryptoTickers() {
-        const ids = await this.webullService.getExternalIdsOfActiveAssetsByType('Cryptocurrency');
+        const ids = await this.getExternalIdsOfActiveAssetsByType('Cryptocurrency');
         this.upsertTickers(ids)
+    }
+    
+    async getExternalIdsOfActiveAssetsByType(type: string): Promise<string[]> {
+        const assets = await this.getActiveAssets();
+
+        const result = []
+
+        for (const asset of assets) {
+            const typeEntity = await asset.type;
+            const { name } = typeEntity
+
+            if (name === type) {
+                result.push(asset.externalId)
+            }
+        }
+        
+        return result;
+    }
+
+    private async getActiveAssets(): Promise<Asset[]> {
+        return await this.assetRepository.find({
+            where: { isActive: true },
+            relations: ['type'],
+        });
     }
 
     async deleteOldTickers(): Promise<void> {
