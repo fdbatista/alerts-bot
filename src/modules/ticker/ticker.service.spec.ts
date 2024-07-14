@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { TickerService } from './ticker.service';
+import { TickerIngesterService } from './ticker-ingester.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Ticker } from 'src/database/entities/ticker';
 import { Asset } from 'src/database/entities/asset';
@@ -17,13 +17,13 @@ const mockRepository = () => {
 }
 
 describe('TickerService', () => {
-  let service: TickerService;
+  let service: TickerIngesterService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [EnvModule, HttpModule],
       providers: [
-        TickerService,
+        TickerIngesterService,
         WebullService,
         {
           provide: getRepositoryToken(Ticker),
@@ -36,7 +36,7 @@ describe('TickerService', () => {
       ],
     }).compile();
 
-    service = module.get<TickerService>(TickerService);
+    service = module.get<TickerIngesterService>(TickerIngesterService);
   });
 
   it('should be defined', () => {

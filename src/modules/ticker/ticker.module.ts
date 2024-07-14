@@ -6,7 +6,7 @@ import { Asset } from 'src/database/entities/asset';
 
 import { TickerController } from './ticker.controller';
 import { TickerSchedulerService } from './ticker-scheduler.service';
-import { TickerService } from './ticker.service';
+import { TickerIngesterService } from './ticker-ingester.service';
 import { WebullService } from './webull.service';
 import { EnvModule } from '../_common/env/env.module';
 import { HttpModule } from '../_common/http/http.module';
@@ -17,8 +17,8 @@ import { TickerRepository } from './ticker.repository';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Ticker, Asset, AssetType, Strategy, StrategySignal]), EnvModule, HttpModule],
-  providers: [TickerService, TickerSchedulerService, WebullService, TickerRepository],
-  exports: [TickerService, TickerSchedulerService],
+  providers: [TickerIngesterService, TickerSchedulerService, WebullService, TickerRepository],
+  exports: [TickerIngesterService, TickerSchedulerService],
   controllers: [TickerController],
 })
 export class TickerModule { }

@@ -8,7 +8,7 @@ import { WebullService } from './webull.service';
 import { TickerRepository } from './ticker.repository';
 
 @Injectable()
-export class TickerService {
+export class TickerIngesterService {
     constructor(
         private readonly tickerRepository: TickerRepository,
         @InjectRepository(Asset)
