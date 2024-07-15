@@ -4,15 +4,12 @@ import { LoggerUtil } from 'src/utils/logger.util';
 import { TelegramService } from './telegram/telegram.service';
 import { EntrypointDetectorService } from 'src/modules/technical-analysis/entrypoint-detector.service';
 import { POTENTIAL_BREAK_MESSAGE, POTENTIAL_RSI_MESSAGE } from './_config';
-import { AssetService } from '../asset/asset.service';
-import { Asset } from 'src/database/entities/asset';
 
 const STOCKS_TYPE_ID = 2
 
 @Injectable()
 export class NotificatorService {
     constructor(
-        private readonly assetService: AssetService,
         private readonly telegramService: TelegramService,
         private readonly entrypointDetectorService: EntrypointDetectorService,
     ) { }
@@ -28,23 +25,14 @@ export class NotificatorService {
     }
 
     async notifyPotentialDivergence(assetTypeId: number) {
-        const activeAssets = await this.assetService.getActiveAssetsByTypeId(assetTypeId);
-
-        const promises = activeAssets.map(async (asset: Asset) => {
-            return this.entrypointDetectorService.isPotentialGoodEntrypoint(asset.id);
-        })
-
-        const results = await Promise.allSettled(promises);
+        const results = await this.entrypointDetectorService.detectPotentialEntrypoints(assetTypeId);
 
         let message = '';
 
-        results.forEach((result: any, index) => {
-            const { value } = result
-            const { isPotentialBreak, isGoodRsiSignal } = value
+        results.forEach((result: any) => {
+            const { isPotentialBreak, isGoodRsiSignal, asset } = result;
 
             if (isPotentialBreak || isGoodRsiSignal) {
-                const asset = activeAssets[index];
-
                 message += `Potential entrypoint for ${asset.name} by `;
 
                 if (isPotentialBreak) {

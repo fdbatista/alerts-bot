@@ -6,9 +6,10 @@ import { Ticker } from 'src/database/entities/ticker';
 import { PatternsService } from './patterns.service';
 import { EntrypointDetectorService } from './entrypoint-detector.service';
 import { TickerModule } from '../ticker/ticker.module';
+import { AssetModule } from '../asset/asset.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Ticker]), TickerModule],
+  imports: [TypeOrmModule.forFeature([Ticker]), TickerModule, AssetModule],
   providers: [IndicatorsService, PatternsService, EntrypointDetectorService],
   controllers: [TechnicalAnalysisController],
   exports: [IndicatorsService, PatternsService, EntrypointDetectorService],
