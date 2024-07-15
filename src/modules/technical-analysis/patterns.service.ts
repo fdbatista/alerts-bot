@@ -21,10 +21,7 @@ export class PatternsService {
         LoggerUtil.log('PRICE: ', lastPrice);
         LoggerUtil.log('PEAKS: ', peaks);
 
-        const isCurrentPriceOverLastPeak = this.isCurrentPriceOverLastPeak(peaks, lastPrice);
-        const isCurrentPriceOverTrendLine = this.isCurrentPriceOverTrendLine(peaks, lastPrice);
-        
-        return isCurrentPriceOverLastPeak && isCurrentPriceOverTrendLine;
+        return this.isCurrentPriceOverLastPeak(peaks, lastPrice);
     }
 
     findMaxPeaks(prices: number[]): number[] {
