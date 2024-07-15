@@ -11,6 +11,7 @@ import { Asset } from "./asset";
 @Index("IDX_78e85f67bf7b11254c2e7aaa8c", ["assetId", "timestamp"], {
   unique: true,
 })
+@Index("index_timestamp", ["timestamp"], {})
 @Entity("ticker", { schema: "public" })
 export class Ticker {
   @PrimaryGeneratedColumn({ type: "integer", name: "id" })

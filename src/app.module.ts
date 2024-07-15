@@ -10,6 +10,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TickerModule } from './modules/ticker/ticker.module';
 import { NotificatorModule } from './modules/notificator/notificator.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { AssetModule } from './modules/asset/asset.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     EnvModule,
     TickerModule,
     NotificatorModule,
+    AssetModule,
   ],
   controllers: [AppController],
   providers: [AppService],
