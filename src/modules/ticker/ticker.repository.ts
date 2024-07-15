@@ -34,11 +34,11 @@ export class TickerRepository {
         private readonly repository: Repository<Ticker>,
     ) { }
 
-    async getTickers(candleDuration: number, assetId: number): Promise<TickerDTO[]> {
+    async getTickers(assetId: number, candleDuration: number): Promise<TickerDTO[]> {
         const query = TICKER_QUERY
-            .replace(':candleDuration', candleDuration.toString())
-            .replace(':assetId', assetId.toString());
-        
+            .replace(':assetId', assetId.toString())
+            .replace(':candleDuration', candleDuration.toString());
+
         const tickers = await this.repository.query(query);
         return tickers;
     }

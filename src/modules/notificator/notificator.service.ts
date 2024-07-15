@@ -14,9 +14,9 @@ export class NotificatorService {
 
     @Cron('2 * * * * *')
     async notifyPotentialDivergence() {
-        const { isPotentialBreak, isGoodStochSignal } = await this.entrypointDetectorService.isPotentialGoodEntrypoint();
+        const { isPotentialBreak, isGoodRsiSignal } = await this.entrypointDetectorService.isPotentialGoodEntrypoint();
 
-        if (isPotentialBreak || isGoodStochSignal) {
+        if (isPotentialBreak || isGoodRsiSignal) {
             LoggerUtil.debug(POTENTIAL_ENTRYPOINT_MESSAGE);
             this.telegramService.sendMessage(POTENTIAL_ENTRYPOINT_MESSAGE);
         }
