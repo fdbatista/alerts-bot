@@ -5,6 +5,10 @@ import { TelegramService } from './telegram/telegram.service';
 import { EntrypointDetectorService } from 'src/modules/technical-analysis/entrypoint-detector.service';
 import { POTENTIAL_BREAK_MESSAGE, POTENTIAL_ENTRYPOINT_MESSAGE, POTENTIAL_RSI_MESSAGE } from './_config';
 
+const ASSETS_TO_MONITOR = [
+    { id: 4, assetName: 'TSLA' },
+]
+
 @Injectable()
 export class NotificatorService {
     constructor(

@@ -9,8 +9,9 @@ export interface PotentialEntrypoint {
     isGoodRsiSignal: boolean;
 }
 
-const TESLA_ID = 4;
 const NASDAQ_ID = 5;
+
+const RSI_ENTRYPOINT_THRESHOLD = 35;
 
 @Injectable()
 export class EntrypointDetectorService {
@@ -20,21 +21,24 @@ export class EntrypointDetectorService {
         private readonly indicatorService: IndicatorsService,
     ) { }
 
-    async isPotentialGoodEntrypoint(): Promise<PotentialEntrypoint> {
-        const stockOneMinuteClosings = await this.getClosings(TESLA_ID, 1);
-        const isPotentialBreak = await this.patternsService.isPotentialBreak(stockOneMinuteClosings);
+    async isPotentialGoodEntrypoint(assetId: number): Promise<PotentialEntrypoint> {
+        const assetClosingsInOneMinute = await this.getClosings(assetId, 1);
+        const isPotentialBreak = await this.patternsService.isPotentialBreak(assetClosingsInOneMinute);
 
-        const assetFiveMinuteClosings = await this.getClosings(TESLA_ID, 5);
-        const assetRSI = this.indicatorService.rsi(assetFiveMinuteClosings);
-        const [assetLastRSI] = assetRSI.slice(-1);
+        const assetRsiInOneMinute = await this.calculateRsi(assetId, 5);
+        const nasdaqRsiInFiveMinutes = await this.calculateRsi(NASDAQ_ID, 1);
 
-        const nasdaqOneMinuteClosings = await this.getClosings(NASDAQ_ID, 1);
-        const nasdaqRSI = this.indicatorService.rsi(nasdaqOneMinuteClosings);
-        const [nasdaqLastRSI] = nasdaqRSI.slice(-1);
-
-        const isGoodRsiSignal = assetLastRSI <= 35 && nasdaqLastRSI <= 35;
+        const isGoodRsiSignal = assetRsiInOneMinute <= RSI_ENTRYPOINT_THRESHOLD && nasdaqRsiInFiveMinutes <= RSI_ENTRYPOINT_THRESHOLD;
 
         return { isPotentialBreak, isGoodRsiSignal };
+    }
+
+    private async calculateRsi(assetId: number, candleDuration: number): Promise<number> {
+        const closings = await this.getClosings(assetId, candleDuration);
+        const rsi = this.indicatorService.rsi(closings);
+        const [lastRsi] = rsi.slice(-1);
+
+        return lastRsi;
     }
 
     async getClosings(assetId: number, candleDuration: number): Promise<number[]> {
