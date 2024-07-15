@@ -16,16 +16,11 @@ export class PatternsService {
 
     async isPotentialBreak(closings: number[]): Promise<boolean> {
         const peaks = this.findMaxPeaks(closings);
-
         const [lastPrice] = closings.slice(-1);
 
         const isCurrentPriceOverLastPeak = this.isCurrentPriceOverLastPeak(peaks, lastPrice);
         const isCurrentPriceOverTrendLine = this.isCurrentPriceOverTrendLine(peaks, lastPrice);
         
-        LoggerUtil.log('Closing prices', closings);
-        LoggerUtil.log('Peaks', peaks);
-        LoggerUtil.log('Current price', lastPrice);
-
         return isCurrentPriceOverLastPeak && isCurrentPriceOverTrendLine;
     }
 

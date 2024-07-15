@@ -9,7 +9,9 @@ export class TickerService {
     ) { }
 
     async getTickers(assetId: number, candleDuration: number): Promise<TickerDTO[]> {
-        return await this.tickerRepository.getTickers(assetId, candleDuration);
+        const tickers = await this.tickerRepository.getTickers(assetId, candleDuration);
+
+        return tickers.reverse();
     }
 
 }

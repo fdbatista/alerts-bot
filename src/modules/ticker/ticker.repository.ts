@@ -24,7 +24,8 @@ const TICKER_QUERY = `
         where
         asset_id = :assetId
     ) subquery
-    order by interval_start desc, timestamp desc;
+    order by interval_start desc, timestamp desc
+    limit 30;
 `;
 
 @Injectable()
