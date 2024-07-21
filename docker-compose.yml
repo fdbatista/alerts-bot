@@ -28,8 +28,6 @@ services:
     image: dpage/pgadmin4:latest
     container_name: crc-alerts-pgadmin
     restart: always
-    volumes:
-      - ./docker/pgadmin:/var/lib/pgadmin
     env_file:
       - .env.production
     environment:
