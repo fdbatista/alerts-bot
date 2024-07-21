@@ -32,6 +32,9 @@ services:
       - ./docker/pgadmin:/var/lib/pgadmin
     env_file:
       - .env.production
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
 
 networks:
   default:
