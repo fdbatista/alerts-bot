@@ -24,7 +24,15 @@ services:
       - POSTGRES_USER=${DB_USERNAME}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
 
+  crc-alerts-pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: crc-alerts-pgadmin
+    restart: always
+    volumes:
+      - ./docker/pgadmin:/var/lib/pgadmin
+    env_file:
+      - .env.production
+
 networks:
   default:
-    name: crc-network
-    external: true
+    name: crc-alerts-network
