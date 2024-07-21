@@ -5,6 +5,7 @@ import { TelegramService } from './telegram/telegram.service';
 import { EntrypointDetectorService } from 'src/modules/technical-analysis/entrypoint-detector.service';
 import { POTENTIAL_BREAK_MESSAGE, POTENTIAL_RSI_MESSAGE } from './_config';
 
+const CRYPTOS_TYPE_ID = 1
 const STOCKS_TYPE_ID = 2
 
 @Injectable()
@@ -24,7 +25,17 @@ export class NotificatorService {
         this.notifyPotentialDivergence(STOCKS_TYPE_ID);
     }
 
-    async notifyPotentialDivergence(assetTypeId: number) {
+    @Cron(`2 * 0-14 * * 1`) // Every minute from 00:00 to 14:59 on Monday
+    async detectPotentialEntrypointFrom0000To1459OnMonday() {
+        this.notifyPotentialDivergence(CRYPTOS_TYPE_ID);
+    }
+
+    @Cron(`2 * * * * 6,0`) // Every minute on weekends
+    async detectPotentialEntrypointOnWeekends() {
+        this.notifyPotentialDivergence(CRYPTOS_TYPE_ID);
+    }
+
+    async notifyPotentialDivergence(assetTypeId: number): Promise<void> {
         const results = await this.entrypointDetectorService.detectPotentialEntrypoints(assetTypeId);
 
         let message = '';
