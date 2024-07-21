@@ -28,13 +28,20 @@ services:
     image: dpage/pgadmin4:latest
     container_name: crc-alerts-pgadmin
     restart: always
+    depends_on:
+      - crc-alerts-db
     env_file:
       - .env.production
     environment:
       - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
       - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+    volumes:
+      - crc-alerts-pgadmin-volume:/var/lib/pgadmin
 
 networks:
   default:
     name: crc-network
     external: true
+
+volumes:
+  crc-alerts-pgadmin-volume:
