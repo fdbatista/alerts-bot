@@ -36,4 +36,5 @@ services:
 
 networks:
   default:
-    name: crc-alerts-network
+    name: crc-network
+    external: true
