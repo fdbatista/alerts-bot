@@ -5,7 +5,7 @@ const DATA = [
   { id: 2, type_id: 2, external_id: 913254235, name: 'AMD', symbol: 'AMD', is_active: true },
   { id: 3, type_id: 2, external_id: 913256180, name: 'AMAZON', symbol: 'AMZN', is_active: true },
   { id: 4, type_id: 2, external_id: 913255598, name: 'TESLA', symbol: 'TSLA', is_active: true },
-  { id: 5, type_id: 2, external_id: 913354090, name: 'NASDAQ', symbol: 'IXIC', is_active: true },
+  { id: 5, type_id: 5, external_id: 913354090, name: 'NASDAQ', symbol: 'IXIC', is_active: true },
   { id: 6, type_id: 2, external_id: 913303964, name: 'GOOGLE', symbol: 'GOOG', is_active: true },
   { id: 7, type_id: 2, external_id: 913323997, name: 'MICROSOFT', symbol: 'MSFT', is_active: true },
   { id: 8, type_id: 1, external_id: 950160802, name: 'BITCOIN', symbol: 'BTCUSD', is_active: true },
