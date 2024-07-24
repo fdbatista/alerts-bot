@@ -10,6 +10,6 @@ export class TechnicalAnalysisController {
     @Version('1')
     @Get('detection/entrypoint/:assetTypeId')
     async getPotentialEntrypoint(@Param('assetTypeId') assetTypeId: number): Promise<object> {
-        return await this.entrypointDetectorService.detectPotentialEntrypoints(assetTypeId);
+        return await this.entrypointDetectorService.detectPotentialEntrypoints([assetTypeId]);
     }
 }

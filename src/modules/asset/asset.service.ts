@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Asset } from 'src/database/entities/asset';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 @Injectable()
 export class AssetService {
@@ -11,10 +11,10 @@ export class AssetService {
         private readonly assetRepository: Repository<Asset>,
     ) { }
 
-    async getActiveAssetsByTypeId(typeId: number): Promise<Asset[]> {
+    async getActiveAssetsByTypeIds(typeIds: number[]): Promise<Asset[]> {
         return await this.assetRepository.find({
             where: {
-                type: { id: typeId },
+                type: { id: In(typeIds) },
                 isActive: true
             },
         });

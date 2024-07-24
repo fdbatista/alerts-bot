@@ -25,8 +25,8 @@ export class EntrypointDetectorService {
         private readonly indicatorService: IndicatorsService,
     ) { }
 
-    async detectPotentialEntrypoints(assetTypeId: number): Promise<PotentialEntrypoint[]> {
-        const activeAssets = await this.assetService.getActiveAssetsByTypeId(assetTypeId);
+    async detectPotentialEntrypoints(assetTypeIds: number[]): Promise<PotentialEntrypoint[]> {
+        const activeAssets = await this.assetService.getActiveAssetsByTypeIds(assetTypeIds);
         const nasdaqRsiInOneMinute = await this.calculateRsi(NASDAQ_ID, 1);
 
         const result = []
