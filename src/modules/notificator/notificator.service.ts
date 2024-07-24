@@ -36,8 +36,9 @@ export class NotificatorService {
     }
 
     async notifyPotentialDivergence(assetTypeId: number): Promise<void> {
+        LoggerUtil.debug(`Finding potential divergence for asset type ${assetTypeId}...`);
+        
         const results = await this.entrypointDetectorService.detectPotentialEntrypoints(assetTypeId);
-
         let message = '';
 
         results.forEach((result: any) => {
