@@ -8,6 +8,8 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { AssetType } from "./asset-type";
+import { Rsi } from "./rsi";
+import { Stoch } from "./stoch";
 import { StrategySignal } from "./strategy-signal";
 import { Ticker } from "./ticker";
 
@@ -37,6 +39,12 @@ export class Asset {
   })
   @JoinColumn([{ name: "type_id", referencedColumnName: "id" }])
   type: Promise<AssetType>;
+
+  @OneToMany(() => Rsi, (rsi) => rsi.asset, { lazy: true })
+  rsis: Promise<Rsi[]>;
+
+  @OneToMany(() => Stoch, (stoch) => stoch.asset, { lazy: true })
+  stoches: Promise<Stoch[]>;
 
   @OneToMany(() => StrategySignal, (strategySignal) => strategySignal.asset, {
     lazy: true,
