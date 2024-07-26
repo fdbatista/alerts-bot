@@ -6,6 +6,8 @@ import { TickerDTO } from '../_common/dto/ticker-dto';
 import { Asset } from 'src/database/entities/asset';
 import { WebullService } from './webull.service';
 import { TickerRepository } from './ticker.repository';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { TICKERS_INSERTED_MESSAGE } from '../technical-analysis/listeners/config';
 
 @Injectable()
 export class TickerIngesterService {
@@ -14,6 +16,7 @@ export class TickerIngesterService {
         @InjectRepository(Asset)
         private readonly assetRepository: Repository<Asset>,
         private readonly webullService: WebullService,
+        private readonly eventEmitter: EventEmitter2
     ) { }
 
     async loadAllAssetsTickers() {
@@ -90,6 +93,7 @@ export class TickerIngesterService {
 
             await this.tickerRepository.upsertTickers(validData);
 
+            this.eventEmitter.emit(TICKERS_INSERTED_MESSAGE);
             LoggerUtil.log('Tickers inserted');
         } catch (error) {
             const { message } = error;
