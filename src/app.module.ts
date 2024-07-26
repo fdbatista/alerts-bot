@@ -11,6 +11,7 @@ import { TickerModule } from './modules/ticker/ticker.module';
 import { NotificatorModule } from './modules/notificator/notificator.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AssetModule } from './modules/asset/asset.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -31,8 +32,9 @@ import { AssetModule } from './modules/asset/asset.module';
     TickerModule,
     NotificatorModule,
     AssetModule,
+    EventEmitterModule.forRoot()
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
