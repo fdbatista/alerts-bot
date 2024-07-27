@@ -1,25 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-
 import { Repository } from 'typeorm';
-
 import { Ticker } from '../../database/entities/ticker';
-import { LoggerUtil } from 'src/utils/logger.util';
 
 @Injectable()
 export class PatternsService {
     constructor(
         @InjectRepository(Ticker)
         readonly tickerRepository: Repository<Ticker>
-    ) {
-    }
+    ) { }
 
     async isPotentialBreak(closings: number[]): Promise<boolean> {
         const peaks = this.findMaxPeaks(closings);
         const [lastPrice] = closings.slice(-1);
-
-        LoggerUtil.log('PRICE: ', lastPrice);
-        LoggerUtil.log('PEAKS: ', peaks);
 
         return this.isCurrentPriceOverLastPeak(peaks, lastPrice);
     }
@@ -45,7 +38,7 @@ export class PatternsService {
 
         let result = false;
 
-        if (peakCount > 1 && this.isDescending(peaks)) {
+        if (peakCount > 1) {
             const [lastPeak] = peaks.slice(-1);
             result = lastPrice >= lastPeak;
         }
@@ -64,14 +57,14 @@ export class PatternsService {
 
     isCurrentPriceOverTrendLine(peaks: number[], lastPrice: number): boolean {
         const nextPeak = this.calculateNextPointInTendencyLine(peaks);
-        
+
         return lastPrice > nextPeak;
     }
 
     calculateNextPointInTendencyLine(peaks: number[]): number {
         const [penultimatePeak, lastPeak] = peaks.slice(-2);
         const peakSlope = (penultimatePeak - lastPeak)
-        
+
         return lastPeak - peakSlope;
     }
 }

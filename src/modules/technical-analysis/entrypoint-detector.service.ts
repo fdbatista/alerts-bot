@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 
 import { PatternsService } from './patterns.service';
 import { TickerService } from '../ticker/ticker.service';
-import { LoggerUtil } from 'src/utils/logger.util';
 import { Asset } from 'src/database/entities/asset';
 import { AssetService } from '../asset/asset.service';
 import { RsiRepository } from './listeners/rsi.repository';
@@ -45,8 +44,6 @@ export class EntrypointDetectorService {
     }
 
     private async isPotentialGoodEntrypoint(asset: Asset, nasdaqRsiInOneMinute: number): Promise<PotentialEntrypoint> {
-        LoggerUtil.log(`------ANALYZING ${asset.symbol}------`);
-
         const assetClosingsInOneMinute = await this.getClosings(asset.id, 1);
         const isPotentialBreak = await this.patternsService.isPotentialBreak(assetClosingsInOneMinute);
 
@@ -63,14 +60,6 @@ export class EntrypointDetectorService {
         const stochInFiveMinutesD = lastStochInFiveMinutes?.d ?? 100;
 
         const isGoodStochSignal = stochInOneMinuteD + stochInOneMinuteK + stochInFiveMinutesD + stochInFiveMinutesK <= 80;
-
-        const analysisResult = {
-            assetRsi: assetRsiInFiveMinute,
-            nasdaqRsi: nasdaqRsiInOneMinute,
-            isPotentialBreak,
-            isGoodRsiSignal,
-            isGoodStochSignal,
-        };
 
         return { asset, isPotentialBreak, isGoodRsiSignal, isGoodStochSignal };
     }
