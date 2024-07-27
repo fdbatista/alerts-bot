@@ -5,13 +5,16 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { RSI_CONFIG, STOCH_CONFIG } from '../_config';
 import { TICKERS_INSERTED_MESSAGE } from './config';
 import { LoggerUtil } from 'src/utils/logger.util';
+import { TickerService } from 'src/modules/ticker/ticker.service';
 
 @Injectable()
 export class IndicatorCalculatorService {
 
+    constructor(private readonly tickerService: TickerService) { }
+
     @OnEvent(TICKERS_INSERTED_MESSAGE, { async: true })
-    calculateRSI() {
-        LoggerUtil.log('CALCULATING RSI...');
+    calculateRSI(externalIds: string[]) {
+        LoggerUtil.log('CALCULATING RSI...', externalIds);
     }
 
     rsi(closings: number[]): number[] {

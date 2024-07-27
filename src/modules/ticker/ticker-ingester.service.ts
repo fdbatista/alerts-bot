@@ -1,100 +1,66 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { LoggerUtil } from 'src/utils/logger.util';
-import { TickerDTO } from '../_common/dto/ticker-dto';
 import { Asset } from 'src/database/entities/asset';
 import { WebullService } from './webull.service';
 import { TickerRepository } from './ticker.repository';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { TICKERS_INSERTED_MESSAGE } from '../technical-analysis/listeners/config';
+import { AssetRepository } from './asset.repository';
+
+const ASSET_TYPES = {
+    CRYPTOCURRENCY: 'Cryptocurrency',
+    STOCK: 'Stock',
+    INDEX: 'Index',
+};
 
 @Injectable()
 export class TickerIngesterService {
     constructor(
         private readonly tickerRepository: TickerRepository,
-        @InjectRepository(Asset)
-        private readonly assetRepository: Repository<Asset>,
+        private readonly assetRepository: AssetRepository,
         private readonly webullService: WebullService,
         private readonly eventEmitter: EventEmitter2
     ) { }
 
     async loadAllAssetsTickers() {
-        const ids = await this.getExternalIdsOfActiveAssets();
-        this.upsertTickers(ids)
-    }
-
-    async getExternalIdsOfActiveAssets(): Promise<string[]> {
-        const assets = await this.getActiveAssets();
-        return assets.map((asset: Asset) => asset.externalId)
+        const assets = await this.assetRepository.getActiveAssets();
+        this.upsertTickers(assets)
     }
 
     async loadCryptoTickers() {
-        const ids = await this.getExternalIdsOfActiveAssetsByType('Cryptocurrency');
+        const ids = await this.assetRepository.getActiveAssetsByType(ASSET_TYPES.CRYPTOCURRENCY);
         this.upsertTickers(ids)
-    }
-
-    async getExternalIdsOfActiveAssetsByType(type: string): Promise<string[]> {
-        const assets = await this.getActiveAssets();
-
-        const result = []
-
-        for (const asset of assets) {
-            const typeEntity = await asset.type;
-            const { name } = typeEntity
-
-            if (name === type) {
-                result.push(asset.externalId)
-            }
-        }
-
-        return result;
-    }
-
-    private async getActiveAssets(): Promise<Asset[]> {
-        return await this.assetRepository.find({
-            where: { isActive: true },
-            relations: ['type'],
-        });
     }
 
     async deleteOldTickers(): Promise<void> {
         await this.tickerRepository.deleteOldTickers();
     }
 
-    private async upsertTickers(ids: string[]): Promise<void> {
+    private async upsertTickers(assets: Asset[]): Promise<void> {
+        const externalIds = assets.map((asset: Asset) => asset.externalId)
+
         try {
-            const tickers = await this.webullService.getTickers(ids);
+            const tickers = await this.webullService.getTickers(externalIds);
+            const validTickers = [];
+            const validIds = [];
 
-            const promises = tickers
-                .map(async (ticker: TickerDTO) => {
-                    const { externalId } = ticker;
-                    const asset = await this.assetRepository.findOne({
-                        where: { externalId }
-                    });
+            for (const ticker of tickers) {
+                const { externalId } = ticker;
+                const asset = assets.find((asset: Asset) => asset.externalId === externalId)
 
-                    if (asset) {
-                        ticker.assetId = asset.id
-                    }
-                    return ticker;
-                })
-
-            const data = await Promise.all(promises)
-            
-            const validData = data
-                .filter((ticker: TickerDTO) => ticker.assetId > -1)
-                .map((ticker: TickerDTO) => {
+                if (asset) {
                     const timestamp = new Date(ticker.timestamp);
                     timestamp.setSeconds(0);
                     timestamp.setMilliseconds(0);
 
-                    return { ...ticker, timestamp };
-                });
+                    validTickers.push({ ...ticker, assetId: asset.id, timestamp });
+                    validIds.push(asset.id);
+                }
+            }
 
-            await this.tickerRepository.upsertTickers(validData);
+            await this.tickerRepository.upsertTickers(validTickers);
 
-            this.eventEmitter.emit(TICKERS_INSERTED_MESSAGE);
-            LoggerUtil.log('Tickers inserted');
+            this.eventEmitter.emit(TICKERS_INSERTED_MESSAGE, validIds);
         } catch (error) {
             const { message } = error;
             LoggerUtil.error(message);

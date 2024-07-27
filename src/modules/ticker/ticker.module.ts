@@ -15,10 +15,25 @@ import { Strategy } from 'src/database/entities/strategy';
 import { StrategySignal } from 'src/database/entities/strategy-signal';
 import { TickerRepository } from './ticker.repository';
 import { TickerService } from './ticker.service';
+import { Rsi } from 'src/database/entities/rsi';
+import { Stoch } from 'src/database/entities/stoch';
+import { AssetRepository } from './asset.repository';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Ticker, Asset, AssetType, Strategy, StrategySignal]), EnvModule, HttpModule],
-  providers: [TickerIngesterService, TickerSchedulerService, WebullService, TickerRepository, TickerService],
+  imports: [
+    TypeOrmModule.forFeature([
+      Ticker,
+      Asset,
+      AssetType,
+      Strategy,
+      StrategySignal,
+      Rsi,
+      Stoch,
+    ]),
+    EnvModule,
+    HttpModule
+  ],
+  providers: [TickerIngesterService, TickerSchedulerService, WebullService, TickerRepository, TickerService, AssetRepository],
   exports: [TickerIngesterService, TickerSchedulerService, TickerService],
   controllers: [TickerController],
 })
