@@ -8,11 +8,13 @@ import { EntrypointDetectorService } from './entrypoint-detector.service';
 import { TickerModule } from '../ticker/ticker.module';
 import { AssetModule } from '../asset/asset.module';
 import { IndicatorCalculatorService } from './listeners/indicator-calculator.service';
+import { Rsi } from 'src/database/entities/rsi';
+import { Stoch } from 'src/database/entities/stoch';
 
 @Module({
   imports:
     [
-      TypeOrmModule.forFeature([Ticker]),
+      TypeOrmModule.forFeature([Ticker, Rsi, Stoch]),
       TickerModule,
       AssetModule
     ],

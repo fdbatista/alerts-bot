@@ -41,6 +41,7 @@ export class TickerIngesterService {
 
         try {
             const tickers = await this.webullService.fetchTickers(externalIds);
+            
             const validTickers = [];
             const validIds = [];
 
@@ -60,7 +61,7 @@ export class TickerIngesterService {
 
             await this.tickerRepository.upsertTickers(validTickers);
 
-            this.eventEmitter.emit(TICKERS_INSERTED_MESSAGE, validIds);
+            this.eventEmitter.emit(TICKERS_INSERTED_MESSAGE, assets);
         } catch (error) {
             const { message } = error;
             LoggerUtil.error(message);

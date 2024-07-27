@@ -71,7 +71,7 @@ export class EntrypointDetectorService {
     }
 
     async getClosings(assetId: number, candleDuration: number): Promise<number[]> {
-        const tickers = await this.tickerService.getTickers(assetId, candleDuration);
+        const tickers = await this.tickerService.getCandlesticks(assetId, candleDuration);
 
         return tickers.map(ticker => ticker.close);
     }

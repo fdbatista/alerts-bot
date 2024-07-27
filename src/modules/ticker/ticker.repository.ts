@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Ticker } from 'src/database/entities/ticker';
-import { TickerDTO } from '../_common/dto/ticker-dto';
+import { CandlestickDTO, TickerDTO } from '../_common/dto/ticker-dto';
 
 const TICKER_QUERY = `
     select distinct on (interval_start)
@@ -18,11 +18,9 @@ const TICKER_QUERY = `
             close,
             high,
             low,
-            date_trunc('minute', timestamp) - 
-            interval '1 minute' * (extract(minute from timestamp) % :candleDuration) AS interval_start
+            date_trunc('minute', timestamp) - interval '1 minute' * (extract(minute from timestamp) % :candleDuration) AS interval_start
         from ticker
-        where
-        asset_id = :assetId
+        where asset_id = :assetId
     ) subquery
     order by interval_start desc, timestamp desc
     limit 30;
@@ -35,7 +33,7 @@ export class TickerRepository {
         private readonly repository: Repository<Ticker>,
     ) { }
 
-    async getTickers(assetId: number, candleDuration: number): Promise<TickerDTO[]> {
+    async getCandlesticks(assetId: number, candleDuration: number): Promise<CandlestickDTO[]> {
         const query = TICKER_QUERY
             .replace(':assetId', assetId.toString())
             .replace(':candleDuration', candleDuration.toString());

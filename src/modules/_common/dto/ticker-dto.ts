@@ -20,3 +20,13 @@ export class TickerDTO {
     readonly close: number,
   ) { }
 }
+
+export class CandlestickDTO {
+  constructor(
+    readonly interval_start: Date,
+    readonly open: number,
+    readonly close: number,
+    readonly high: number,
+    readonly low: number,
+  ) { }
+}
