@@ -30,7 +30,7 @@ export class NotificatorService {
         this.notifyPotentialEntrypoint([CRYPTOS_TYPE_ID]);
     }
 
-    @Cron(`1 * * * * 6,0`) // Every minute on weekends
+    @Cron(`2 * * * * 6,0`) // Every minute on weekends
     async detectPotentialEntrypointOnWeekends() {
         this.notifyPotentialEntrypoint([CRYPTOS_TYPE_ID]);
     }
