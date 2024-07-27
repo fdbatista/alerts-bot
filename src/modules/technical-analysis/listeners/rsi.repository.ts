@@ -11,7 +11,7 @@ export class RsiRepository {
     ) { }
 
     async upsert(data: Rsi[]): Promise<void> {
-        await this.repository.save(data);
+        await this.repository.upsert(data, ['assetId', 'minutes', 'timestamp']);
     }
 
 }

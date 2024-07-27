@@ -96,13 +96,10 @@ export class IndicatorCalculatorService {
             }
         }
 
-        if (rsiData.length) {
-            this.rsiRepository.upsert(rsiData);
-        }
+        await this.rsiRepository.upsert(rsiData);
+        await this.stochRepository.upsert(stochData);
 
-        if (stochData.length) {
-            this.stochRepository.upsert(stochData);
-        }
+        LoggerUtil.log('INDICATORS CALCULATED');
     }
 
     private rsi(params: any): number[] {
