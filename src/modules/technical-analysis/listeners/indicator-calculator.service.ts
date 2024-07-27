@@ -14,8 +14,8 @@ import { StochRepository } from './stoch.repository';
 
 const INDICATORS_BY_ASSET_TYPE: any = {
     Cryptocurrency: [
-        { candlestick: 1, indicators: ['stoch'] },
-        { candlestick: 5, indicators: ['stoch'] },
+        { candlestick: 1, indicators: ['rsi', 'stoch'] },
+        { candlestick: 5, indicators: ['rsi', 'stoch'] },
     ],
     Stock: [
         { candlestick: 1, indicators: ['stoch'] },
@@ -37,8 +37,6 @@ export class IndicatorCalculatorService {
 
     @OnEvent(TICKERS_INSERTED_MESSAGE, { async: true })
     async calculateIndicators(assets: Asset[]) {
-        LoggerUtil.log('CALCULATING INDICATORS...');
-
         const rsiData: Rsi[] = [];
         const stochData: Stoch[] = [];
 
@@ -102,8 +100,7 @@ export class IndicatorCalculatorService {
         LoggerUtil.log('INDICATORS CALCULATED');
     }
 
-    private rsi(params: any): number[] {
-        const { closings } = params
+    private rsi(closings: number[]): number[] {
         return rsi(closings, RSI_CONFIG);
     }
 

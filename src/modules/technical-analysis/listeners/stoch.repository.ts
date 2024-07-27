@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Stoch } from 'src/database/entities/stoch';
-import { LoggerUtil } from 'src/utils/logger.util';
 
 @Injectable()
 export class StochRepository {
