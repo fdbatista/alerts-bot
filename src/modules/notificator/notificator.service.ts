@@ -37,7 +37,7 @@ export class NotificatorService {
 
     async notifyPotentialEntrypoint(assetTypeIds: number[]): Promise<void> {
         const results = await this.entrypointDetectorService.detectPotentialEntrypoints(assetTypeIds);
-        LoggerUtil.debug('Detection results: ' + results);
+        LoggerUtil.debug('Detection results: ', results);
 
         let message = '';
 
