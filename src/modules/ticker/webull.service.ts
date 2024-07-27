@@ -22,7 +22,7 @@ export class WebullService {
         }
     }
 
-    async getTickers(ids: string[]): Promise<TickerDTO[]> {
+    async fetchTickers(ids: string[]): Promise<TickerDTO[]> {
         const endpoint = this.envService.getValue('WEBULL_REALTIME_ENDPOINT');
         const idsJoined = ids.join(',');
         const fullURL = `${endpoint}?ids=${idsJoined}&includeSecu=1&delay=0&more=1`;

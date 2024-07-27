@@ -40,7 +40,7 @@ export class TickerIngesterService {
         const externalIds = assets.map((asset: Asset) => asset.externalId)
 
         try {
-            const tickers = await this.webullService.getTickers(externalIds);
+            const tickers = await this.webullService.fetchTickers(externalIds);
             const validTickers = [];
             const validIds = [];
 
