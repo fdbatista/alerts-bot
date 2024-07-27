@@ -14,4 +14,13 @@ export class RsiRepository {
         await this.repository.upsert(data, ['assetId', 'minutes', 'timestamp']);
     }
 
+    async getLatest(assetId: number, minutes: number): Promise<Rsi | null> {
+        return await this.repository.findOne({
+            where: { assetId, minutes },
+            order: {
+                timestamp: 'DESC'
+            },
+        });
+    }
+
 }

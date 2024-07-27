@@ -1,16 +1,18 @@
 import { Injectable } from '@nestjs/common';
 
-import { IndicatorsService } from './indicators.service';
 import { PatternsService } from './patterns.service';
 import { TickerService } from '../ticker/ticker.service';
 import { LoggerUtil } from 'src/utils/logger.util';
 import { Asset } from 'src/database/entities/asset';
 import { AssetService } from '../asset/asset.service';
+import { RsiRepository } from './listeners/rsi.repository';
+import { StochRepository } from './listeners/stoch.repository';
 
 export interface PotentialEntrypoint {
     asset: Asset;
     isPotentialBreak: boolean;
     isGoodRsiSignal: boolean;
+    isGoodStochSignal: boolean;
 }
 
 const NASDAQ_ID = 5;
@@ -22,12 +24,15 @@ export class EntrypointDetectorService {
         private readonly assetService: AssetService,
         private readonly tickerService: TickerService,
         private readonly patternsService: PatternsService,
-        private readonly indicatorService: IndicatorsService,
+        private readonly rsiRepository: RsiRepository,
+        private readonly stochRepository: StochRepository,
     ) { }
 
     async detectPotentialEntrypoints(assetTypeIds: number[]): Promise<PotentialEntrypoint[]> {
         const activeAssets = await this.assetService.getActiveAssetsByTypeIds(assetTypeIds);
-        const nasdaqRsiInOneMinute = await this.calculateRsi(NASDAQ_ID, 1);
+        
+        const latestNasdaqRsi = await this.rsiRepository.getLatest(NASDAQ_ID, 1);
+        const nasdaqRsiInOneMinute = latestNasdaqRsi?.value ?? 100;
 
         const result = []
 
@@ -45,29 +50,29 @@ export class EntrypointDetectorService {
         const assetClosingsInOneMinute = await this.getClosings(asset.id, 1);
         const isPotentialBreak = await this.patternsService.isPotentialBreak(assetClosingsInOneMinute);
 
-        const assetRsiInFiveMinute = await this.calculateRsi(asset.id, 5);
-
+        const lastRsi = await this.rsiRepository.getLatest(asset.id, 5);
+        const assetRsiInFiveMinute = lastRsi?.value ?? 100;
         const isGoodRsiSignal = assetRsiInFiveMinute <= RSI_ENTRYPOINT_THRESHOLD && nasdaqRsiInOneMinute <= RSI_ENTRYPOINT_THRESHOLD;
+
+        const lastStochInOneMinute = await this.stochRepository.getLatest(asset.id, 1);
+        const stochInOneMinuteK = lastStochInOneMinute?.k ?? 100;
+        const stochInOneMinuteD = lastStochInOneMinute?.d ?? 100;
+
+        const lastStochInFiveMinutes = await this.stochRepository.getLatest(asset.id, 1);
+        const stochInFiveMinutesK = lastStochInFiveMinutes?.k ?? 100;
+        const stochInFiveMinutesD = lastStochInFiveMinutes?.d ?? 100;
+
+        const isGoodStochSignal = stochInOneMinuteD + stochInOneMinuteK + stochInFiveMinutesD + stochInFiveMinutesK <= 80;
 
         const analysisResult = {
             assetRsi: assetRsiInFiveMinute,
             nasdaqRsi: nasdaqRsiInOneMinute,
             isPotentialBreak,
             isGoodRsiSignal,
+            isGoodStochSignal,
         };
 
-        LoggerUtil.log('RESULT: ', analysisResult);
-
-        return { isPotentialBreak, isGoodRsiSignal, asset };
-    }
-
-    private async calculateRsi(assetId: number, candleDuration: number): Promise<number> {
-        const closings = await this.getClosings(assetId, candleDuration);
-
-        const rsi = this.indicatorService.rsi(closings);
-        const [lastRsi] = rsi.slice(-1);
-
-        return lastRsi;
+        return { asset, isPotentialBreak, isGoodRsiSignal, isGoodStochSignal };
     }
 
     async getClosings(assetId: number, candleDuration: number): Promise<number[]> {

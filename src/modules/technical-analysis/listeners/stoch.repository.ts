@@ -15,4 +15,13 @@ export class StochRepository {
         await this.repository.upsert(data, ['assetId', 'minutes', 'timestamp']);
     }
 
+    async getLatest(assetId: number, minutes: number): Promise<Stoch | null> {
+        return await this.repository.findOne({
+            where: { assetId, minutes },
+            order: {
+                timestamp: 'DESC'
+            },
+        });
+    }
+
 }
