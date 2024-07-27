@@ -11,6 +11,7 @@ import { RsiRepository } from './rsi.repository';
 import { Rsi } from 'src/database/entities/rsi';
 import { Stoch } from 'src/database/entities/stoch';
 import { StochRepository } from './stoch.repository';
+import { IndicatorFactory } from './indicator-factory';
 
 const INDICATORS_BY_ASSET_TYPE: any = {
     Cryptocurrency: [
@@ -65,27 +66,18 @@ export class IndicatorCalculatorService {
                             const rsi: number[] = this.rsi(closings);
                             const [lastRsi] = rsi.slice(-1);
 
-                            const rsiEntity = new Rsi();
-                            rsiEntity.assetId = asset.id;
-                            rsiEntity.timestamp = timestamp;
-                            rsiEntity.minutes = candlestick;
-                            rsiEntity.value = lastRsi;
-
+                            const rsiEntity = IndicatorFactory.createRsiEntity(asset.id, timestamp, candlestick, lastRsi);
                             rsiData.push(rsiEntity);
+
                             break;
                         case 'stoch':
                             const stoch: StochResult = this.stoch(highs, lows, closings);
                             const [lastK] = stoch.k.slice(-1);
                             const [lastD] = stoch.d.slice(-1);
 
-                            const stochEntity = new Stoch();
-                            stochEntity.assetId = asset.id;
-                            stochEntity.timestamp = timestamp;
-                            stochEntity.minutes = candlestick;
-                            stochEntity.k = lastK;
-                            stochEntity.d = lastD;
-
+                            const stochEntity = IndicatorFactory.createStochEntity(asset.id, timestamp, candlestick, lastK, lastD);
                             stochData.push(stochEntity);
+
                             break;
                         default:
                             break;
