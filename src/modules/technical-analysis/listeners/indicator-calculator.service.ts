@@ -7,6 +7,10 @@ import { TICKERS_INSERTED_MESSAGE } from './config';
 import { LoggerUtil } from 'src/utils/logger.util';
 import { TickerService } from 'src/modules/ticker/ticker.service';
 import { Asset } from 'src/database/entities/asset';
+import { RsiRepository } from './rsi.repository';
+import { Rsi } from 'src/database/entities/rsi';
+import { Stoch } from 'src/database/entities/stoch';
+import { StochRepository } from './stoch.repository';
 
 const INDICATORS_BY_ASSET_TYPE: any = {
     Cryptocurrency: [
@@ -25,17 +29,24 @@ const INDICATORS_BY_ASSET_TYPE: any = {
 @Injectable()
 export class IndicatorCalculatorService {
 
-    constructor(private readonly tickerService: TickerService) { }
+    constructor(
+        private readonly tickerService: TickerService,
+        private readonly rsiRepository: RsiRepository,
+        private readonly stochRepository: StochRepository,
+    ) { }
 
     @OnEvent(TICKERS_INSERTED_MESSAGE, { async: true })
     async calculateIndicators(assets: Asset[]) {
         LoggerUtil.log('CALCULATING INDICATORS...');
 
+        const rsiData: Rsi[] = [];
+        const stochData: Stoch[] = [];
+
         for (const asset of assets) {
             const assetType: string = (await asset.type).name
             const assetData: any[] = INDICATORS_BY_ASSET_TYPE[assetType];
 
-            for (const { indicators, candlestick } of assetData) {
+            for (const { candlestick, indicators } of assetData) {
                 const candlesticks = await this.tickerService.getCandlesticks(asset.id, candlestick);
 
                 const closings: number[] = [];
@@ -55,17 +66,42 @@ export class IndicatorCalculatorService {
                         case 'rsi':
                             const rsi: number[] = this.rsi(closings);
                             const [lastRsi] = rsi.slice(-1);
+
+                            const rsiEntity = new Rsi();
+                            rsiEntity.assetId = asset.id;
+                            rsiEntity.timestamp = timestamp;
+                            rsiEntity.minutes = candlestick;
+                            rsiEntity.value = lastRsi;
+
+                            rsiData.push(rsiEntity);
                             break;
                         case 'stoch':
                             const stoch: StochResult = this.stoch(highs, lows, closings);
                             const [lastK] = stoch.k.slice(-1);
                             const [lastD] = stoch.d.slice(-1);
+
+                            const stochEntity = new Stoch();
+                            stochEntity.assetId = asset.id;
+                            stochEntity.timestamp = timestamp;
+                            stochEntity.minutes = candlestick;
+                            stochEntity.k = lastK;
+                            stochEntity.d = lastD;
+
+                            stochData.push(stochEntity);
                             break;
                         default:
                             break;
                     }
                 }
             }
+        }
+
+        if (rsiData.length) {
+            this.rsiRepository.upsert(rsiData);
+        }
+
+        if (stochData.length) {
+            this.stochRepository.upsert(stochData);
         }
     }
 

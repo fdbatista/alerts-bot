@@ -10,6 +10,8 @@ import { AssetModule } from '../asset/asset.module';
 import { IndicatorCalculatorService } from './listeners/indicator-calculator.service';
 import { Rsi } from 'src/database/entities/rsi';
 import { Stoch } from 'src/database/entities/stoch';
+import { RsiRepository } from './listeners/rsi.repository';
+import { StochRepository } from './listeners/stoch.repository';
 
 @Module({
   imports:
@@ -23,6 +25,8 @@ import { Stoch } from 'src/database/entities/stoch';
     PatternsService,
     EntrypointDetectorService,
     IndicatorCalculatorService,
+    RsiRepository,
+    StochRepository,
   ],
   controllers: [TechnicalAnalysisController],
   exports: [IndicatorsService, PatternsService, EntrypointDetectorService],
