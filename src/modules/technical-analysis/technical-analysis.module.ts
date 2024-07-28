@@ -11,11 +11,13 @@ import { Rsi } from 'src/database/entities/rsi';
 import { Stoch } from 'src/database/entities/stoch';
 import { RsiRepository } from './listeners/rsi.repository';
 import { StochRepository } from './listeners/stoch.repository';
+import { Ema } from 'src/database/entities/ema';
+import { EmaRepository } from './listeners/ema.repository';
 
 @Module({
   imports:
     [
-      TypeOrmModule.forFeature([Ticker, Rsi, Stoch]),
+      TypeOrmModule.forFeature([Ticker, Rsi, Stoch, Ema]),
       TickerModule,
     ],
   providers: [
@@ -25,6 +27,7 @@ import { StochRepository } from './listeners/stoch.repository';
     IndicatorCalculatorService,
     RsiRepository,
     StochRepository,
+    EmaRepository,
   ],
   controllers: [TechnicalAnalysisController],
   exports: [IndicatorsService, PatternsService, EntrypointDetectorService],

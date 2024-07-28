@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 
-import { StochResult, rsi, stoch } from 'indicatorts';
+import { StochResult, rsi, stoch, ema } from 'indicatorts';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { RSI_CONFIG, STOCH_CONFIG } from '../_config';
+import { EMA_CONFIG, RSI_CONFIG, STOCH_CONFIG } from '../_config';
 import { INDICATORS_UPDATED_MESSAGE, TICKERS_INSERTED_MESSAGE } from './config';
 import { LoggerUtil } from 'src/utils/logger.util';
 import { TickerService } from 'src/modules/ticker/ticker.service';
@@ -13,15 +13,17 @@ import { Stoch } from 'src/database/entities/stoch';
 import { StochRepository } from './stoch.repository';
 import { IndicatorFactory } from './indicator-factory';
 import { CandlestickDTO } from 'src/modules/_common/dto/ticker-dto';
+import { EmaRepository } from './ema.repository';
+import { Ema } from 'src/database/entities/ema';
 
 const INDICATORS_BY_ASSET_TYPE: any = {
     Cryptocurrency: [
-        { candlestick: 1, indicators: ['rsi', 'stoch'] },
-        { candlestick: 5, indicators: ['rsi', 'stoch'] },
+        { candlestick: 1, indicators: ['rsi', 'stoch', 'ema'] },
+        { candlestick: 5, indicators: ['rsi', 'stoch', 'ema'] },
     ],
     Stock: [
-        { candlestick: 1, indicators: ['stoch'] },
-        { candlestick: 5, indicators: ['rsi', 'stoch'] },
+        { candlestick: 1, indicators: ['stoch', 'ema'] },
+        { candlestick: 5, indicators: ['rsi', 'stoch', 'ema'] },
     ],
     Index: [
         { candlestick: 1, indicators: ['rsi'] },
@@ -35,6 +37,7 @@ export class IndicatorCalculatorService {
         private readonly tickerService: TickerService,
         private readonly rsiRepository: RsiRepository,
         private readonly stochRepository: StochRepository,
+        private readonly emaRepository: EmaRepository,
         private readonly eventEmitter: EventEmitter2
     ) { }
 
@@ -42,6 +45,7 @@ export class IndicatorCalculatorService {
     async calculateIndicators(assets: Asset[]) {
         const rsiData: Rsi[] = [];
         const stochData: Stoch[] = [];
+        const emaData: Ema[] = [];
 
         for (const asset of assets) {
             const assetType: string = (await asset.type).name
@@ -71,6 +75,14 @@ export class IndicatorCalculatorService {
                             stochData.push(stochEntity);
 
                             break;
+                        case 'ema':
+                            const ema: number[] = this.ema(closings);
+                            const [lastEma] = ema.slice(-1); 
+
+                            const emaEntity = IndicatorFactory.createEmaEntity(asset.id, timestamp, candlestick, lastEma);
+                            emaData.push(emaEntity);
+
+                            break;
                         default:
                             break;
                     }
@@ -80,6 +92,7 @@ export class IndicatorCalculatorService {
 
         await this.rsiRepository.upsert(rsiData);
         await this.stochRepository.upsert(stochData);
+        await this.emaRepository.upsert(emaData);
 
         this.eventEmitter.emit(INDICATORS_UPDATED_MESSAGE, assets);
         LoggerUtil.log(INDICATORS_UPDATED_MESSAGE);
@@ -105,6 +118,10 @@ export class IndicatorCalculatorService {
 
     private stoch(highs: number[], lows: number[], closings: number[]): StochResult {
         return stoch(highs, lows, closings, STOCH_CONFIG);
+    }
+
+    private ema(closings: number[]): number[] {
+        return ema(closings, EMA_CONFIG);
     }
 
 }
