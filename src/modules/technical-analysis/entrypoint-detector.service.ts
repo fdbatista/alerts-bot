@@ -3,7 +3,6 @@ import { Injectable } from '@nestjs/common';
 import { PatternsService } from './patterns.service';
 import { TickerService } from '../ticker/ticker.service';
 import { Asset } from 'src/database/entities/asset';
-import { AssetService } from '../asset/asset.service';
 import { RsiRepository } from './listeners/rsi.repository';
 import { StochRepository } from './listeners/stoch.repository';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
@@ -22,7 +21,6 @@ const RSI_ENTRYPOINT_THRESHOLD = 35;
 @Injectable()
 export class EntrypointDetectorService {
     constructor(
-        private readonly assetService: AssetService,
         private readonly tickerService: TickerService,
         private readonly patternsService: PatternsService,
         private readonly rsiRepository: RsiRepository,
