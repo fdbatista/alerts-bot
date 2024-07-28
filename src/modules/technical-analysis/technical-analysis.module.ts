@@ -9,10 +9,10 @@ import { TickerModule } from '../ticker/ticker.module';
 import { IndicatorCalculatorService } from './listeners/indicator-calculator.service';
 import { Rsi } from 'src/database/entities/rsi';
 import { Stoch } from 'src/database/entities/stoch';
-import { RsiRepository } from './listeners/rsi.repository';
-import { StochRepository } from './listeners/stoch.repository';
+import { RsiRepository } from './listeners/repository/rsi.repository';
+import { StochRepository } from './listeners/repository/stoch.repository';
 import { Ema } from 'src/database/entities/ema';
-import { EmaRepository } from './listeners/ema.repository';
+import { EmaRepository } from './listeners/repository/ema.repository';
 
 @Module({
   imports:

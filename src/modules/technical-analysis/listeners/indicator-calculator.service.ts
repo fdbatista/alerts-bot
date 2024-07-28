@@ -7,13 +7,13 @@ import { INDICATORS_UPDATED_MESSAGE, TICKERS_INSERTED_MESSAGE } from './config';
 import { LoggerUtil } from 'src/utils/logger.util';
 import { TickerService } from 'src/modules/ticker/ticker.service';
 import { Asset } from 'src/database/entities/asset';
-import { RsiRepository } from './rsi.repository';
+import { RsiRepository } from './repository/rsi.repository';
 import { Rsi } from 'src/database/entities/rsi';
 import { Stoch } from 'src/database/entities/stoch';
-import { StochRepository } from './stoch.repository';
+import { StochRepository } from './repository/stoch.repository';
 import { IndicatorFactory } from './indicator-factory';
 import { CandlestickDTO } from 'src/modules/_common/dto/ticker-dto';
-import { EmaRepository } from './ema.repository';
+import { EmaRepository } from './repository/ema.repository';
 import { Ema } from 'src/database/entities/ema';
 
 const INDICATORS_BY_ASSET_TYPE: any = {

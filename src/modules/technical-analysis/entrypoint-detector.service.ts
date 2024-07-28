@@ -3,8 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { PatternsService } from './patterns.service';
 import { TickerService } from '../ticker/ticker.service';
 import { Asset } from 'src/database/entities/asset';
-import { RsiRepository } from './listeners/rsi.repository';
-import { StochRepository } from './listeners/stoch.repository';
+import { RsiRepository } from './listeners/repository/rsi.repository';
+import { StochRepository } from './listeners/repository/stoch.repository';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { INDICATORS_UPDATED_MESSAGE, TECHNICAL_ANALYZE_FNISHED_MESSAGE } from './listeners/config';
 
