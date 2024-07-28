@@ -51,17 +51,21 @@ export class EntrypointDetectorService {
         const assetRsiInFiveMinute = lastRsi?.value ?? 100;
         const isGoodRsiSignal = assetRsiInFiveMinute <= RSI_ENTRYPOINT_THRESHOLD && nasdaqRsiInOneMinute <= RSI_ENTRYPOINT_THRESHOLD;
 
-        const lastStochInOneMinute = await this.stochRepository.getLatest(asset.id, 1);
-        const stochInOneMinuteK = lastStochInOneMinute?.k ?? 100;
-        const stochInOneMinuteD = lastStochInOneMinute?.d ?? 100;
+        const { k: stochInOneMinuteK, d: stochInOneMinuteD } = await this.getLastStoch(asset.id, 1);
+        const { k: stochInFiveMinutesK, d: stochInFiveMinutesD } = await this.getLastStoch(asset.id, 5);
 
-        const lastStochInFiveMinutes = await this.stochRepository.getLatest(asset.id, 1);
-        const stochInFiveMinutesK = lastStochInFiveMinutes?.k ?? 100;
-        const stochInFiveMinutesD = lastStochInFiveMinutes?.d ?? 100;
-
-        const isGoodStochSignal = stochInOneMinuteD + stochInOneMinuteK + stochInFiveMinutesD + stochInFiveMinutesK <= 80;
+        const isGoodStochSignal =
+            stochInOneMinuteD + stochInOneMinuteK + stochInFiveMinutesD + stochInFiveMinutesK <= 80;
 
         return { asset, isPotentialBreak, isGoodRsiSignal, isGoodStochSignal };
+    }
+
+    private async getLastStoch(assetId: number, minutes: number): Promise<{ k: number, d: number }> {
+        const lastStoch = await this.stochRepository.getLatest(assetId, minutes);
+        const k = lastStoch?.k ?? 100;
+        const d = lastStoch?.d ?? 100;
+
+        return { k, d };
     }
 
     async getClosings(assetId: number, candleDuration: number): Promise<number[]> {

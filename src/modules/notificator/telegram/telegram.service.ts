@@ -24,7 +24,6 @@ export class TelegramService {
 
         try {
             await this.httpService.post(url, params);
-            LoggerUtil.log('Telegram message sent');
         } catch (error) {
             const { message } = error
             LoggerUtil.error(`Error sending Telegram message: ${message}`);
