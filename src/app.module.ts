@@ -10,7 +10,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TickerModule } from './modules/ticker/ticker.module';
 import { NotificatorModule } from './modules/notificator/notificator.module';
 import { ScheduleModule } from '@nestjs/schedule';
-import { AssetModule } from './modules/asset/asset.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
@@ -31,7 +30,6 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     EnvModule,
     TickerModule,
     NotificatorModule,
-    AssetModule,
     EventEmitterModule.forRoot()
   ],
   controllers: [AppController],

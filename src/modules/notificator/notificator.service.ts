@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { LoggerUtil } from 'src/utils/logger.util';
 import { PotentialEntrypoint } from 'src/modules/technical-analysis/entrypoint-detector.service';
-import { MESSAGES, POTENTIAL_BREAK_MESSAGE, POTENTIAL_RSI_MESSAGE, POTENTIAL_STOCH_MESSAGE } from './_config';
+import { MESSAGES } from './_config';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { ALERT_ON_TELEGRAM_MESSAGE, TECHNICAL_ANALYZE_FNISHED_MESSAGE } from '../technical-analysis/listeners/config';
 
@@ -32,7 +31,6 @@ export class NotificatorService {
         if (positiveValidations.length > 0) {
             const message = positiveValidations.join('\n');
             this.eventEmitter.emit(ALERT_ON_TELEGRAM_MESSAGE, message);
-            LoggerUtil.debug(message);
         }
     }
 
