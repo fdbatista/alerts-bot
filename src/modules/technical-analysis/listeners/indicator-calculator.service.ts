@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 
 import { StochResult, rsi, stoch } from 'indicatorts';
-import { OnEvent } from '@nestjs/event-emitter';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { RSI_CONFIG, STOCH_CONFIG } from '../_config';
-import { TICKERS_INSERTED_MESSAGE } from './config';
+import { INDICATORS_UPDATED_MESSAGE, TICKERS_INSERTED_MESSAGE } from './config';
 import { LoggerUtil } from 'src/utils/logger.util';
 import { TickerService } from 'src/modules/ticker/ticker.service';
 import { Asset } from 'src/database/entities/asset';
@@ -12,6 +12,7 @@ import { Rsi } from 'src/database/entities/rsi';
 import { Stoch } from 'src/database/entities/stoch';
 import { StochRepository } from './stoch.repository';
 import { IndicatorFactory } from './indicator-factory';
+import { CandlestickDTO } from 'src/modules/_common/dto/ticker-dto';
 
 const INDICATORS_BY_ASSET_TYPE: any = {
     Cryptocurrency: [
@@ -34,6 +35,7 @@ export class IndicatorCalculatorService {
         private readonly tickerService: TickerService,
         private readonly rsiRepository: RsiRepository,
         private readonly stochRepository: StochRepository,
+        private readonly eventEmitter: EventEmitter2
     ) { }
 
     @OnEvent(TICKERS_INSERTED_MESSAGE, { async: true })
@@ -46,19 +48,9 @@ export class IndicatorCalculatorService {
             const assetData: any[] = INDICATORS_BY_ASSET_TYPE[assetType];
 
             for (const { candlestick, indicators } of assetData) {
-                const candlesticks = await this.tickerService.getCandlesticks(asset.id, candlestick);
-
-                const closings: number[] = [];
-                const highs: number[] = [];
-                const lows: number[] = [];
-
-                for (const ticker of candlesticks) {
-                    highs.push(ticker.high);
-                    lows.push(ticker.low);
-                    closings.push(ticker.close);
-                }
-
+                const candlesticks: CandlestickDTO[] = await this.tickerService.getCandlesticks(asset.id, candlestick);
                 const [{ interval_start: timestamp }] = candlesticks.slice(-1);
+                const { highs, lows, closings } = this.getClosingsHighsAndLows(candlesticks);
 
                 for (const indicator of indicators) {
                     switch (indicator) {
@@ -89,7 +81,22 @@ export class IndicatorCalculatorService {
         await this.rsiRepository.upsert(rsiData);
         await this.stochRepository.upsert(stochData);
 
-        LoggerUtil.log('INDICATORS CALCULATED');
+        this.eventEmitter.emit(INDICATORS_UPDATED_MESSAGE, assets);
+        LoggerUtil.log(INDICATORS_UPDATED_MESSAGE);
+    }
+
+    private getClosingsHighsAndLows(candlesticks: CandlestickDTO[]) {
+        const closings: number[] = [];
+        const highs: number[] = [];
+        const lows: number[] = [];
+
+        for (const ticker of candlesticks) {
+            highs.push(ticker.high);
+            lows.push(ticker.low);
+            closings.push(ticker.close);
+        }
+
+        return { highs, lows, closings };
     }
 
     private rsi(closings: number[]): number[] {

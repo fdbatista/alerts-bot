@@ -6,6 +6,8 @@ import { Asset } from 'src/database/entities/asset';
 import { AssetService } from '../asset/asset.service';
 import { RsiRepository } from './listeners/rsi.repository';
 import { StochRepository } from './listeners/stoch.repository';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { INDICATORS_UPDATED_MESSAGE, TECHNICAL_ANALYZE_FNISHED_MESSAGE } from './listeners/config';
 
 export interface PotentialEntrypoint {
     asset: Asset;
@@ -25,22 +27,22 @@ export class EntrypointDetectorService {
         private readonly patternsService: PatternsService,
         private readonly rsiRepository: RsiRepository,
         private readonly stochRepository: StochRepository,
+        private readonly eventEmitter: EventEmitter2
     ) { }
 
-    async detectPotentialEntrypoints(assetTypeIds: number[]): Promise<PotentialEntrypoint[]> {
-        const activeAssets = await this.assetService.getActiveAssetsByTypeIds(assetTypeIds);
-        
+    @OnEvent(INDICATORS_UPDATED_MESSAGE, { async: true })
+    async detectPotentialEntrypoints(assets: Asset[]): Promise<void> {
         const latestNasdaqRsi = await this.rsiRepository.getLatest(NASDAQ_ID, 1);
         const nasdaqRsiInOneMinute = latestNasdaqRsi?.value ?? 100;
 
-        const result = []
+        const result: PotentialEntrypoint[] = []
 
-        for (const asset of activeAssets) {
+        for (const asset of assets) {
             const potentialEntrypoint = await this.isPotentialGoodEntrypoint(asset, nasdaqRsiInOneMinute);
             result.push(potentialEntrypoint);
         }
 
-        return result;
+        this.eventEmitter.emit(TECHNICAL_ANALYZE_FNISHED_MESSAGE, result);
     }
 
     private async isPotentialGoodEntrypoint(asset: Asset, nasdaqRsiInOneMinute: number): Promise<PotentialEntrypoint> {
