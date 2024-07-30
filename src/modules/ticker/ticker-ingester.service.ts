@@ -6,12 +6,7 @@ import { TickerRepository } from './ticker.repository';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { TICKERS_INSERTED_MESSAGE } from '../technical-analysis/listeners/config';
 import { AssetRepository } from './asset.repository';
-
-const ASSET_TYPES = {
-    CRYPTOCURRENCY: 'Cryptocurrency',
-    STOCK: 'Stock',
-    INDEX: 'Index',
-};
+import { ASSET_TYPES } from 'src/modules/_common/util/asset-types.util';
 
 @Injectable()
 export class TickerIngesterService {
@@ -28,8 +23,8 @@ export class TickerIngesterService {
     }
 
     async loadCryptoTickers() {
-        const ids = await this.assetRepository.getActiveAssetsByType(ASSET_TYPES.CRYPTOCURRENCY);
-        this.upsertTickers(ids)
+        const assets = await this.assetRepository.getActiveAssetsByType(ASSET_TYPES.CRYPTOCURRENCY);
+        this.upsertTickers(assets)
     }
 
     async deleteOldTickers(): Promise<void> {
