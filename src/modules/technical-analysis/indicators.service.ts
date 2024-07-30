@@ -1,17 +1,24 @@
 import { Injectable } from '@nestjs/common';
-import { RSI_CONFIG } from './_config';
 
-import { stoch, rsi, StochResult } from 'indicatorts';
+import { RsiRepository } from './listeners/repository/rsi.repository';
+import { StochRepository } from './listeners/repository/stoch.repository';
+import { EmaRepository } from './listeners/repository/ema.repository';
+import { GetRsiDto } from './dto/rsi.dto';
+import { Rsi } from 'src/database/entities/rsi';
 
-const STOCH_CONFIG = { kPeriod: 14, dPeriod: 3 };
 
 @Injectable()
 export class IndicatorsService {
-    rsi(closings: number[]): number[] {
-        return rsi(closings, RSI_CONFIG);
+
+    constructor(
+        private readonly rsiRepository: RsiRepository,
+        private readonly stochRepository: StochRepository,
+        private readonly emaRepository: EmaRepository,
+    ) { }
+
+    async getRsi(dto: GetRsiDto): Promise<Rsi[]> {
+        const { assetId, minutes } = dto;
+        return await this.rsiRepository.getValues(assetId, minutes, 30);
     }
 
-    stoch(highs: number[], lows: number[], closings: number[]): StochResult {
-        return stoch(highs, lows, closings, STOCH_CONFIG);
-    }
 }

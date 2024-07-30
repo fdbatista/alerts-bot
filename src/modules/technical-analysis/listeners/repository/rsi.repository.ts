@@ -23,4 +23,16 @@ export class RsiRepository {
         });
     }
 
+    async getValues(assetId: number, minutes: number, take: number): Promise<Rsi[]> {
+        const values = await this.repository.find({
+            where: { assetId, minutes },
+            order: {
+                timestamp: 'DESC'
+            },
+            take,
+        });
+
+        return values.reverse();
+    }
+
 }

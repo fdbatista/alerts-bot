@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { IndicatorsService } from './indicators.service';
-import { TechnicalAnalysisController } from './technical-analysis.controller';
+import { IndicatorsController } from './indicator.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Ticker } from 'src/database/entities/ticker';
 import { PatternsService } from './patterns.service';
@@ -29,7 +29,7 @@ import { EmaRepository } from './listeners/repository/ema.repository';
     StochRepository,
     EmaRepository,
   ],
-  controllers: [TechnicalAnalysisController],
+  controllers: [IndicatorsController],
   exports: [IndicatorsService, PatternsService, EntrypointDetectorService],
 })
 export class TechnicalAnalysisModule { }
