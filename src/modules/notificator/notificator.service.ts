@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PotentialEntrypoint } from 'src/modules/technical-analysis/entrypoint-detector.service';
 import { MESSAGES } from './_config';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { ALERT_ON_TELEGRAM_MESSAGE, TECHNICAL_ANALYZE_FNISHED_MESSAGE } from '../technical-analysis/listeners/config';
+import { ALERT_ON_TELEGRAM_MESSAGE, TECHNICAL_ANALYSIS_FNISHED_MESSAGE } from '../technical-analysis/listeners/config';
 
 @Injectable()
 export class NotificatorService {
@@ -10,13 +10,12 @@ export class NotificatorService {
         private readonly eventEmitter: EventEmitter2
     ) { }
 
-    @OnEvent(TECHNICAL_ANALYZE_FNISHED_MESSAGE, { async: true })
+    @OnEvent(TECHNICAL_ANALYSIS_FNISHED_MESSAGE, { async: true })
     async analyzeTechnicalResults(results: PotentialEntrypoint[]): Promise<void> {
         const positiveValidations = results.map(result => {
-            const { asset, isPotentialBreak, isGoodRsiSignal, isGoodStochSignal } = result;
-            const analysisResult = { isPotentialBreak, isGoodRsiSignal, isGoodStochSignal };
+            const { asset } = result;
 
-            const positiveValidations = Object.entries(analysisResult)
+            const positiveValidations = Object.entries(result)
                 .filter(([, value]) => value === true)
                 .map(([key]) => MESSAGES[key as keyof typeof MESSAGES]);
 
