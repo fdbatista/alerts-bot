@@ -54,7 +54,7 @@ export class IndicatorCalculatorService {
             for (const { candlestick, indicators } of assetData) {
                 const candlesticks: CandlestickDTO[] = await this.tickerService.getCandlesticks(asset.id, candlestick);
                 const [{ interval_start: timestamp }] = candlesticks.slice(-1);
-                const { highs, lows, closings } = this.getClosingsHighsAndLows(candlesticks);
+                const { highs, lows, closings } = this.getHighsLowsAndClosings(candlesticks);
 
                 for (const indicator of indicators) {
                     switch (indicator) {
@@ -98,7 +98,7 @@ export class IndicatorCalculatorService {
         LoggerUtil.log(INDICATORS_UPDATED_MESSAGE);
     }
 
-    private getClosingsHighsAndLows(candlesticks: CandlestickDTO[]) {
+    private getHighsLowsAndClosings(candlesticks: CandlestickDTO[]) {
         const closings: number[] = [];
         const highs: number[] = [];
         const lows: number[] = [];
