@@ -26,7 +26,7 @@ export class Rsi {
   minutes: number;
 
   @Column("double precision", { name: "value", nullable: true, precision: 53 })
-  value: number | null;
+  value: number;
 
   @ManyToOne(() => Asset, (asset) => asset.rsis, {
     onDelete: "CASCADE",

@@ -32,7 +32,7 @@ export class CreateRsiTable1722029825416 implements MigrationInterface {
               {
                 name: 'value',
                 type: 'float',
-                isNullable: true,
+                isNullable: false,
               },
             ],
             indices: [

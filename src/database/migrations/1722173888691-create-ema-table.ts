@@ -32,7 +32,7 @@ export class CreateEmaTable1722173888691 implements MigrationInterface {
               {
                 name: 'value',
                 type: 'float',
-                isNullable: true,
+                isNullable: false,
               },
             ],
             indices: [

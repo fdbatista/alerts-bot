@@ -32,12 +32,12 @@ export class CreateStochTable1722029837788 implements MigrationInterface {
               {
                 name: 'k',
                 type: 'float',
-                isNullable: true,
+                isNullable: false,
               },
               {
                 name: 'd',
                 type: 'float',
-                isNullable: true,
+                isNullable: false,
               },
             ],
             indices: [

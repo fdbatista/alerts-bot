@@ -26,10 +26,10 @@ export class Stoch {
   minutes: number;
 
   @Column("double precision", { name: "k", nullable: true, precision: 53 })
-  k: number | null;
+  k: number;
 
   @Column("double precision", { name: "d", nullable: true, precision: 53 })
-  d: number | null;
+  d: number;
 
   @ManyToOne(() => Asset, (asset) => asset.stoches, {
     onDelete: "CASCADE",

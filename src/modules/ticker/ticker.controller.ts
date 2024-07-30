@@ -1,6 +1,7 @@
-import { Controller, Get, Param, Version } from '@nestjs/common';
+import { Controller, Get, Param, Query, Version } from '@nestjs/common';
 import { TickerService } from './ticker.service';
 import { CandlestickDTO } from '../_common/dto/ticker-dto';
+import { GetIndicatorRequestDto } from '../technical-analysis/dto/indicator.dto';
 
 @Controller('tickers')
 export class TickerController {
@@ -10,11 +11,9 @@ export class TickerController {
     ) { }
 
     @Version('1')
-    @Get(':assetId/minutes/:minutes')
-    async getPotentialEntrypoint(
-        @Param('assetId') assetId: number,
-        @Param('minutes') minutes: number,
-    ): Promise<CandlestickDTO[]> {
+    @Get()
+    async getPotentialEntrypoint(@Query() dto: GetIndicatorRequestDto): Promise<CandlestickDTO[]> {
+        const { assetId, minutes } = dto;
         return await this.tickerService.getCandlesticks(assetId, minutes);
     }
     

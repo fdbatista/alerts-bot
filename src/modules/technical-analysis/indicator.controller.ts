@@ -1,5 +1,5 @@
 import { Controller, Get, Query, Version } from '@nestjs/common';
-import { GetRsiDto } from './dto/rsi.dto';
+import { GetIndicatorRequestDto, GetIndicatorResponseDto } from './dto/indicator.dto';
 import { IndicatorsService } from './indicators.service';
 import { Rsi } from 'src/database/entities/rsi';
 
@@ -10,8 +10,9 @@ export class IndicatorsController {
 
     @Version('1')
     @Get('rsi')
-    async getRsi(@Query() dto: GetRsiDto): Promise<Rsi[]> {
-        return await this.indicatorsService.getRsi(dto);
+    async getRsi(@Query() dto: GetIndicatorRequestDto): Promise<GetIndicatorResponseDto[]> {
+        const { assetId, minutes } = dto;
+        return await this.indicatorsService.getRsi(assetId, minutes);
     }
 
 }
