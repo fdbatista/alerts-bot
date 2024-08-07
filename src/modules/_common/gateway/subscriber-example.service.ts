@@ -5,7 +5,7 @@ import { EnvService } from '../env/env.service';
 import { LoggerUtil } from 'src/utils/logger.util';
 
 @Injectable()
-export class GatewayService {
+export class SubscriberService {
 
     private socket: Socket;
 
