@@ -4,7 +4,6 @@ import { StochResult, rsi, stoch, ema } from 'indicatorts';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { EMA_CONFIG, RSI_CONFIG, STOCH_CONFIG } from '../_config';
 import { INDICATORS_UPDATED_MESSAGE, TICKERS_INSERTED_MESSAGE } from './config';
-import { LoggerUtil } from 'src/utils/logger.util';
 import { TickerService } from 'src/modules/ticker/ticker.service';
 import { Asset } from 'src/database/entities/asset';
 import { RsiRepository } from './repository/rsi.repository';
@@ -73,29 +72,16 @@ export class IndicatorCalculatorService {
                 for (const indicator of indicators) {
                     switch (indicator) {
                         case 'rsi':
-                            const rsi: number[] = this.rsi(closings);
-                            const [lastRsi] = rsi.slice(-1);
-
-                            const rsiEntity = IndicatorFactory.createRsiEntity(asset.id, timestamp, candlestick, lastRsi);
+                            const rsiEntity: Rsi = this.buildRsiEntity(asset.id, timestamp, candlestick, closings);
                             rsiData.push(rsiEntity);
-
                             break;
                         case 'stoch':
-                            const stoch: StochResult = this.stoch(highs, lows, closings);
-                            const [lastK] = stoch.k.slice(-1);
-                            const [lastD] = stoch.d.slice(-1);
-
-                            const stochEntity = IndicatorFactory.createStochEntity(asset.id, timestamp, candlestick, lastK, lastD);
+                            const stochEntity: Stoch = this.buildStochEntity(asset.id, timestamp, candlestick, highs, lows, closings);
                             stochData.push(stochEntity);
-
                             break;
                         case 'ema':
-                            const ema: number[] = this.ema(closings);
-                            const [lastEma] = ema.slice(-1); 
-
-                            const emaEntity = IndicatorFactory.createEmaEntity(asset.id, timestamp, candlestick, lastEma);
+                            const emaEntity: Ema = this.buildEma(asset.id, timestamp, candlestick, closings);
                             emaData.push(emaEntity);
-
                             break;
                         default:
                             break;
@@ -109,7 +95,6 @@ export class IndicatorCalculatorService {
         await this.emaRepository.upsert(emaData);
 
         this.eventEmitter.emit(INDICATORS_UPDATED_MESSAGE, assets);
-        LoggerUtil.log(INDICATORS_UPDATED_MESSAGE);
     }
 
     private getHighsLowsAndClosings(candlesticks: CandlestickDTO[]) {
@@ -126,16 +111,28 @@ export class IndicatorCalculatorService {
         return { highs, lows, closings };
     }
 
-    private rsi(closings: number[]): number[] {
-        return rsi(closings, RSI_CONFIG);
+    private buildRsiEntity(assetId: number, timestamp: Date, candlestick: number, closings: number[]): Rsi {
+        const result: number[] = rsi(closings, RSI_CONFIG);
+        const [lastRsi] = result.slice(-1);
+
+        return IndicatorFactory.createRsiEntity(assetId, timestamp, candlestick, lastRsi);
     }
 
-    private stoch(highs: number[], lows: number[], closings: number[]): StochResult {
-        return stoch(highs, lows, closings, STOCH_CONFIG);
+    private buildStochEntity(assetId: number, timestamp: Date, candlestick: number, highs: number[], lows: number[], closings: number[]): Stoch {
+        const result: StochResult = stoch(highs, lows, closings, STOCH_CONFIG);
+        const { k, d } = result;
+
+        const [lastK] = k.slice(-1);
+        const [lastD] = d.slice(-1);
+
+        return IndicatorFactory.createStochEntity(assetId, timestamp, candlestick, lastK, lastD);
     }
 
-    private ema(closings: number[]): number[] {
-        return ema(closings, EMA_CONFIG);
+    private buildEma(assetId: number, timestamp: Date, candlestick: number, closings: number[]): Ema {
+        const result: number[] = ema(closings, EMA_CONFIG);
+        const [lastEma] = result.slice(-1);
+
+        return IndicatorFactory.createEmaEntity(assetId, timestamp, candlestick, lastEma);
     }
 
 }
