@@ -1,4 +1,3 @@
-import { INDICATORS_UPDATED_MESSAGE } from 'src/modules/technical-analysis/listeners/config';
 import { WebSocketGateway, OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect, WebSocketServer } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 
@@ -23,8 +22,8 @@ export class IndicatorsGateway implements OnGatewayInit, OnGatewayConnection, On
     this.clients.delete(client);
   }
 
-  sendMessageToAll(message: string): void {
-    this.server.emit(INDICATORS_UPDATED_MESSAGE, message);
+  emit(channel: string, message: string | undefined = undefined): void {
+    this.server.emit(channel, message);
   }
 
 }

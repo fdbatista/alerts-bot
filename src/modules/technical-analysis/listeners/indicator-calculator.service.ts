@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { INDICATORS_UPDATED_MESSAGE, TICKERS_INSERTED_MESSAGE } from './config';
 import { TickerService } from 'src/modules/ticker/ticker.service';
@@ -97,9 +96,7 @@ export class IndicatorCalculatorService {
         await this.emaRepository.upsert(emaData);
 
         this.eventEmitter.emit(INDICATORS_UPDATED_MESSAGE, assets);
-
-        this.indicatorsGateway.sendMessageToAll('YES BABYYYY');
-        // this.gatewayService.emitClientEvent('YES BABYYYY');
+        this.indicatorsGateway.emit(INDICATORS_UPDATED_MESSAGE);
     }
 
     private getHighsLowsAndClosings(candlesticks: CandlestickDTO[]) {
