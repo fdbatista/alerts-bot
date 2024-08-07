@@ -14,6 +14,7 @@ import { Ema } from 'src/database/entities/ema';
 import { RsiFactory } from './indicator-factory/rsi-factory';
 import { StochFactory } from './indicator-factory/stoch-factory';
 import { EmaFactory } from './indicator-factory/ema-factory';
+import { IndicatorsGateway } from 'src/modules/_common/gateway/indicators.gateway';
 
 const INDICATORS_BY_ASSET_TYPE: any = {
     Cryptocurrency: [
@@ -51,7 +52,8 @@ export class IndicatorCalculatorService {
         private readonly rsiRepository: RsiRepository,
         private readonly stochRepository: StochRepository,
         private readonly emaRepository: EmaRepository,
-        private readonly eventEmitter: EventEmitter2
+        private readonly eventEmitter: EventEmitter2,
+        private readonly indicatorsGateway: IndicatorsGateway,
     ) { }
 
     @OnEvent(TICKERS_INSERTED_MESSAGE, { async: true })
@@ -95,6 +97,9 @@ export class IndicatorCalculatorService {
         await this.emaRepository.upsert(emaData);
 
         this.eventEmitter.emit(INDICATORS_UPDATED_MESSAGE, assets);
+
+        this.indicatorsGateway.sendMessageToAll('YES BABYYYY');
+        // this.gatewayService.emitClientEvent('YES BABYYYY');
     }
 
     private getHighsLowsAndClosings(candlesticks: CandlestickDTO[]) {

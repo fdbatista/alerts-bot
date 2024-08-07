@@ -13,12 +13,14 @@ import { RsiRepository } from './listeners/repository/rsi.repository';
 import { StochRepository } from './listeners/repository/stoch.repository';
 import { Ema } from 'src/database/entities/ema';
 import { EmaRepository } from './listeners/repository/ema.repository';
+import { GatewayModule } from '../_common/gateway/gateway.module';
 
 @Module({
   imports:
     [
       TypeOrmModule.forFeature([Ticker, Rsi, Stoch, Ema]),
       TickerModule,
+      GatewayModule,
     ],
   providers: [
     IndicatorsService,
