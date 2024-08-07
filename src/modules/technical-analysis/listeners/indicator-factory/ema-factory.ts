@@ -5,7 +5,7 @@ const EMA_CONFIG = { period: 45 };
 
 export class EmaFactory {
     
-    static build(assetId: number, timestamp: Date, candlestickDuration: number, closings: number[]): Ema {
+    public static build(assetId: number, timestamp: Date, candlestickDuration: number, closings: number[]): Ema {
         const emaResult: number[] = ema(closings, EMA_CONFIG);
         const [lastEma] = emaResult.slice(-1);
 
