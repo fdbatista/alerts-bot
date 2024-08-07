@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { StochResult, rsi, stoch, ema } from 'indicatorts';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { EMA_CONFIG, RSI_CONFIG, STOCH_CONFIG } from '../_config';
 import { INDICATORS_UPDATED_MESSAGE, TICKERS_INSERTED_MESSAGE } from './config';
 import { TickerService } from 'src/modules/ticker/ticker.service';
 import { Asset } from 'src/database/entities/asset';
@@ -10,10 +8,12 @@ import { RsiRepository } from './repository/rsi.repository';
 import { Rsi } from 'src/database/entities/rsi';
 import { Stoch } from 'src/database/entities/stoch';
 import { StochRepository } from './repository/stoch.repository';
-import { IndicatorFactory } from './indicator-factory';
 import { CandlestickDTO } from 'src/modules/_common/dto/ticker-dto';
 import { EmaRepository } from './repository/ema.repository';
 import { Ema } from 'src/database/entities/ema';
+import { RsiFactory } from './indicator-factory/rsi-factory';
+import { StochFactory } from './indicator-factory/stoch-factory';
+import { EmaFactory } from './indicator-factory/ema-factory';
 
 const INDICATORS_BY_ASSET_TYPE: any = {
     Cryptocurrency: [
@@ -39,7 +39,7 @@ const INDICATORS_BY_ASSET_TYPE: any = {
         { candlestick: 1440, indicators: ['rsi', 'stoch', 'ema'] },
     ],
     Index: [
-        { candlestick: 1, indicators: ['rsi'] },
+        { candlestick: 5, indicators: ['rsi', 'stoch', 'ema'] },
     ]
 };
 
@@ -72,15 +72,15 @@ export class IndicatorCalculatorService {
                 for (const indicator of indicators) {
                     switch (indicator) {
                         case 'rsi':
-                            const rsiEntity: Rsi = this.buildRsiEntity(asset.id, timestamp, candlestick, closings);
+                            const rsiEntity: Rsi = RsiFactory.build(asset.id, timestamp, candlestick, closings);
                             rsiData.push(rsiEntity);
                             break;
                         case 'stoch':
-                            const stochEntity: Stoch = this.buildStochEntity(asset.id, timestamp, candlestick, highs, lows, closings);
+                            const stochEntity: Stoch = StochFactory.build(asset.id, timestamp, candlestick, highs, lows, closings);
                             stochData.push(stochEntity);
                             break;
                         case 'ema':
-                            const emaEntity: Ema = this.buildEma(asset.id, timestamp, candlestick, closings);
+                            const emaEntity: Ema = EmaFactory.build(asset.id, timestamp, candlestick, closings);
                             emaData.push(emaEntity);
                             break;
                         default:
@@ -109,30 +109,6 @@ export class IndicatorCalculatorService {
         }
 
         return { highs, lows, closings };
-    }
-
-    private buildRsiEntity(assetId: number, timestamp: Date, candlestick: number, closings: number[]): Rsi {
-        const result: number[] = rsi(closings, RSI_CONFIG);
-        const [lastRsi] = result.slice(-1);
-
-        return IndicatorFactory.createRsiEntity(assetId, timestamp, candlestick, lastRsi);
-    }
-
-    private buildStochEntity(assetId: number, timestamp: Date, candlestick: number, highs: number[], lows: number[], closings: number[]): Stoch {
-        const result: StochResult = stoch(highs, lows, closings, STOCH_CONFIG);
-        const { k, d } = result;
-
-        const [lastK] = k.slice(-1);
-        const [lastD] = d.slice(-1);
-
-        return IndicatorFactory.createStochEntity(assetId, timestamp, candlestick, lastK, lastD);
-    }
-
-    private buildEma(assetId: number, timestamp: Date, candlestick: number, closings: number[]): Ema {
-        const result: number[] = ema(closings, EMA_CONFIG);
-        const [lastEma] = result.slice(-1);
-
-        return IndicatorFactory.createEmaEntity(assetId, timestamp, candlestick, lastEma);
     }
 
 }
