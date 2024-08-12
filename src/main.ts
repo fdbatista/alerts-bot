@@ -12,6 +12,7 @@ async function bootstrap() {
   });
 
   app.useGlobalPipes(new ValidationPipe());
+  app.enableCors();
 
   const appPort = parseInt(process.env.APP_PORT ?? DEFAULT_VALUES.APP_PORT);
   console.log(`Service listening on port ${appPort}`);

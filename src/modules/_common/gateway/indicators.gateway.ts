@@ -1,7 +1,14 @@
 import { WebSocketGateway, OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect, WebSocketServer } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 
-@WebSocketGateway(8001)
+@WebSocketGateway(8001, {
+  cors: {
+    origin: 'http://localhost:8080', // Adjust this to match your frontend's origin
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type'],
+    credentials: true
+  }
+})
 export class IndicatorsGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 
   private clients: Set<Socket> = new Set();
