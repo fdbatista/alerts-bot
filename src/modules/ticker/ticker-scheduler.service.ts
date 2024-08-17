@@ -23,7 +23,7 @@ export class TickerSchedulerService {
     this.tickerIngesterService.loadAllAssetsTickers()
   }
 
-  @Cron('* 14-21 * * 1-5') // Every minute from 14:00 to 21:59 on Monday to Friday
+  @Cron('* 16-21 * * 1-5') // Every minute from 16:00 to 21:59 on Monday to Friday
   async loadAllAssetsFrom14To21() {
     this.tickerIngesterService.loadAllAssetsTickers()
   }
