@@ -14,7 +14,7 @@ export class PatternsService {
         const peaks = this.findMaxPeaks(closings);
         const [lastPrice] = closings.slice(-1);
 
-        return this.isCurrentPriceOverLastPeak(peaks, lastPrice);
+        return this.isDescending(peaks) && this.isCurrentPriceOverLastPeak(peaks, lastPrice);
     }
 
     findMaxPeaks(prices: number[]): number[] {
