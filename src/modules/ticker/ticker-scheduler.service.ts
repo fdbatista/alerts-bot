@@ -33,7 +33,7 @@ export class TickerSchedulerService {
     this.tickerIngesterService.loadCryptoTickers()
   }
 
-  @Cron(`* * * * 6,7`)  // Every minute on Saturday and Sunday
+  @Cron(`0 * * * * 6,7`)  // Every minute on Saturday and Sunday
   async loadCryptosOnWeekends() {
     this.tickerIngesterService.loadCryptoTickers()
   }
