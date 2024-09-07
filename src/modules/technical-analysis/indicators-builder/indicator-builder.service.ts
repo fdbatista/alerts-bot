@@ -14,6 +14,8 @@ import { Ema } from 'src/database/entities/ema';
 import { RsiFactory } from './indicator-factory/rsi-factory';
 import { StochFactory } from './indicator-factory/stoch-factory';
 import { EmaFactory } from './indicator-factory/ema-factory';
+import { IndicatorsUpdatedPayloadDTO } from './indicators-updated-payload.dto';
+import { TickerInsertedDTO } from 'src/modules/ticker/ticker-inserted.dto';
 
 const INDICATORS_BY_ASSET_TYPE: any = {
     Cryptocurrency: [
@@ -55,10 +57,12 @@ export class IndicatorCalculatorService {
     ) { }
 
     @OnEvent(TICKERS_INSERTED_MESSAGE, { async: true })
-    async calculateIndicators(assets: Asset[]) {
+    async calculateIndicators(payload: TickerInsertedDTO) {
         const rsiData: Rsi[] = [];
         const stochData: Stoch[] = [];
         const emaData: Ema[] = [];
+
+        const { assets } = payload
 
         for (const asset of assets) {
             const assetType: string = (await asset.type).name
@@ -94,7 +98,8 @@ export class IndicatorCalculatorService {
         await this.stochRepository.upsert(stochData);
         await this.emaRepository.upsert(emaData);
 
-        this.eventEmitter.emit(INDICATORS_UPDATED_MESSAGE, assets);
+        const eventPayload = new IndicatorsUpdatedPayloadDTO(assets, rsiData, stochData, emaData);
+        this.eventEmitter.emit(INDICATORS_UPDATED_MESSAGE, eventPayload);
     }
 
     private getHighsLowsAndClosings(candlesticks: CandlestickDTO[]) {

@@ -10,6 +10,7 @@ import { INDICATORS_UPDATED_MESSAGE, TECHNICAL_ANALYSIS_FNISHED_MESSAGE } from '
 import { NASDAQ_ID, RSI_ENTRYPOINT_THRESHOLD } from './_config';
 import * as _ from 'lodash';
 import { groupBy } from 'lodash';
+import { IndicatorsUpdatedPayloadDTO } from './indicators-builder/indicators-updated-payload.dto';
 
 export interface PotentialEntrypoint {
     asset: Asset;
@@ -30,7 +31,8 @@ export class EntrypointDetectorService {
     ) { }
 
     @OnEvent(INDICATORS_UPDATED_MESSAGE, { async: true })
-    async detectPotentialEntrypoints(assets: Asset[]): Promise<void> {
+    async detectPotentialEntrypoints(payload: IndicatorsUpdatedPayloadDTO): Promise<void> {
+        const { assets } = payload;
         const result: PotentialEntrypoint[] = []
 
         const assetsWtihType = await Promise.all(

@@ -11,6 +11,7 @@ import { TickerModule } from './modules/ticker/ticker.module';
 import { NotificatorModule } from './modules/notificator/notificator.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { WebsocketModule } from './modules/websocket/websocket.module';
 
 @Module({
   imports: [
@@ -30,7 +31,8 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     EnvModule,
     TickerModule,
     NotificatorModule,
-    EventEmitterModule.forRoot()
+    EventEmitterModule.forRoot(),
+    WebsocketModule
   ],
   controllers: [AppController],
   providers: [AppService],
