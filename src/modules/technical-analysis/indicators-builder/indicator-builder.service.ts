@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { INDICATORS_UPDATED_MESSAGE, TICKERS_INSERTED_MESSAGE } from './config';
+import { RUN_TECHNICAL_ANALYSIS, BUILD_INDICATORS, BROADCAST_TECHNICAL_DATA } from './config';
 import { TickerService } from 'src/modules/ticker/ticker.service';
 import { Asset } from 'src/database/entities/asset';
 import { RsiRepository } from './repository/rsi.repository';
@@ -14,7 +14,7 @@ import { Ema } from 'src/database/entities/ema';
 import { RsiFactory } from './indicator-factory/rsi-factory';
 import { StochFactory } from './indicator-factory/stoch-factory';
 import { EmaFactory } from './indicator-factory/ema-factory';
-import { IndicatorsUpdatedPayloadDTO } from './indicators-updated-payload.dto';
+import { TechnicalAnalysisDTO } from './indicators-updated-payload.dto';
 import { TickerInsertedDTO } from 'src/modules/ticker/ticker-inserted.dto';
 
 const INDICATORS_BY_ASSET_TYPE: any = {
@@ -56,13 +56,13 @@ export class IndicatorCalculatorService {
         private readonly eventEmitter: EventEmitter2
     ) { }
 
-    @OnEvent(TICKERS_INSERTED_MESSAGE, { async: true })
+    @OnEvent(BUILD_INDICATORS, { async: true })
     async calculateIndicators(payload: TickerInsertedDTO) {
         const rsiData: Rsi[] = [];
         const stochData: Stoch[] = [];
         const emaData: Ema[] = [];
 
-        const { assets } = payload
+        const { assets, tickers } = payload
 
         for (const asset of assets) {
             const assetType: string = (await asset.type).name
@@ -98,8 +98,10 @@ export class IndicatorCalculatorService {
         await this.stochRepository.upsert(stochData);
         await this.emaRepository.upsert(emaData);
 
-        const eventPayload = new IndicatorsUpdatedPayloadDTO(assets, rsiData, stochData, emaData);
-        this.eventEmitter.emit(INDICATORS_UPDATED_MESSAGE, eventPayload);
+        this.eventEmitter.emit(RUN_TECHNICAL_ANALYSIS, assets);
+
+        const eventPayload = new TechnicalAnalysisDTO(assets, tickers, rsiData, stochData, emaData);
+        this.eventEmitter.emit(BROADCAST_TECHNICAL_DATA, eventPayload);
     }
 
     private getHighsLowsAndClosings(candlesticks: CandlestickDTO[]) {

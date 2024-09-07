@@ -4,10 +4,10 @@ import { Asset } from 'src/database/entities/asset';
 import { WebullService } from './webull.service';
 import { TickerRepository } from './ticker.repository';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { TICKERS_INSERTED_MESSAGE } from '../technical-analysis/indicators-builder/config';
 import { AssetRepository } from './asset.repository';
 import { ASSET_TYPES } from 'src/modules/_common/util/asset-types.util';
 import { TickerInsertedDTO } from './ticker-inserted.dto';
+import { BUILD_INDICATORS } from '../technical-analysis/indicators-builder/config';
 
 @Injectable()
 export class TickerIngesterService {
@@ -58,7 +58,7 @@ export class TickerIngesterService {
             await this.tickerRepository.upsertTickers(validTickers);
 
             const payload = new TickerInsertedDTO(assets, validTickers);
-            this.eventEmitter.emit(TICKERS_INSERTED_MESSAGE, payload);
+            this.eventEmitter.emit(BUILD_INDICATORS, payload);
         } catch (error) {
             const { message } = error;
             LoggerUtil.error(message);

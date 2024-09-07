@@ -1,16 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { PotentialEntrypoint } from 'src/modules/technical-analysis/entrypoint-detector.service';
 import { MESSAGES } from './_config';
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { ALERT_ON_TELEGRAM_MESSAGE, TECHNICAL_ANALYSIS_FNISHED_MESSAGE } from '../technical-analysis/indicators-builder/config';
+import { OnEvent } from '@nestjs/event-emitter';
+import { NOTIFY_TECHNICAL_RESULT } from '../technical-analysis/indicators-builder/config';
+import { TelegramService } from './telegram/telegram.service';
 
 @Injectable()
 export class NotificatorService {
     constructor(
-        private readonly eventEmitter: EventEmitter2
+        private readonly telegramService: TelegramService,
     ) { }
 
-    @OnEvent(TECHNICAL_ANALYSIS_FNISHED_MESSAGE, { async: true })
+    @OnEvent(NOTIFY_TECHNICAL_RESULT, { async: true })
     async analyzeTechnicalResults(results: PotentialEntrypoint[]): Promise<void> {
         const positiveValidations = results.map(result => {
             const { asset } = result;
@@ -29,7 +30,7 @@ export class NotificatorService {
 
         if (positiveValidations.length > 0) {
             const message = positiveValidations.join('\n');
-            this.eventEmitter.emit(ALERT_ON_TELEGRAM_MESSAGE, message);
+            this.telegramService.sendMessage(message);
         }
     }
 

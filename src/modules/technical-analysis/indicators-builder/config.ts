@@ -1,4 +1,5 @@
-export const TICKERS_INSERTED_MESSAGE: string = 'tickers.inserted';
-export const INDICATORS_UPDATED_MESSAGE: string = 'indicators.updated';
-export const TECHNICAL_ANALYSIS_FNISHED_MESSAGE: string = 'technical-analyze.finished';
-export const ALERT_ON_TELEGRAM_MESSAGE: string = 'telegram.notify';
+export const BUILD_INDICATORS: string = 'indicators.build';
+export const RUN_TECHNICAL_ANALYSIS: string = 'technical-analysis.run';
+
+export const BROADCAST_TECHNICAL_DATA: string = 'technical-analysis.broadcast';
+export const NOTIFY_TECHNICAL_RESULT: string = 'technical-analysis.notify';

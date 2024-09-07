@@ -1,17 +1,10 @@
-import {
-    SubscribeMessage,
-    WebSocketGateway,
-    WebSocketServer,
-    OnGatewayConnection,
-    OnGatewayDisconnect,
-} from '@nestjs/websockets';
+import { SubscribeMessage, WebSocketGateway, WebSocketServer, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
 import { OnEvent } from '@nestjs/event-emitter';
-import { INDICATORS_UPDATED_MESSAGE, TICKERS_INSERTED_MESSAGE } from '../technical-analysis/indicators-builder/config';
-import { Asset } from 'src/database/entities/asset';
-import { IndicatorsUpdatedPayloadDTO } from '../technical-analysis/indicators-builder/indicators-updated-payload.dto';
-import { TickerInsertedDTO } from '../ticker/ticker-inserted.dto';
+import { TechnicalAnalysisDTO } from '../technical-analysis/indicators-builder/indicators-updated-payload.dto';
+import { TickerDTO } from '../_common/dto/ticker-dto';
+import { BROADCAST_TECHNICAL_DATA } from '../technical-analysis/indicators-builder/config';
 
 @WebSocketGateway()
 export class WebsocketService implements OnGatewayConnection, OnGatewayDisconnect {
@@ -27,20 +20,22 @@ export class WebsocketService implements OnGatewayConnection, OnGatewayDisconnec
     }
 
     @SubscribeMessage('message')
-    handleMessage(client: Socket, payload: { sender: string; message: string }): void {
-        console.log(`Message received: ${payload.message} from ${payload.sender}`);
+    handleMessage(client: Socket, payload: any): void {
+        console.log(`Message received from client ${client.id}: ${JSON.stringify(payload)}`);
     }
 
-    @OnEvent(INDICATORS_UPDATED_MESSAGE, { async: true })
-    broadcastIndicators(payload: IndicatorsUpdatedPayloadDTO): void {
+    @OnEvent(BROADCAST_TECHNICAL_DATA, { async: true })
+    broadcastIndicators(payload: TechnicalAnalysisDTO): void {
         console.log(`Emitting message`);
-        this.server.emit('message', { type: 'indicator', payload });
-    }
 
-    @OnEvent(TICKERS_INSERTED_MESSAGE, { async: true })
-    broadcastTickers(payload: TickerInsertedDTO): void {
-        console.log(`Emitting message`);
-        this.server.emit('message', { type: 'ticker', payload });
+        const { assets, tickers: tickerDTOs, rsiData, stochData, emaData } = payload;
+
+        const tickers = tickerDTOs.map((ticker: TickerDTO) => {
+            const { assetId, timestamp, low, high, open, close: value } = ticker;
+            return { assetId, timestamp, low, high, open, value };
+        });
+
+        this.server.emit('message', { tickers, assets, rsiData, stochData, emaData });
     }
 
 }
