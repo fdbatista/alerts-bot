@@ -3,7 +3,7 @@ import { HttpService } from '../../_common/http/http.service';
 import { StringUtil } from '../../../utils/string.util';
 import { LoggerUtil } from '../../../utils/logger.util';
 import { OnEvent } from '@nestjs/event-emitter';
-import { ALERT_ON_TELEGRAM_MESSAGE } from 'src/modules/technical-analysis/listeners/config';
+import { ALERT_ON_TELEGRAM_MESSAGE } from 'src/modules/technical-analysis/indicators-builder/config';
 
 @Injectable()
 export class TelegramService {

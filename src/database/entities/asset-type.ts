@@ -16,6 +16,6 @@ export class AssetType {
   @Column("character varying", { name: "name", unique: true })
   name: string;
 
-  @OneToMany(() => Asset, (asset) => asset.type, { lazy: true })
+  @OneToMany(() => Asset, (asset) => asset.type, { eager: true })
   assets: Promise<Asset[]>;
 }

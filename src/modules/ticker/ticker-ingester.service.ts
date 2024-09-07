@@ -4,7 +4,7 @@ import { Asset } from 'src/database/entities/asset';
 import { WebullService } from './webull.service';
 import { TickerRepository } from './ticker.repository';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { TICKERS_INSERTED_MESSAGE } from '../technical-analysis/listeners/config';
+import { TICKERS_INSERTED_MESSAGE } from '../technical-analysis/indicators-builder/config';
 import { AssetRepository } from './asset.repository';
 import { ASSET_TYPES } from 'src/modules/_common/util/asset-types.util';
 

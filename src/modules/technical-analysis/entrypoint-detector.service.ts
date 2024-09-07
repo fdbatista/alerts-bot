@@ -3,12 +3,13 @@ import { Injectable } from '@nestjs/common';
 import { PatternsService } from './patterns.service';
 import { TickerService } from '../ticker/ticker.service';
 import { Asset } from 'src/database/entities/asset';
-import { RsiRepository } from './listeners/repository/rsi.repository';
-import { StochRepository } from './listeners/repository/stoch.repository';
+import { RsiRepository } from './indicators-builder/repository/rsi.repository';
+import { StochRepository } from './indicators-builder/repository/stoch.repository';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { INDICATORS_UPDATED_MESSAGE, TECHNICAL_ANALYSIS_FNISHED_MESSAGE } from './listeners/config';
-import { ASSET_TYPES } from '../_common/util/asset-types.util';
+import { INDICATORS_UPDATED_MESSAGE, TECHNICAL_ANALYSIS_FNISHED_MESSAGE } from './indicators-builder/config';
 import { NASDAQ_ID, RSI_ENTRYPOINT_THRESHOLD } from './_config';
+import * as _ from 'lodash';
+import { groupBy } from 'lodash';
 
 export interface PotentialEntrypoint {
     asset: Asset;
@@ -32,23 +33,17 @@ export class EntrypointDetectorService {
     async detectPotentialEntrypoints(assets: Asset[]): Promise<void> {
         const result: PotentialEntrypoint[] = []
 
-        const cryptos: Asset[] = [];
-        const stocks: Asset[] = [];
+        const assetsWtihType = await Promise.all(
+            assets.map(async (asset) => ({
+                ...asset,
+                typeName: (await asset.type).name,
+            }))
+        );
 
-        for (const asset of assets) {
-            const { name } = await asset.type;
+        const assetsByType = groupBy(assetsWtihType, 'typeName');
 
-            switch (name) {
-                case ASSET_TYPES.CRYPTOCURRENCY:
-                    cryptos.push(asset);
-                    break;
-                case ASSET_TYPES.STOCK:
-                    stocks.push(asset);
-                    break;
-                default:
-                    break;
-            }
-        }
+        const stocks = assetsByType['Stock'] ?? [];
+        const cryptos = assetsByType['Cryptocurrency'] ?? [];
 
         if (stocks.length > 0) {
             const nasdaqRsiInOneMinute: number = await this.getAssetRsi(NASDAQ_ID, 1);

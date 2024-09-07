@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
 
-import { RsiRepository } from './listeners/repository/rsi.repository';
-import { StochRepository } from './listeners/repository/stoch.repository';
-import { EmaRepository } from './listeners/repository/ema.repository';
-import { Rsi } from 'src/database/entities/rsi';
+import { RsiRepository } from './indicators-builder/repository/rsi.repository';
+import { StochRepository } from './indicators-builder/repository/stoch.repository';
+import { EmaRepository } from './indicators-builder/repository/ema.repository';
 import { GetIndicatorResponseDto } from './dto/indicator.dto';
 
 @Injectable()

@@ -23,6 +23,7 @@ export class AssetRepository {
     async getActiveAssets(): Promise<Asset[]> {
         return await this.assetRepository.find({
             where: { isActive: true },
+            relations: ['type'],
         });
     }
 
