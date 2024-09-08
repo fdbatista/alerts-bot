@@ -1,7 +1,8 @@
-import { Controller, Get, Param, Query, Version } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards, Version } from '@nestjs/common';
 import { TickerService } from './ticker.service';
 import { CandlestickDTO } from '../_common/dto/ticker-dto';
 import { GetIndicatorRequestDto } from '../technical-analysis/dto/indicator.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('tickers')
 export class TickerController {
@@ -10,6 +11,7 @@ export class TickerController {
         private readonly tickerService: TickerService,
     ) { }
 
+    @UseGuards(JwtAuthGuard)
     @Version('1')
     @Get()
     async getPotentialEntrypoint(@Query() dto: GetIndicatorRequestDto): Promise<CandlestickDTO[]> {
