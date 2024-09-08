@@ -1,7 +1,6 @@
 import { Controller, Get, Query, Version } from '@nestjs/common';
 import { GetIndicatorRequestDto, GetIndicatorResponseDto } from './dto/indicator.dto';
 import { IndicatorsService } from './indicators.service';
-import { Rsi } from 'src/database/entities/rsi';
 
 @Controller('indicators')
 export class IndicatorsController {
