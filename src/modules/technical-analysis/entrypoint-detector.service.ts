@@ -82,7 +82,7 @@ export class EntrypointDetectorService {
     }
 
     private async analyzePotentialBreakAndStochSignal(asset: Asset) {
-        const assetClosingsInOneMinute = await this.getClosings(asset.id, 1);
+        const assetClosingsInOneMinute = await this.getClosings(asset.id, 1, 30);
         const byBreak = await this.patternsService.isPotentialBreak(assetClosingsInOneMinute);
 
         const { k: stochInOneMinuteK, d: stochInOneMinuteD } = await this.getLastStoch(asset.id, 1);
@@ -105,8 +105,8 @@ export class EntrypointDetectorService {
         return { k, d };
     }
 
-    async getClosings(assetId: number, candleDuration: number): Promise<number[]> {
-        const tickers = await this.tickerService.getCandlesticks(assetId, candleDuration);
+    async getClosings(assetId: number, candleDuration: number, take: number): Promise<number[]> {
+        const tickers = await this.tickerService.getCandlesticks(assetId, candleDuration, take);
 
         return tickers.map(ticker => ticker.close);
     }

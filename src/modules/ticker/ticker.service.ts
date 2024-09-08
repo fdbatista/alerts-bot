@@ -8,8 +8,8 @@ export class TickerService {
         private readonly tickerRepository: TickerRepository,
     ) { }
 
-    async getCandlesticks(assetId: number, candleDuration: number): Promise<CandlestickDTO[]> {
-        const tickers = await this.tickerRepository.getCandlesticks(assetId, candleDuration);
+    async getCandlesticks(assetId: number, candleDuration: number, take: number): Promise<CandlestickDTO[]> {
+        const tickers = await this.tickerRepository.getCandlesticks(assetId, candleDuration, take);
 
         return tickers.reverse();
     }

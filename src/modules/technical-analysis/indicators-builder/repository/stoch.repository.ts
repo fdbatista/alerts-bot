@@ -24,4 +24,12 @@ export class StochRepository {
         });
     }
 
+    async getLatestValues(assetId: number, minutes: number, take: number): Promise<Stoch[]> {
+        return await this.repository.find({
+            where: { assetId, minutes },
+            order: { timestamp: 'ASC' },
+            take
+        });
+    }
+
 }

@@ -37,8 +37,8 @@ export class WebsocketService implements OnGatewayConnection, OnGatewayDisconnec
 
             const [lastTicker] = tickers.filter((ticker: TickerDTO) => ticker.assetId === assetId).slice(-1)
             const timestamp = DateUtil.formatDate(lastTicker.timestamp)
-            
-            const ticker = { timestamp, value: lastTicker.close }
+
+            const ticker = { timestamp, open: lastTicker.open, close: lastTicker.close, low: lastTicker.low, high: lastTicker.high }
 
             const [lastRsi] = rsiData.filter((rsi: Rsi) => rsi.assetId === assetId).slice(-1)
             const rsi = { timestamp, value: lastRsi.value }

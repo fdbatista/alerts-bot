@@ -35,4 +35,12 @@ export class RsiRepository {
         return values.reverse();
     }
 
+    async getLatestValues(assetId: number, minutes: number, take: number): Promise<Rsi[]> {
+        return await this.repository.find({
+            where: { assetId, minutes },
+            order: { timestamp: 'ASC' },
+            take
+        });
+    }
+
 }

@@ -18,9 +18,15 @@ export class EmaRepository {
     async getLatest(assetId: number, minutes: number): Promise<Ema | null> {
         return await this.repository.findOne({
             where: { assetId, minutes },
-            order: {
-                timestamp: 'DESC'
-            },
+            order: { timestamp: 'DESC' },
+        });
+    }
+
+    async getLatestValues(assetId: number, minutes: number, take: number): Promise<Ema[]> {
+        return await this.repository.find({
+            where: { assetId, minutes },
+            order: { timestamp: 'ASC' },
+            take
         });
     }
 

@@ -23,7 +23,7 @@ const TICKER_QUERY = `
         where asset_id = :assetId
     ) subquery
     order by interval_start desc, timestamp desc
-    limit 30;
+    limit :take;
 `;
 
 @Injectable()
@@ -33,10 +33,11 @@ export class TickerRepository {
         private readonly repository: Repository<Ticker>,
     ) { }
 
-    async getCandlesticks(assetId: number, candleDuration: number): Promise<CandlestickDTO[]> {
+    async getCandlesticks(assetId: number, candleDuration: number, take: number): Promise<CandlestickDTO[]> {
         const query = TICKER_QUERY
             .replace(':assetId', assetId.toString())
-            .replace(':candleDuration', candleDuration.toString());
+            .replace(':candleDuration', candleDuration.toString())
+            .replace(':take', take.toString());
 
         const tickers = await this.repository.query(query);
         return tickers;
