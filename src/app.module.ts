@@ -12,7 +12,7 @@ import { NotificatorModule } from './modules/notificator/notificator.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { WebsocketModule } from './modules/websocket/websocket.module';
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
