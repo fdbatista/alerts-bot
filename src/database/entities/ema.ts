@@ -25,7 +25,7 @@ export class Ema {
   @Column("integer", { name: "minutes" })
   minutes: number;
 
-  @Column("double precision", { name: "value", nullable: true, precision: 53 })
+  @Column("double precision", { name: "value", precision: 53 })
   value: number;
 
   @ManyToOne(() => Asset, (asset) => asset.emas, {

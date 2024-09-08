@@ -25,10 +25,10 @@ export class Stoch {
   @Column("integer", { name: "minutes" })
   minutes: number;
 
-  @Column("double precision", { name: "k", nullable: true, precision: 53 })
+  @Column("double precision", { name: "k", precision: 53 })
   k: number;
 
-  @Column("double precision", { name: "d", nullable: true, precision: 53 })
+  @Column("double precision", { name: "d", precision: 53 })
   d: number;
 
   @ManyToOne(() => Asset, (asset) => asset.stoches, {
