@@ -6,6 +6,7 @@ import { EmaRepository } from './indicators-builder/repository/ema.repository';
 import { TickerService } from '../ticker/ticker.service';
 import { GetIndicatorResponseDto } from './dto/get-indicator.response.dto';
 import { GetIndicatorSetResponseDto } from './dto/get-indicator-set.response.dto';
+import { formatDate } from 'date-fns';
 
 @Injectable()
 export class IndicatorsService {
@@ -28,11 +29,27 @@ export class IndicatorsService {
         const ema = await this.emaRepository.getLatestValues(assetId, minutes, take);
         const stoch = await this.stochRepository.getLatestValues(assetId, minutes, take);
 
+        const tickersResult = tickers.map(({ interval_start, open, close, high, low }) => {
+            return { timestamp: formatDate(interval_start, 'yyyy-MM-dd HH:mm:ss'), open, close, high, low };
+        });
+
+        const rsiResult = rsi.map(({ timestamp, value }) => {
+            return { timestamp: formatDate(timestamp, 'yyyy-MM-dd HH:mm:ss'), value };
+        });
+
+        const emaResult = ema.map(({ timestamp, value }) => {
+            return { timestamp: formatDate(timestamp, 'yyyy-MM-dd HH:mm:ss'), value };
+        });
+
+        const stochResult = stoch.map(({ timestamp, k, d }) => {
+            return { timestamp: formatDate(timestamp, 'yyyy-MM-dd HH:mm:ss'), k, d };
+        });
+
         return {
-            tickers,
-            rsi,
-            ema,
-            stoch
+            tickers: tickersResult,
+            rsi: rsiResult,
+            ema: emaResult,
+            stoch: stochResult
         };
     }
 }
