@@ -11,13 +11,8 @@ export class GetIndicatorRequestDto {
     @Transform(({ value }) => parseInt(value))
     minutes: number;
 
-}
-
-export class GetIndicatorResponseDto {
-
-    constructor(
-        public readonly timestamp: Date,
-        public readonly value: number
-    ) { }
+    @IsInt()
+    @Transform(({ value }) => parseInt(value))
+    take: number;
 
 }
