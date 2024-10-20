@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common';
 
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { RUN_TECHNICAL_ANALYSIS, BUILD_INDICATORS, BROADCAST_TECHNICAL_DATA } from './config';
-import { TickerService } from 'src/modules/ticker/ticker.service';
-import { Asset } from 'src/database/entities/asset';
 import { RsiRepository } from './repository/rsi.repository';
 import { Rsi } from 'src/database/entities/rsi';
 import { Stoch } from 'src/database/entities/stoch';
@@ -11,39 +9,10 @@ import { StochRepository } from './repository/stoch.repository';
 import { CandlestickDTO } from 'src/modules/_common/dto/ticker-dto';
 import { EmaRepository } from './repository/ema.repository';
 import { Ema } from 'src/database/entities/ema';
-import { RsiFactory } from './indicator-factory/rsi-factory';
-import { StochFactory } from './indicator-factory/stoch-factory';
-import { EmaFactory } from './indicator-factory/ema-factory';
 import { TechnicalAnalysisDTO } from './indicators-updated-payload.dto';
 import { TickerInsertedDTO } from 'src/modules/ticker/dto/ticker-inserted.dto';
-
-const INDICATORS_BY_ASSET_TYPE: any = {
-    Cryptocurrency: [
-        { candlestick: 1, indicators: ['rsi', 'stoch', 'ema'] },
-        { candlestick: 5, indicators: ['rsi', 'stoch', 'ema'] },
-        { candlestick: 15, indicators: ['rsi', 'stoch', 'ema'] },
-        { candlestick: 30, indicators: ['rsi', 'stoch', 'ema'] },
-        { candlestick: 60, indicators: ['rsi', 'stoch', 'ema'] },
-        { candlestick: 180, indicators: ['rsi', 'stoch', 'ema'] },
-        { candlestick: 360, indicators: ['rsi', 'stoch', 'ema'] },
-        { candlestick: 720, indicators: ['rsi', 'stoch', 'ema'] },
-        { candlestick: 1440, indicators: ['rsi', 'stoch', 'ema'] },
-    ],
-    Stock: [
-        { candlestick: 1, indicators: ['stoch', 'ema'] },
-        { candlestick: 5, indicators: ['rsi', 'stoch', 'ema'] },
-        { candlestick: 15, indicators: ['rsi', 'stoch', 'ema'] },
-        { candlestick: 30, indicators: ['rsi', 'stoch', 'ema'] },
-        { candlestick: 60, indicators: ['rsi', 'stoch', 'ema'] },
-        { candlestick: 180, indicators: ['rsi', 'stoch', 'ema'] },
-        { candlestick: 360, indicators: ['rsi', 'stoch', 'ema'] },
-        { candlestick: 720, indicators: ['rsi', 'stoch', 'ema'] },
-        { candlestick: 1440, indicators: ['rsi', 'stoch', 'ema'] },
-    ],
-    Index: [
-        { candlestick: 5, indicators: ['rsi', 'stoch', 'ema'] },
-    ]
-};
+import { TickerService } from 'src/modules/ticker/ticker.service';
+import { IndicatorFactory } from './indicator-factory';
 
 @Injectable()
 export class IndicatorCalculatorService {
@@ -64,44 +33,44 @@ export class IndicatorCalculatorService {
 
         const { assets, tickers } = payload
 
-        for (const asset of assets) {
-            const assetType: string = (await asset.type).name
-            const assetData: any[] = INDICATORS_BY_ASSET_TYPE[assetType];
+        // for (const asset of assets) {
+            
+        //     const assetData: any[] = INDICATORS_BY_ASSET_TYPE[asset.typeName];
 
-            for (const { candlestick, indicators } of assetData) {
-                const candlesticks: CandlestickDTO[] = await this.tickerService.getCandlesticks(asset.id, candlestick, 30);
-                const [{ interval_start: timestamp }] = candlesticks.slice(-1);
-                const { highs, lows, closings } = this.getHighsLowsAndClosings(candlesticks);
+        //     for (const { candlestick, indicators } of assetData) {
+        //         const candlesticks: CandlestickDTO[] = await this.tickerService.getCandlesticks(asset.id, candlestick, 30);
+        //         const [{ interval_start: timestamp }] = candlesticks.slice(-1);
+        //         const { highs, lows, closings } = this.getHighsLowsAndClosings(candlesticks);
 
-                for (const indicator of indicators) {
-                    switch (indicator) {
-                        case 'rsi':
-                            const rsiEntity: Rsi = RsiFactory.build(asset.id, timestamp, candlestick, closings);
-                            rsiData.push(rsiEntity);
-                            break;
-                        case 'stoch':
-                            const stochEntity: Stoch = StochFactory.build(asset.id, timestamp, candlestick, highs, lows, closings);
-                            stochData.push(stochEntity);
-                            break;
-                        case 'ema':
-                            const emaEntity: Ema = EmaFactory.build(asset.id, timestamp, candlestick, closings);
-                            emaData.push(emaEntity);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-        }
+        //         for (const indicator of indicators) {
+        //             switch (indicator) {
+        //                 case 'rsi':
+        //                     const rsiEntity: Rsi = IndicatorFactory.rsi(asset.id, timestamp, candlestick, closings);
+        //                     rsiData.push(rsiEntity);
+        //                     break;
+        //                 case 'stoch':
+        //                     const stochEntity: Stoch = IndicatorFactory.stoch(asset.id, timestamp, candlestick, highs, lows, closings);
+        //                     stochData.push(stochEntity);
+        //                     break;
+        //                 case 'ema':
+        //                     const emaEntity: Ema = IndicatorFactory.ema(asset.id, timestamp, candlestick, closings);
+        //                     emaData.push(emaEntity);
+        //                     break;
+        //                 default:
+        //                     break;
+        //             }
+        //         }
+        //     }
+        // }
 
-        await this.rsiRepository.upsert(rsiData);
-        await this.stochRepository.upsert(stochData);
-        await this.emaRepository.upsert(emaData);
+        // await this.rsiRepository.upsert(rsiData);
+        // await this.stochRepository.upsert(stochData);
+        // await this.emaRepository.upsert(emaData);
 
-        this.eventEmitter.emit(RUN_TECHNICAL_ANALYSIS, assets);
+        // this.eventEmitter.emit(RUN_TECHNICAL_ANALYSIS, assets);
 
-        const eventPayload = new TechnicalAnalysisDTO(assets, tickers, rsiData, stochData, emaData);
-        this.eventEmitter.emit(BROADCAST_TECHNICAL_DATA, eventPayload);
+        // const eventPayload = new TechnicalAnalysisDTO(assets, tickers, rsiData, stochData, emaData);
+        // this.eventEmitter.emit(BROADCAST_TECHNICAL_DATA, eventPayload);
     }
 
     private getHighsLowsAndClosings(candlesticks: CandlestickDTO[]) {

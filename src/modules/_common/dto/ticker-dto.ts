@@ -11,15 +11,10 @@ export class GetTickerResponse {
 
 
 export class TickerDTO {
-  constructor(
-    public assetId: number,
-    readonly externalId: string,
-    readonly timestamp: Date,
-    readonly low: number,
-    readonly high: number,
-    readonly open: number,
-    readonly close: number,
-  ) { }
+  public assetId: number
+  public externalId: string
+  public timestamp: Date
+  public price: number
 }
 
 export class CandlestickDTO {

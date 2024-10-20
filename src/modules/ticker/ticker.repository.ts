@@ -11,7 +11,7 @@ const TICKER_QUERY = `
         close,
         high,
         low
-    from (
+    from (  
         select 
             timestamp,
             open,
@@ -56,7 +56,7 @@ export class TickerRepository {
             .execute();
     }
 
-    async upsertTickers(data: TickerDTO[]): Promise<void> {
+    async upsertTickers(data: Ticker[]): Promise<void> {
         await this.repository.upsert(data, ['assetId', 'timestamp']);
     }
 

@@ -1,11 +1,11 @@
-import { Asset } from "src/database/entities/asset";
-import { TickerDTO } from "../../_common/dto/ticker-dto";
+import { AssetDTO } from "./asset.dto";
+import { Ticker } from "src/database/entities/ticker";
 
 export class TickerInsertedDTO {
 
     constructor(
-        public readonly assets: Asset[],
-        public readonly tickers: TickerDTO[]
+        public readonly assets: AssetDTO[],
+        public readonly tickers: Ticker[]
     ) { }
 
 }
