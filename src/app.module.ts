@@ -14,6 +14,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { WebsocketModule } from './modules/websocket/websocket.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
+import { ExchangeModule } from './modules/exchange/exchange.module';
 
 @Module({
   imports: [
@@ -36,7 +37,8 @@ import { UserModule } from './modules/user/user.module';
     EventEmitterModule.forRoot(),
     WebsocketModule,
     AuthModule,
-    UserModule
+    UserModule,
+    ExchangeModule
   ],
   controllers: [AppController],
   providers: [AppService],

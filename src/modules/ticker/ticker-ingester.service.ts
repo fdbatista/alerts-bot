@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { LoggerUtil } from 'src/utils/logger.util';
 import { Asset } from 'src/database/entities/asset';
-import { WebullService } from './webull.service';
 import { TickerRepository } from './ticker.repository';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
@@ -9,6 +8,7 @@ import { AssetRepository } from './asset.repository';
 import { ASSET_TYPES } from 'src/modules/_common/util/asset-types.util';
 import { TickerInsertedDTO } from './dto/ticker-inserted.dto';
 import { BUILD_INDICATORS } from '../technical-analysis/indicators-builder/config';
+import { WebullService } from '../exchange/webull/webull.service';
 
 @Injectable()
 export class TickerIngesterService {

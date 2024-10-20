@@ -6,7 +6,6 @@ import { Asset } from 'src/database/entities/asset';
 
 import { TickerController } from './ticker.controller';
 import { TickerIngesterService } from './ticker-ingester.service';
-import { WebullService } from './webull.service';
 import { EnvModule } from '../_common/env/env.module';
 import { HttpModule } from '../_common/http/http.module';
 import { AssetType } from 'src/database/entities/asset-type';
@@ -17,6 +16,8 @@ import { TickerService } from './ticker.service';
 import { Rsi } from 'src/database/entities/rsi';
 import { Stoch } from 'src/database/entities/stoch';
 import { AssetRepository } from './asset.repository';
+import { WebullModule } from '../exchange/webull/webull.module';
+import { WebullService } from '../exchange/webull/webull.service';
 
 @Module({
   imports: [
@@ -30,7 +31,8 @@ import { AssetRepository } from './asset.repository';
       Stoch,
     ]),
     EnvModule,
-    HttpModule
+    HttpModule,
+    WebullModule,
   ],
   providers: [TickerIngesterService, WebullService, TickerRepository, TickerService, AssetRepository],
   exports: [TickerIngesterService, TickerService],
