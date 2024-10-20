@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { NotificatorService } from './notificator.service';
 import { TelegramService } from './telegram/telegram.service';
-import { HttpModule } from '../_common/http/http.module';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
     imports: [HttpModule],

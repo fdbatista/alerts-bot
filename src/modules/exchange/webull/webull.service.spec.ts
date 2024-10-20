@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { WebullService } from './webull.service';
 import { EnvModule } from 'src/modules/_common/env/env.module';
-import { HttpModule } from 'src/modules/_common/http/http.module';
 import { Asset } from 'src/database/entities/asset';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { HttpModule } from '@nestjs/axios';
 
 describe('WebullService', () => {
   let service: WebullService;

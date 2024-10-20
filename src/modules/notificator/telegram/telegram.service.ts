@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { HttpService } from '../../_common/http/http.service';
 import { StringUtil } from '../../../utils/string.util';
 import { LoggerUtil } from '../../../utils/logger.util';
+import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class TelegramService {

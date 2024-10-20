@@ -1,4 +1,4 @@
-import { TickerRemoteResponse, TickerDTO } from "./ticker-dto";
+import { GetTickerResponse, TickerDTO } from "./ticker-dto";
 import { BookDTO, BookRemoteResponse } from "./book-dto";
 
 export class DTOFactory {
@@ -7,7 +7,7 @@ export class DTOFactory {
     return new BookDTO(name, description)
   }
 
-  static buildTickerDTO(source: TickerRemoteResponse): TickerDTO {
+  static buildTickerDTO(source: GetTickerResponse): TickerDTO {
     const { tickerId: externalId, tradeTime: timestamp, low, high, open, close } = source
     return new TickerDTO(-1, `${externalId}`, timestamp, low, high, open, close);
   }

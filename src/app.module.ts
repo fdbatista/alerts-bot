@@ -15,6 +15,7 @@ import { WebsocketModule } from './modules/websocket/websocket.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { ExchangeModule } from './modules/exchange/exchange.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -30,6 +31,10 @@ import { ExchangeModule } from './modules/exchange/exchange.module';
       synchronize: false,
       autoLoadEntities: true,
     }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
     TechnicalAnalysisModule,
     EnvModule,
     TickerModule,
@@ -38,7 +43,7 @@ import { ExchangeModule } from './modules/exchange/exchange.module';
     WebsocketModule,
     AuthModule,
     UserModule,
-    ExchangeModule
+    ExchangeModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,4 +1,4 @@
-export class TickerRemoteResponse {
+export class GetTickerResponse {
   constructor(
     readonly tickerId: number,
     readonly tradeTime: Date,
@@ -8,6 +8,7 @@ export class TickerRemoteResponse {
     readonly close: number,
   ) { }
 }
+
 
 export class TickerDTO {
   constructor(
