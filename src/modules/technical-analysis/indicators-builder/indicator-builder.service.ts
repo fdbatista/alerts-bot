@@ -15,7 +15,7 @@ import { RsiFactory } from './indicator-factory/rsi-factory';
 import { StochFactory } from './indicator-factory/stoch-factory';
 import { EmaFactory } from './indicator-factory/ema-factory';
 import { TechnicalAnalysisDTO } from './indicators-updated-payload.dto';
-import { TickerInsertedDTO } from 'src/modules/ticker/ticker-inserted.dto';
+import { TickerInsertedDTO } from 'src/modules/ticker/dto/ticker-inserted.dto';
 
 const INDICATORS_BY_ASSET_TYPE: any = {
     Cryptocurrency: [

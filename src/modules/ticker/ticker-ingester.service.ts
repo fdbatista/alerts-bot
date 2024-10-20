@@ -4,9 +4,10 @@ import { Asset } from 'src/database/entities/asset';
 import { WebullService } from './webull.service';
 import { TickerRepository } from './ticker.repository';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Cron } from '@nestjs/schedule';
 import { AssetRepository } from './asset.repository';
 import { ASSET_TYPES } from 'src/modules/_common/util/asset-types.util';
-import { TickerInsertedDTO } from './ticker-inserted.dto';
+import { TickerInsertedDTO } from './dto/ticker-inserted.dto';
 import { BUILD_INDICATORS } from '../technical-analysis/indicators-builder/config';
 
 @Injectable()
@@ -17,6 +18,41 @@ export class TickerIngesterService {
         private readonly webullService: WebullService,
         private readonly eventEmitter: EventEmitter2
     ) { }
+
+    @Cron('* 0-14 * * 1-5')  // Every minute from 00:00 to 14:59 on Monday to Friday
+    async loadCryptosFrom00To14() {
+        this.loadCryptoTickers()
+    }
+
+    @Cron('0-29 15 * * 1-5')  // From 15:00 to 15:29 on Monday to Friday
+    async loadCryptosFrom1500To1529() {
+        this.loadCryptoTickers()
+    }
+
+    @Cron('30-59 15 * * 1-5') // From 15:30 to 15:59 on Monday to Friday
+    async loadAllAssetsFrom1530To1559() {
+        this.loadAllAssetsTickers()
+    }
+
+    @Cron('* 16-21 * * 1-5') // Every minute from 16:00 to 21:59 on Monday to Friday
+    async loadAllAssetsFrom14To21() {
+        this.loadAllAssetsTickers()
+    }
+
+    @Cron('* 22-23 * * 1-5')  // Every minute from 22:00 to 23:59 on Monday to Friday
+    async loadCryptosFrom22To23() {
+        this.loadCryptoTickers()
+    }
+
+    @Cron(`0 * * * * 6,7`)  // Every minute on Saturday and Sunday
+    async loadCryptosOnWeekends() {
+        this.loadCryptoTickers()
+    }
+
+    @Cron('0 0 * * *')
+    cleanUp() {
+        this.deleteOldTickers()
+    }
 
     async loadAllAssetsTickers() {
         const assets = await this.assetRepository.getActiveAssets();
@@ -37,7 +73,7 @@ export class TickerIngesterService {
 
         try {
             const tickers = await this.webullService.fetchTickers(externalIds);
-            
+
             const validTickers = [];
             const validIds = [];
 

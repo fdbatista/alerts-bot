@@ -1,5 +1,5 @@
 import { Asset } from "src/database/entities/asset";
-import { TickerDTO } from "../_common/dto/ticker-dto";
+import { TickerDTO } from "../../_common/dto/ticker-dto";
 
 export class TickerInsertedDTO {
 

@@ -5,7 +5,6 @@ import { Ticker } from 'src/database/entities/ticker';
 import { Asset } from 'src/database/entities/asset';
 
 import { TickerController } from './ticker.controller';
-import { TickerSchedulerService } from './ticker-scheduler.service';
 import { TickerIngesterService } from './ticker-ingester.service';
 import { WebullService } from './webull.service';
 import { EnvModule } from '../_common/env/env.module';
@@ -33,8 +32,8 @@ import { AssetRepository } from './asset.repository';
     EnvModule,
     HttpModule
   ],
-  providers: [TickerIngesterService, TickerSchedulerService, WebullService, TickerRepository, TickerService, AssetRepository],
-  exports: [TickerIngesterService, TickerSchedulerService, TickerService],
+  providers: [TickerIngesterService, WebullService, TickerRepository, TickerService, AssetRepository],
+  exports: [TickerIngesterService, TickerService],
   controllers: [TickerController],
 })
 export class TickerModule { }
