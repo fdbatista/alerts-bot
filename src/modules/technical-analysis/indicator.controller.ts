@@ -1,5 +1,6 @@
-import { Controller, Get, Version } from '@nestjs/common';
+import { Controller, Get, UseGuards, Version } from '@nestjs/common';
 import { IndicatorService } from './indicators-builder/indicator-calculator.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('indicators')
 export class IndicatorsController {
@@ -8,14 +9,15 @@ export class IndicatorsController {
         private readonly indicatorCalculatorService: IndicatorService,
     ) { }
 
+    @UseGuards(JwtAuthGuard)
     @Version('1')
-    @Get('')
+    @Get()
     async test() {
         const assetId = 8;
-        const intervals = [1, 5, 15, 30, 60, 180, 1440]
-        const lengths = [5, 10, 20, 50];
+        // const intervals = [1, 5, 15, 30, 60, 180, 1440]
+        const intervals = [1]
+        const smaLengths = [10, 50, 200];
 
-        const indicators = await this.indicatorCalculatorService.calculateIndicators(assetId, intervals, lengths);
-        console.log(indicators);
+        return await this.indicatorCalculatorService.calculateIndicators(assetId, intervals, smaLengths);
     }
 }

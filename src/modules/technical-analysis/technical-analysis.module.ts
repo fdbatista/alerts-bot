@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { IndicatorsService } from './indicators.service';
 import { IndicatorsController } from './indicator.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Ticker } from 'src/database/entities/ticker';
@@ -21,7 +20,6 @@ import { IndicatorService } from './indicators-builder/indicator-calculator.serv
       TickerModule,
     ],
   providers: [
-    IndicatorsService,
     PatternsService,
     EntrypointDetectorService,
     IndicatorService,
@@ -30,6 +28,6 @@ import { IndicatorService } from './indicators-builder/indicator-calculator.serv
     EmaRepository,
   ],
   controllers: [IndicatorsController],
-  exports: [IndicatorsService, PatternsService, EntrypointDetectorService],
+  exports: [PatternsService, EntrypointDetectorService],
 })
 export class TechnicalAnalysisModule { }

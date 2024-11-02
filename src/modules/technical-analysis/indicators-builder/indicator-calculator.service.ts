@@ -1,36 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-
-import { Ticker } from 'src/database/entities/ticker';
-import { rsi, stoch, ema, sma } from 'indicatorts';
 import { CandlestickDTO } from 'src/modules/_common/dto/ticker-dto';
-
-const CANDLESTICKS_QUERY = `
-    SELECT 
-        time_bucket(':minutes minutes', timestamp) + interval ':minutes minutes' AS bucket,
-        first(price, timestamp) AS open,
-        MAX(price) AS high,
-        MIN(price) AS low,
-        last(price, timestamp) AS close
-    FROM ticker
-    WHERE timestamp >= now() - interval ':length minutes' and asset_id = $1
-    GROUP BY bucket
-    ORDER BY bucket desc;
-`
+import { TickerService } from 'src/modules/ticker/ticker.service';
+import { rsi, stoch, ema, sma } from 'indicatorts';
 
 @Injectable()
 export class IndicatorService {
   constructor(
-    @InjectRepository(Ticker)
-    private readonly stockPriceRepository: Repository<Ticker>,
+    private readonly tickerService: TickerService,
   ) { }
 
   async calculateIndicators(assetId: number, intervals: number[], smaLengths: number[]): Promise<any> {
     const results = [];
 
     for (const bucket of intervals) {
-      const candlesticks = await this.generateCandlesticks(assetId, bucket, 200);
+      const candlesticks = await this.tickerService.generateCandlesticks(assetId, bucket, 200);
       const { highs, lows, closings } = this.orderHighsLowsAndClosingsByTimeDesc(candlesticks);
 
       const rsiResult = rsi(closings, { period: 14 });
@@ -44,31 +27,24 @@ export class IndicatorService {
 
         smaResult.push({
           length,
-          sma: smaLengthResult.at(-1),
+          sma: smaLengthResult,
         });
       }
 
       results.push({
         interval: bucket,
-        rsi: rsiResult.at(-1),
+        candlesticks,
+        rsi: rsiResult,
         stoch: {
-          k: stockResult.k.at(-1),
-          d: stockResult.d.at(-1),
+          k: stockResult.k,
+          d: stockResult.d,
         },
         sma: smaResult,
-        ema: emaResult.at(-1),
+        ema: emaResult,
       });
     }
 
     return results;
-  }
-
-  async generateCandlesticks(assetId: number, interval: number, length: number): Promise<CandlestickDTO[]> {
-    const query = CANDLESTICKS_QUERY
-      .replaceAll(':minutes', interval.toString())
-      .replaceAll(':length', `${interval * length}`);
-
-    return this.stockPriceRepository.query(query, [assetId]);
   }
 
   private orderHighsLowsAndClosingsByTimeDesc(candlesticks: CandlestickDTO[]) {

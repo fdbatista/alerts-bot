@@ -20,10 +20,8 @@ export class TickerService {
         private readonly eventEmitter: EventEmitter2
     ) { }
 
-    public async getCandlesticks(assetId: number, candleDuration: number, take: number): Promise<CandlestickDTO[]> {
-        const tickers = await this.tickerRepository.getCandlesticks(assetId, candleDuration, take);
-
-        return tickers.reverse();
+    async generateCandlesticks(assetId: number, interval: number, length: number): Promise<CandlestickDTO[]> {
+        return this.tickerRepository.generateCandlesticks(assetId, interval, length);
     }
 
     @Cron('*/5 * 0-14 * * 1-5')  // Every minute from 00:00 to 14:59 on Monday to Friday

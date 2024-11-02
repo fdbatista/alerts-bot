@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Ticker } from 'src/database/entities/ticker';
 import { Asset } from 'src/database/entities/asset';
-import { TickerController } from './ticker.controller';
 import { EnvModule } from '../_common/env/env.module';
 import { AssetType } from 'src/database/entities/asset-type';
 import { Strategy } from 'src/database/entities/strategy';
@@ -33,6 +32,5 @@ import { HttpModule } from '@nestjs/axios';
   ],
   providers: [WebullService, TickerRepository, TickerService, AssetRepository],
   exports: [TickerService],
-  controllers: [TickerController],
 })
 export class TickerModule { }
