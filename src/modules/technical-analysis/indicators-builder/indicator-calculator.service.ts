@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import * as _ from 'lodash';
+
 import { Ticker } from 'src/database/entities/ticker';
+import { rsi, simpleMovingAverage } from 'indicatorts';
 
 const CANDLESTICKS_QUERY = `
     SELECT 
@@ -18,107 +21,108 @@ const CANDLESTICKS_QUERY = `
 `
 
 const SMA_QUERY = `
-    select avg(close) from (
+    select avg(close) as sma from (
         SELECT 
-            time_bucket('1 minutes', timestamp) AS bucket,
+            time_bucket(':minutes minutes', timestamp) AS bucket,
             last(price, timestamp) AS close
         FROM ticker
         WHERE
-            timestamp >= now() - interval '10 minutes'
-            and asset_id = 8
+            timestamp >= now() - interval ':length minutes'
+            and asset_id = $1
         GROUP BY bucket
         order BY bucket desc) closings;
 `
 
 @Injectable()
 export class IndicatorService {
-    constructor(
-        @InjectRepository(Ticker)
-        private readonly stockPriceRepository: Repository<Ticker>,
-    ) { }
+  constructor(
+    @InjectRepository(Ticker)
+    private readonly stockPriceRepository: Repository<Ticker>,
+  ) { }
 
-    async calculateIndicators(assetId: number, intervals: number[], lengths: number[]): Promise<any> {
-        const results = [];
+  async calculateIndicators(assetId: number, intervals: number[], smaLengths: number[]): Promise<any> {
+    const results = [];
 
-        for (const interval of intervals) {
-            const candlesticks = await this.generateCandlesticks(assetId, interval, 200);
+    for (const bucket of intervals) {
+      const candlesticks = await this.generateCandlesticks(assetId, bucket, 200);
+      const closings = candlesticks.map(c => c.close);
 
-            for (const length of lengths) {
-                const intervalCandlesticks = candlesticks.slice(0, length);
-                const sma = await this.calculateSMA(assetId, length, interval);
-                const rsi = await this.calculateRSI(assetId, length, interval);
-                const stoch = await this.calculateStoch(assetId, length, interval);
-                const ema45 = await this.calculateEMA(assetId, 45, interval);
+      const rsiResult = rsi(closings.reverse(), { period: 14 });
+      // const stoch = await this.calculateStoch(assetId, length, interval);
+      // const ema45 = await this.calculateEMA(assetId, 45, interval);
+      //simpleMovingAverage(closings, { period: 200 })
+      
+      const smaResult = [
 
-                results.push({
-                    interval,
-                    length: length,
-                    candlesticks,
-                    indicators: { sma, rsi, stoch: stoch, ema45 },
-                });
-            }
-        }
-        return results;
+      ];
+
+      for (const length of smaLengths) {
+        const sma2 = simpleMovingAverage(closings, { period: length })
+
+        smaResult.push({
+          length,
+          sma: sma2.at(-1),
+        });
+      }
+
+      results.push({
+        interval: bucket,
+        rsi: rsiResult.at(-1),
+        smas: smaResult,
+      });
     }
 
-    async generateCandlesticks(assetId: number, interval: number, length: number): Promise<any[]> {
-        const query = CANDLESTICKS_QUERY
-            .replace(/:minutes/g, interval.toString())
-            .replace(/:length/g, `${interval * length}`);
+    return results;
+  }
 
-        return this.stockPriceRepository.query(query, [assetId]);
+  async generateCandlesticks(assetId: number, interval: number, length: number): Promise<any[]> {
+    const query = CANDLESTICKS_QUERY
+      .replace(/:minutes/g, interval.toString())
+      .replace(/:length/g, `${interval * length}`);
+
+    return this.stockPriceRepository.query(query, [assetId]);
+  }
+
+  async calculateSMA(assetId: number, length: number, interval: number): Promise<number> {
+    const query = SMA_QUERY
+      .replace(/:minutes/g, interval.toString())
+      .replace(/:length/g, `${length * interval}`);
+    const result = await this.stockPriceRepository.query(query, [assetId]);
+    return result[0]?.sma ?? 0;
+  }
+
+  async calculateRSI(recentPrices: number[], length: number): Promise<number> {
+    // Calculate gains and losses
+    const gains: number[] = [];
+    const losses: number[] = [];
+
+    for (let i = 1; i < recentPrices.length; i++) {
+      const currentPrice = recentPrices[i]
+      const previousPrice = recentPrices[i - 1]
+      const change = currentPrice - previousPrice;
+
+      if (change > 0) {
+        gains.push(change);
+        losses.push(0);
+      } else {
+        gains.push(0);
+        losses.push(Math.abs(change));
+      }
     }
 
-    async calculateSMA(assetId: number, length: number, interval: number): Promise<number> {
-        const query = `
-      SELECT AVG(price) AS sma
-      FROM (
-        SELECT price
-        FROM ticker
-        WHERE asset_id = $1
-          AND timestamp > NOW() - INTERVAL $2
-        ORDER BY timestamp DESC
-        LIMIT $3
-      ) AS recent_prices;
-    `;
-        const result = await this.stockPriceRepository.query(query, [assetId, interval, length]);
-        return result[0]?.sma ?? 0;
-    }
+    // Calculate average gain and average loss
+    const avgGain = gains.slice(0, length).reduce((acc, val) => acc + val, 0) / length;
+    const avgLoss = losses.slice(0, length).reduce((acc, val) => acc + val, 0) / length;
 
-    async calculateRSI(assetId: number, length: number, interval: number): Promise<number> {
-        const query = `
-      WITH recent_prices AS (
-        SELECT price,
-               LAG(price) OVER (ORDER BY timestamp) AS prev_price
-        FROM ticker
-        WHERE asset_id = $1
-          AND timestamp > NOW() - INTERVAL $2
-        ORDER BY timestamp DESC
-        LIMIT $3
-      ),
-      gains AS (
-        SELECT COALESCE(price - prev_price, 0) AS gain
-        FROM recent_prices
-        WHERE price > prev_price
-      ),
-      losses AS (
-        SELECT COALESCE(prev_price - price, 0) AS loss
-        FROM recent_prices
-        WHERE price < prev_price
-      )
-      SELECT
-        100 - (100 / (1 + AVG(gain) / NULLIF(AVG(loss), 0))) AS rsi
-      FROM (
-        SELECT (SELECT AVG(gain) FROM gains) AS gain,
-               (SELECT AVG(loss) FROM losses) AS loss
-      ) AS avgs;
-    `;
-        const result = await this.stockPriceRepository.query(query, [assetId, interval, length]);
-        return result[0]?.rsi ?? 0;
-    }
+    // Calculate RSI
+    const rs = avgLoss === 0 ? 0 : avgGain / avgLoss;
+    const rsi = 100 - (100 / (1 + rs));
 
-    async calculateStoch(assetId: number, length: number, interval: number): Promise<number> {
-        const query = `
+    return rsi;
+  }
+
+  async calculateStoch(assetId: number, length: number, interval: number): Promise<number> {
+    const query = `
       WITH recent_prices AS (
         SELECT price
         FROM ticker
@@ -141,14 +145,14 @@ export class IndicatorService {
       ORDER BY timestamp DESC
       LIMIT 1;
     `;
-        const result = await this.stockPriceRepository.query(query, [assetId, interval, length]);
-        return result[0]?.stochastic ?? 0;
-    }
+    const result = await this.stockPriceRepository.query(query, [assetId, interval, length]);
+    return result[0]?.stochastic ?? 0;
+  }
 
-    async calculateEMA(assetId: number, length: number, interval: number): Promise<number> {
-        const smoothingFactor = 2 / (length + 1);
+  async calculateEMA(assetId: number, length: number, interval: number): Promise<number> {
+    const smoothingFactor = 2 / (length + 1);
 
-        const smaQuery = `
+    const smaQuery = `
       SELECT AVG(price) AS sma
       FROM (
         SELECT price
@@ -160,12 +164,12 @@ export class IndicatorService {
       ) AS initial_sma;
     `;
 
-        const smaResult = await this.stockPriceRepository.query(smaQuery, [assetId, interval, length]);
-        const initialEMA = smaResult[0]?.sma;
+    const smaResult = await this.stockPriceRepository.query(smaQuery, [assetId, interval, length]);
+    const initialEMA = smaResult[0]?.sma;
 
-        if (initialEMA === undefined) return 0;
+    if (initialEMA === undefined) return 0;
 
-        const emaQuery = `
+    const emaQuery = `
       SELECT price,
              LAG(price) OVER (ORDER BY timestamp DESC) AS prev_price
       FROM ticker
@@ -175,13 +179,13 @@ export class IndicatorService {
       LIMIT $3;
     `;
 
-        const prices = await this.stockPriceRepository.query(emaQuery, [assetId, interval, length]);
+    const prices = await this.stockPriceRepository.query(emaQuery, [assetId, interval, length]);
 
-        let ema = initialEMA;
-        for (const { price } of prices) {
-            ema = (price * smoothingFactor) + (ema * (1 - smoothingFactor));
-        }
-
-        return ema;
+    let ema = initialEMA;
+    for (const { price } of prices) {
+      ema = (price * smoothingFactor) + (ema * (1 - smoothingFactor));
     }
+
+    return ema;
+  }
 }
