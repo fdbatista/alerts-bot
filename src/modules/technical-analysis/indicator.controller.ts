@@ -9,7 +9,7 @@ export class IndicatorsController {
         private readonly indicatorCalculatorService: IndicatorService,
     ) { }
 
-    @UseGuards(JwtAuthGuard)
+    // @UseGuards(JwtAuthGuard)
     @Version('1')
     @Get()
     async test() {
@@ -17,7 +17,8 @@ export class IndicatorsController {
         // const intervals = [1, 5, 15, 30, 60, 180, 1440]
         const intervals = [1]
         const smaLengths = [10, 50, 200];
+        const emaLengths = [45, 200];
 
-        return await this.indicatorCalculatorService.calculateIndicators(assetId, intervals, smaLengths);
+        return await this.indicatorCalculatorService.calculateIndicators(assetId, intervals, smaLengths, emaLengths);
     }
 }

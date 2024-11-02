@@ -14,7 +14,7 @@ const CANDLESTICKS_QUERY = `
     FROM ticker
     WHERE timestamp >= now() - interval ':length minutes' and asset_id = $1
     GROUP BY bucket
-    ORDER BY bucket desc;
+    ORDER BY bucket;
 `
 
 @Injectable()
