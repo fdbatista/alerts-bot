@@ -1,29 +1,21 @@
-import { Controller, Get, Query, UseGuards, Version } from '@nestjs/common';
-import { GetIndicatorRequestDto } from './dto/get-indicator.request.dto';
-import { IndicatorsService } from './indicators.service';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { GetIndicatorResponseDto } from './dto/get-indicator.response.dto';
-import { GetIndicatorSetResponseDto } from './dto/get-indicator-set.response.dto';
+import { Controller, Get, Version } from '@nestjs/common';
+import { IndicatorService } from './indicators-builder/indicator-calculator.service';
 
 @Controller('indicators')
 export class IndicatorsController {
 
-    constructor(private readonly indicatorsService: IndicatorsService) { }
+    constructor(
+        private readonly indicatorCalculatorService: IndicatorService,
+    ) { }
 
-    @UseGuards(JwtAuthGuard)
     @Version('1')
-    @Get()
-    async getIndicators(@Query() dto: GetIndicatorRequestDto): Promise<GetIndicatorSetResponseDto> {
-        const { assetId, minutes, take } = dto;
-        return await this.indicatorsService.getTechnicalIndicators(assetId, minutes, take);
-    }
+    @Get('')
+    async test() {
+        const assetId = 8;
+        const intervals = [1, 5, 15, 30, 60, 180, 1440]
+        const lengths = [5, 10, 20, 50];
 
-    @UseGuards(JwtAuthGuard)
-    @Version('1')
-    @Get('rsi')
-    async getRsi(@Query() dto: GetIndicatorRequestDto): Promise<GetIndicatorResponseDto[]> {
-        const { assetId, minutes, take } = dto;
-        return await this.indicatorsService.getRsi(assetId, minutes, take);
+        const indicators = await this.indicatorCalculatorService.calculateIndicators(assetId, intervals, lengths);
+        console.log(indicators);
     }
-
 }

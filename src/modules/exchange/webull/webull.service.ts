@@ -33,7 +33,6 @@ export class WebullService {
             result.assetId = assets[index]?.id;
             
             const timestamp = new Date(item.tradeTime);
-            timestamp.setSeconds(0);
             timestamp.setMilliseconds(0);
             result.timestamp = timestamp;
 

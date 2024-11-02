@@ -33,41 +33,46 @@ export class IndicatorCalculatorService {
 
         const { assets, tickers } = payload
 
-        // for (const asset of assets) {
-            
-        //     const assetData: any[] = INDICATORS_BY_ASSET_TYPE[asset.typeName];
+        for (const asset of assets) {
 
-        //     for (const { candlestick, indicators } of assetData) {
-        //         const candlesticks: CandlestickDTO[] = await this.tickerService.getCandlesticks(asset.id, candlestick, 30);
-        //         const [{ interval_start: timestamp }] = candlesticks.slice(-1);
-        //         const { highs, lows, closings } = this.getHighsLowsAndClosings(candlesticks);
+            const assetData: any[] = [
+                {
+                    candlestick: '1',
+                    indicators: ['rsi', 'stoch', 'ema']
+                }
+            ];
 
-        //         for (const indicator of indicators) {
-        //             switch (indicator) {
-        //                 case 'rsi':
-        //                     const rsiEntity: Rsi = IndicatorFactory.rsi(asset.id, timestamp, candlestick, closings);
-        //                     rsiData.push(rsiEntity);
-        //                     break;
-        //                 case 'stoch':
-        //                     const stochEntity: Stoch = IndicatorFactory.stoch(asset.id, timestamp, candlestick, highs, lows, closings);
-        //                     stochData.push(stochEntity);
-        //                     break;
-        //                 case 'ema':
-        //                     const emaEntity: Ema = IndicatorFactory.ema(asset.id, timestamp, candlestick, closings);
-        //                     emaData.push(emaEntity);
-        //                     break;
-        //                 default:
-        //                     break;
-        //             }
-        //         }
-        //     }
-        // }
+            for (const { candlestick, indicators } of assetData) {
+                const candlesticks: CandlestickDTO[] = await this.tickerService.getCandlesticks(asset.id, candlestick, 30);
+                const [{ interval_start: timestamp }] = candlesticks.slice(-1);
+                const { highs, lows, closings } = this.getHighsLowsAndClosings(candlesticks);
 
-        // await this.rsiRepository.upsert(rsiData);
-        // await this.stochRepository.upsert(stochData);
-        // await this.emaRepository.upsert(emaData);
+                for (const indicator of indicators) {
+                    switch (indicator) {
+                        case 'rsi':
+                            const rsiEntity: Rsi = IndicatorFactory.rsi(asset.id, timestamp, candlestick, closings);
+                            rsiData.push(rsiEntity);
+                            break;
+                        case 'stoch':
+                            const stochEntity: Stoch = IndicatorFactory.stoch(asset.id, timestamp, candlestick, highs, lows, closings);
+                            stochData.push(stochEntity);
+                            break;
+                        case 'ema':
+                            const emaEntity: Ema = IndicatorFactory.ema(asset.id, timestamp, candlestick, closings);
+                            emaData.push(emaEntity);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
 
-        // this.eventEmitter.emit(RUN_TECHNICAL_ANALYSIS, assets);
+        await this.rsiRepository.upsert(rsiData);
+        await this.stochRepository.upsert(stochData);
+        await this.emaRepository.upsert(emaData);
+
+        this.eventEmitter.emit(RUN_TECHNICAL_ANALYSIS, assets);
 
         // const eventPayload = new TechnicalAnalysisDTO(assets, tickers, rsiData, stochData, emaData);
         // this.eventEmitter.emit(BROADCAST_TECHNICAL_DATA, eventPayload);
