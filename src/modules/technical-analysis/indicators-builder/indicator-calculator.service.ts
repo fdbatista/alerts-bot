@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import * as _ from 'lodash';
 
 import { Ticker } from 'src/database/entities/ticker';
-import { rsi, simpleMovingAverage } from 'indicatorts';
+import { rsi, simpleMovingAverage, stoch, ema } from 'indicatorts';
 
 const CANDLESTICKS_QUERY = `
     SELECT 
@@ -20,19 +20,6 @@ const CANDLESTICKS_QUERY = `
     ORDER BY bucket desc;
 `
 
-const SMA_QUERY = `
-    select avg(close) as sma from (
-        SELECT 
-            time_bucket(':minutes minutes', timestamp) AS bucket,
-            last(price, timestamp) AS close
-        FROM ticker
-        WHERE
-            timestamp >= now() - interval ':length minutes'
-            and asset_id = $1
-        GROUP BY bucket
-        order BY bucket desc) closings;
-`
-
 @Injectable()
 export class IndicatorService {
   constructor(
@@ -45,19 +32,18 @@ export class IndicatorService {
 
     for (const bucket of intervals) {
       const candlesticks = await this.generateCandlesticks(assetId, bucket, 200);
-      const closings = candlesticks.map(c => c.close);
-
-      const rsiResult = rsi(closings.reverse(), { period: 14 });
-      // const stoch = await this.calculateStoch(assetId, length, interval);
-      // const ema45 = await this.calculateEMA(assetId, 45, interval);
-      //simpleMovingAverage(closings, { period: 200 })
+      const closingsAsc = candlesticks.map(c => c.close).reverse();
+      const highsAsc = candlesticks.map(c => c.high).reverse();
+      const lowsAsc = candlesticks.map(c => c.low).reverse();
       
-      const smaResult = [
+      const rsiResult = rsi(closingsAsc, { period: 14 });
+      const stockResult = stoch(highsAsc, lowsAsc, closingsAsc, { dPeriod: 14, kPeriod: 3 });
+      const emaResult = ema(closingsAsc, { period: 45 });
 
-      ];
+      const smaResult = [];
 
       for (const length of smaLengths) {
-        const sma2 = simpleMovingAverage(closings, { period: length })
+        const sma2 = simpleMovingAverage(closingsAsc, { period: length })
 
         smaResult.push({
           length,
@@ -68,7 +54,12 @@ export class IndicatorService {
       results.push({
         interval: bucket,
         rsi: rsiResult.at(-1),
-        smas: smaResult,
+        stoch: {
+          k: stockResult.k.at(-1),
+          d: stockResult.d.at(-1),
+        },
+        sma: smaResult,
+        ema: emaResult.at(-1),
       });
     }
 
@@ -81,44 +72,6 @@ export class IndicatorService {
       .replace(/:length/g, `${interval * length}`);
 
     return this.stockPriceRepository.query(query, [assetId]);
-  }
-
-  async calculateSMA(assetId: number, length: number, interval: number): Promise<number> {
-    const query = SMA_QUERY
-      .replace(/:minutes/g, interval.toString())
-      .replace(/:length/g, `${length * interval}`);
-    const result = await this.stockPriceRepository.query(query, [assetId]);
-    return result[0]?.sma ?? 0;
-  }
-
-  async calculateRSI(recentPrices: number[], length: number): Promise<number> {
-    // Calculate gains and losses
-    const gains: number[] = [];
-    const losses: number[] = [];
-
-    for (let i = 1; i < recentPrices.length; i++) {
-      const currentPrice = recentPrices[i]
-      const previousPrice = recentPrices[i - 1]
-      const change = currentPrice - previousPrice;
-
-      if (change > 0) {
-        gains.push(change);
-        losses.push(0);
-      } else {
-        gains.push(0);
-        losses.push(Math.abs(change));
-      }
-    }
-
-    // Calculate average gain and average loss
-    const avgGain = gains.slice(0, length).reduce((acc, val) => acc + val, 0) / length;
-    const avgLoss = losses.slice(0, length).reduce((acc, val) => acc + val, 0) / length;
-
-    // Calculate RSI
-    const rs = avgLoss === 0 ? 0 : avgGain / avgLoss;
-    const rsi = 100 - (100 / (1 + rs));
-
-    return rsi;
   }
 
   async calculateStoch(assetId: number, length: number, interval: number): Promise<number> {
