@@ -18,7 +18,7 @@ export class IndicatorService {
 
       const rsiResult = rsi(closings, { period: 14 });
       const stockResult = stoch(highs, lows, closings, { dPeriod: 14, kPeriod: 3 });
-      const emaResult = ema(closings, { period: 45 });
+      const ema45Result = ema(closings, { period: 45 });
 
       const smaResult = [];
 
@@ -27,7 +27,7 @@ export class IndicatorService {
 
         smaResult.push({
           length,
-          sma: smaLengthResult,
+          values: smaLengthResult,
         });
       }
 
@@ -40,7 +40,10 @@ export class IndicatorService {
           d: stockResult.d,
         },
         sma: smaResult,
-        ema: emaResult,
+        ema: {
+          length: 45,
+          values: ema45Result,
+        },
       });
     }
 
