@@ -13,7 +13,7 @@ const USERS = [
         full_name: 'Jon Snow',
         user_name: 'jon',
         email: 'alimnfog@gmail.com',
-        password: bcrypt.hashSync('UCanKissMyWhiteNak3dAss!', 10),
+        password: bcrypt.hashSync('KissMyWhiteNak3dAss!', 10),
     }
 ];
 
@@ -21,10 +21,10 @@ export class CreateDefaultUser1725780669337 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
 
-        for (const userData of USERS) {
-            const { id, full_name, user_name, email, password } = userData;
-            await queryRunner.query(QUERY, [id, full_name, user_name, email, password]);
-        }
+        // for (const userData of USERS) {
+        //     const { id, full_name, user_name, email, password } = userData;
+        //     await queryRunner.query(QUERY, [id, full_name, user_name, email, password]);
+        // }
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
