@@ -20,11 +20,10 @@ const USERS = [
 export class CreateDefaultUser1725780669337 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-
-        // for (const userData of USERS) {
-        //     const { id, full_name, user_name, email, password } = userData;
-        //     await queryRunner.query(QUERY, [id, full_name, user_name, email, password]);
-        // }
+        for (const userData of USERS) {
+            const { id, full_name, user_name, email, password } = userData;
+            await queryRunner.query(QUERY, [id, full_name, user_name, email, password]);
+        }
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
