@@ -27,10 +27,9 @@ export class EntrypointDetectorService {
         private readonly patternsService: PatternsService,
         private readonly rsiRepository: RsiRepository,
         private readonly stochRepository: StochRepository,
-        private readonly eventEmitter: EventEmitter2
     ) { }
 
-    async detectPotentialEntrypoints(asset: AssetDTO, indicators: IndicatorsDTO[], ): Promise<void> {
+    detectPotentialEntrypoints(asset: AssetDTO, indicators: IndicatorsDTO[], ): PotentialEntrypoint[] {
         const result: PotentialEntrypoint[] = []
 
         // if (stocks.length > 0) {
@@ -46,8 +45,8 @@ export class EntrypointDetectorService {
         //     const potentialEntrypoint = await this.isPotentialGoodEntrypointForCrypto(asset);
         //     result.push(potentialEntrypoint);
         // }
-
-        this.eventEmitter.emit(NOTIFY_TECHNICAL_RESULT, result);
+        
+        return result;
     }
 
     private async isPotentialGoodEntrypointForStock(asset: Asset, nasdaqRsiInOneMinute: number): Promise<PotentialEntrypoint> {

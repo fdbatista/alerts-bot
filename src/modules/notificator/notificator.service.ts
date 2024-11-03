@@ -4,6 +4,7 @@ import { MESSAGES } from './_config';
 import { OnEvent } from '@nestjs/event-emitter';
 import { NOTIFY_TECHNICAL_RESULT } from '../technical-analysis/indicators-builder/config';
 import { TelegramService } from './telegram/telegram.service';
+import { IndicatorsDTO } from '../technical-analysis/dto/indicators.dto';
 
 @Injectable()
 export class NotificatorService {
@@ -12,8 +13,8 @@ export class NotificatorService {
     ) { }
 
     @OnEvent(NOTIFY_TECHNICAL_RESULT, { async: true })
-    async analyzeTechnicalResults(results: PotentialEntrypoint[]): Promise<void> {
-        const positiveValidations = results.map(result => {
+    async analyzeTechnicalResults(entrypoints: PotentialEntrypoint[], indicators: IndicatorsDTO[]): Promise<void> {
+        const positiveValidations = entrypoints.map(result => {
             const { asset } = result;
 
             const positiveValidations = Object.entries(result)

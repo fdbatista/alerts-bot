@@ -3,8 +3,8 @@ import { CandlestickDTO } from 'src/modules/_common/dto/ticker-dto';
 import { TickerService } from 'src/modules/ticker/ticker.service';
 import { rsi, stoch, ema, sma } from 'indicatorts';
 import { MovingAverageDTO } from '../dto/moving-average.dto';
-import { OnEvent } from '@nestjs/event-emitter';
-import { BUILD_INDICATORS } from './config';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { BUILD_INDICATORS, NOTIFY_TECHNICAL_RESULT } from './config';
 
 import { from } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
@@ -22,6 +22,7 @@ export class IndicatorCalculatorService {
   constructor(
     private readonly tickerService: TickerService,
     private readonly entrypointDetectorService: EntrypointDetectorService,
+    private readonly eventEmitter: EventEmitter2,
   ) { }
 
   @OnEvent(BUILD_INDICATORS, { async: true })
@@ -37,7 +38,9 @@ export class IndicatorCalculatorService {
 
   async detectPotentialEntrypoints(asset: AssetDTO): Promise<void> {
     const indicators = await this.calculateIndicators(asset.id);
-    await this.entrypointDetectorService.detectPotentialEntrypoints(asset, indicators);
+    const entrypoints = this.entrypointDetectorService.detectPotentialEntrypoints(asset, indicators);
+
+    this.eventEmitter.emit(NOTIFY_TECHNICAL_RESULT, entrypoints, indicators);
   }
 
   async calculateIndicators(assetId: number): Promise<IndicatorsDTO[]> {
