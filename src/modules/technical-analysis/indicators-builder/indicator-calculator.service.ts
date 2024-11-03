@@ -3,14 +3,44 @@ import { CandlestickDTO } from 'src/modules/_common/dto/ticker-dto';
 import { TickerService } from 'src/modules/ticker/ticker.service';
 import { rsi, stoch, ema, sma } from 'indicatorts';
 import { MovingAverageDTO } from '../dto/moving-average.dto';
+import { OnEvent } from '@nestjs/event-emitter';
+import { BUILD_INDICATORS } from './config';
+
+import { from } from 'rxjs';
+import { mergeMap } from 'rxjs/operators';
+import { AssetDTO } from 'src/modules/ticker/dto/asset.dto';
+import { IndicatorsDTO } from '../dto/indicators.dto';
+import { EntrypointDetectorService } from '../entrypoint-detector.service';
+import { LoggerUtil } from 'src/utils/logger.util';
+
+const intervals = [1, 5, 30, 60, 1440]
+const smaLengths = [10, 50, 200];
+const emaLengths = [45, 200];
 
 @Injectable()
-export class IndicatorService {
+export class IndicatorCalculatorService {
   constructor(
     private readonly tickerService: TickerService,
+    private readonly entrypointDetectorService: EntrypointDetectorService,
   ) { }
 
-  async calculateIndicators(assetId: number, intervals: number[], smaLengths: number[], emaLengths: number[]): Promise<any[]> {
+  @OnEvent(BUILD_INDICATORS, { async: true })
+  async processIndicators(assets: AssetDTO[]) {
+    from(assets)
+      .pipe(
+        mergeMap(asset => this.detectPotentialEntrypoints(asset))
+      )
+      .subscribe(() => {
+        LoggerUtil.log('Indicators updated');
+      });
+  }
+
+  async detectPotentialEntrypoints(asset: AssetDTO): Promise<void> {
+    const indicators = await this.calculateIndicators(asset.id);
+    await this.entrypointDetectorService.detectPotentialEntrypoints(asset, indicators);
+  }
+
+  async calculateIndicators(assetId: number): Promise<IndicatorsDTO[]> {
     const results = [];
 
     for (const interval of intervals) {
@@ -21,7 +51,7 @@ export class IndicatorService {
       const stochResult = stoch(highs, lows, closings, { dPeriod: 14, kPeriod: 3 });
       const smaResult = this.calculateSMA(closings, smaLengths);
       const emaResult = this.calculateEMA(closings, emaLengths);
-      
+
       results.push({
         interval,
         candlesticks,

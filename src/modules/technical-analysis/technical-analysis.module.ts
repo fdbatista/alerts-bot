@@ -11,7 +11,7 @@ import { RsiRepository } from './indicators-builder/repository/rsi.repository';
 import { StochRepository } from './indicators-builder/repository/stoch.repository';
 import { Ema } from 'src/database/entities/ema';
 import { EmaRepository } from './indicators-builder/repository/ema.repository';
-import { IndicatorService } from './indicators-builder/indicator-calculator.service';
+import { IndicatorCalculatorService } from './indicators-builder/indicator-calculator.service';
 
 @Module({
   imports:
@@ -22,7 +22,7 @@ import { IndicatorService } from './indicators-builder/indicator-calculator.serv
   providers: [
     PatternsService,
     EntrypointDetectorService,
-    IndicatorService,
+    IndicatorCalculatorService,
     RsiRepository,
     StochRepository,
     EmaRepository,

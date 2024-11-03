@@ -31,11 +31,7 @@ export class WebullService {
             const result = new Ticker();
 
             result.assetId = assets[index]?.id;
-            
-            const timestamp = new Date(item.tradeTime);
-            timestamp.setMilliseconds(0);
-            result.timestamp = timestamp;
-
+            result.timestamp = new Date(item.tradeTime);
             result.price = item.close;
 
             return result

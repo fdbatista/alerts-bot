@@ -5,7 +5,6 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
 import { AssetRepository } from './asset.repository';
 import { ASSET_TYPES } from 'src/modules/_common/util/asset-types.util';
-import { TickerInsertedDTO } from './dto/ticker-inserted.dto';
 import { BUILD_INDICATORS } from '../technical-analysis/indicators-builder/config';
 import { WebullService } from '../exchange/webull/webull.service';
 import { CandlestickDTO } from '../_common/dto/ticker-dto';
@@ -61,25 +60,24 @@ export class TickerService {
 
     private async loadAllAssetsTickers() {
         const assets = await this.assetRepository.getActiveAssets();
-        this.upsertTickers(assets)
+        this.processTickers(assets)
     }
 
     private async loadCryptoTickers() {
         const assets = await this.assetRepository.getActiveAssets(ASSET_TYPES.CRYPTOCURRENCY);
-        this.upsertTickers(assets)
+        this.processTickers(assets)
     }
 
     private async deleteOldTickers(): Promise<void> {
         await this.tickerRepository.deleteOldTickers();
     }
 
-    private async upsertTickers(assets: AssetDTO[]): Promise<void> {
+    private async processTickers(assets: AssetDTO[]): Promise<void> {
         try {
             const tickers = await this.webullService.fetchTickers(assets);
             await this.tickerRepository.upsertTickers(tickers);
 
-            const payload = new TickerInsertedDTO(assets, tickers);
-            this.eventEmitter.emit(BUILD_INDICATORS, payload);
+            this.eventEmitter.emit(BUILD_INDICATORS, assets);
         } catch (error) {
             const { message } = error;
             LoggerUtil.error(message);

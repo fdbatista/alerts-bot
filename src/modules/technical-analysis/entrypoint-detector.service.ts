@@ -9,8 +9,8 @@ import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { NOTIFY_TECHNICAL_RESULT, RUN_TECHNICAL_ANALYSIS } from './indicators-builder/config';
 import { NASDAQ_ID, RSI_ENTRYPOINT_THRESHOLD } from './_config';
 import * as _ from 'lodash';
-import { groupBy } from 'lodash';
-import { TechnicalAnalysisDTO } from './indicators-builder/indicators-updated-payload.dto';
+import { IndicatorsDTO } from './dto/indicators.dto';
+import { AssetDTO } from '../ticker/dto/asset.dto';
 
 export interface PotentialEntrypoint {
     asset: Asset;
@@ -30,35 +30,22 @@ export class EntrypointDetectorService {
         private readonly eventEmitter: EventEmitter2
     ) { }
 
-    @OnEvent(RUN_TECHNICAL_ANALYSIS, { async: true })
-    async detectPotentialEntrypoints(assets: Asset[]): Promise<void> {
+    async detectPotentialEntrypoints(asset: AssetDTO, indicators: IndicatorsDTO[], ): Promise<void> {
         const result: PotentialEntrypoint[] = []
 
-        const assetsWtihType = await Promise.all(
-            assets.map(async (asset) => ({
-                ...asset,
-                typeName: (await asset.type).name,
-            }))
-        );
+        // if (stocks.length > 0) {
+        //     const nasdaqRsiInOneMinute: number = await this.getAssetRsi(NASDAQ_ID, 1);
 
-        const assetsByType = groupBy(assetsWtihType, 'typeName');
+        //     for (const asset of stocks) {
+        //         const potentialEntrypoint = await this.isPotentialGoodEntrypointForStock(asset, nasdaqRsiInOneMinute);
+        //         result.push(potentialEntrypoint);
+        //     }
+        // }
 
-        const stocks = assetsByType['Stock'] ?? [];
-        const cryptos = assetsByType['Cryptocurrency'] ?? [];
-
-        if (stocks.length > 0) {
-            const nasdaqRsiInOneMinute: number = await this.getAssetRsi(NASDAQ_ID, 1);
-
-            for (const asset of stocks) {
-                const potentialEntrypoint = await this.isPotentialGoodEntrypointForStock(asset, nasdaqRsiInOneMinute);
-                result.push(potentialEntrypoint);
-            }
-        }
-
-        for (const asset of cryptos) {
-            const potentialEntrypoint = await this.isPotentialGoodEntrypointForCrypto(asset);
-            result.push(potentialEntrypoint);
-        }
+        // for (const asset of assets) {
+        //     const potentialEntrypoint = await this.isPotentialGoodEntrypointForCrypto(asset);
+        //     result.push(potentialEntrypoint);
+        // }
 
         this.eventEmitter.emit(NOTIFY_TECHNICAL_RESULT, result);
     }
