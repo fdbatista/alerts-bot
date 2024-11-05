@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { PotentialEntrypoint } from 'src/modules/technical-analysis/entrypoint-detector.service';
 import { MESSAGES } from './_config';
 import { OnEvent } from '@nestjs/event-emitter';
 import { NOTIFY_TECHNICAL_RESULT } from '../technical-analysis/indicators-builder/config';
 import { TelegramService } from './telegram/telegram.service';
 import { IndicatorsDTO } from '../technical-analysis/dto/indicators.dto';
+import { PotentialEntrypoint } from '../technical-analysis/dto/potential-entrypoint.dto';
 
 @Injectable()
 export class NotificatorService {
@@ -23,7 +23,7 @@ export class NotificatorService {
 
             if (positiveValidations.length > 0) {
                 const validationsString = positiveValidations.join(', ');
-                return `Potential entrypoint for ${asset.name} by ${validationsString}`;
+                return `Potential entrypoint for ${asset.symbol} by ${validationsString}`;
             }
 
             return null;

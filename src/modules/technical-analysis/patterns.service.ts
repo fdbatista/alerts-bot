@@ -14,7 +14,10 @@ export class PatternsService {
         const peaks = this.findMaxPeaks(closings);
         const [lastPrice] = closings.slice(-1);
 
-        return this.isDescending(peaks) && this.isCurrentPriceOverLastPeak(peaks, lastPrice);
+        const isOverTrendLine = this.isCurrentPriceOverTrendLine(peaks, lastPrice);
+        const isOverLastPeak = this.isCurrentPriceOverLastPeak(peaks, lastPrice);
+
+        return isOverTrendLine && isOverLastPeak;
     }
 
     findMaxPeaks(prices: number[]): number[] {
@@ -34,37 +37,27 @@ export class PatternsService {
     }
 
     isCurrentPriceOverLastPeak(peaks: number[], lastPrice: number): boolean {
-        const { length: peakCount } = peaks;
-
+        const peakCount = peaks.length;
         let result = false;
 
-        if (peakCount > 1) {
-            const [lastPeak] = peaks.slice(-1);
-            result = lastPrice >= lastPeak;
+        if (peakCount > 0) {
+            const lastPeak = peaks.at(-1);
+            result = lastPeak !== undefined && lastPrice >= lastPeak;
         }
 
         return result
     }
 
-    private isDescending(arr: number[]): boolean {
-        for (let i = 0; i < arr.length - 1; i++) {
-            if (arr[i] < arr[i + 1]) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     isCurrentPriceOverTrendLine(peaks: number[], lastPrice: number): boolean {
         const nextPeak = this.calculateNextPointInTendencyLine(peaks);
-
         return lastPrice > nextPeak;
     }
 
     calculateNextPointInTendencyLine(peaks: number[]): number {
         const [penultimatePeak, lastPeak] = peaks.slice(-2);
-        const peakSlope = (penultimatePeak - lastPeak)
+        const slope = penultimatePeak - lastPeak
 
-        return lastPeak - peakSlope;
+        return lastPeak - slope;
     }
+
 }

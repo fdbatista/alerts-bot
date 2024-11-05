@@ -4,7 +4,7 @@ import { TickerService } from 'src/modules/ticker/ticker.service';
 import { rsi, stoch, ema, sma } from 'indicatorts';
 import { MovingAverageDTO } from '../dto/moving-average.dto';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { BUILD_INDICATORS, NOTIFY_TECHNICAL_RESULT } from './config';
+import { BUILD_INDICATORS, RUN_TECHNICAL_ANALYSIS } from './config';
 
 import { from } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
@@ -21,7 +21,6 @@ const emaLengths = [45, 200];
 export class IndicatorCalculatorService {
   constructor(
     private readonly tickerService: TickerService,
-    private readonly entrypointDetectorService: EntrypointDetectorService,
     private readonly eventEmitter: EventEmitter2,
   ) { }
 
@@ -31,16 +30,12 @@ export class IndicatorCalculatorService {
       .pipe(
         mergeMap(asset => this.detectPotentialEntrypoints(asset))
       )
-      .subscribe(() => {
-        LoggerUtil.log('Indicators updated');
-      });
+      .subscribe(() => { });
   }
 
   async detectPotentialEntrypoints(asset: AssetDTO): Promise<void> {
     const indicators = await this.calculateIndicators(asset.id);
-    const entrypoints = this.entrypointDetectorService.detectPotentialEntrypoints(asset, indicators);
-
-    this.eventEmitter.emit(NOTIFY_TECHNICAL_RESULT, entrypoints, indicators);
+    this.eventEmitter.emit(RUN_TECHNICAL_ANALYSIS, asset, indicators);
   }
 
   async calculateIndicators(assetId: number): Promise<IndicatorsDTO[]> {
