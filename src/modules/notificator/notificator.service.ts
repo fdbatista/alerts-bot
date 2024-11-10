@@ -14,25 +14,25 @@ export class NotificatorService {
 
     @OnEvent(NOTIFY_TECHNICAL_RESULT, { async: true })
     async analyzeTechnicalResults(entrypoints: PotentialEntrypoint[], indicators: IndicatorsDTO[]): Promise<void> {
-        const positiveValidations = entrypoints.map(result => {
-            const { asset } = result;
+        // const positiveValidations = entrypoints.map(result => {
+        //     const { asset } = result;
 
-            const positiveValidations = Object.entries(result)
-                .filter(([, value]) => value === true)
-                .map(([key]) => MESSAGES[key as keyof typeof MESSAGES]);
+        //     const positiveValidations = Object.entries(result)
+        //         .filter(([, value]) => value === true)
+        //         .map(([key]) => MESSAGES[key as keyof typeof MESSAGES]);
 
-            if (positiveValidations.length > 0) {
-                const validationsString = positiveValidations.join(', ');
-                return `Potential entrypoint for ${asset.symbol} by ${validationsString}`;
-            }
+        //     if (positiveValidations.length > 0) {
+        //         const validationsString = positiveValidations.join(', ');
+        //         return `Potential entrypoint for ${asset.symbol} by ${validationsString}`;
+        //     }
 
-            return null;
-        }).filter(message => message);
+        //     return null;
+        // }).filter(message => message);
 
-        if (positiveValidations.length > 0) {
-            const message = positiveValidations.join('\n');
-            this.telegramService.sendMessage(message);
-        }
+        // if (positiveValidations.length > 0) {
+        //     const message = positiveValidations.join('\n');
+        //     this.telegramService.sendMessage(message);
+        // }
     }
 
 }

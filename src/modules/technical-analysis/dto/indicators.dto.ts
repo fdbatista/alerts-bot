@@ -4,6 +4,7 @@ import { MovingAverageDTO } from "./moving-average.dto"
 export class IndicatorsDTO {
     public interval: number
     public candlesticks: CandlestickDTO[]
+    public closings: number[]
     public rsi: number[]
     public stoch: {
         k: number[],

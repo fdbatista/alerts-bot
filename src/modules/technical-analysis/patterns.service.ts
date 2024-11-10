@@ -2,6 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Ticker } from '../../database/entities/ticker';
+import { MovingAverageDTO } from './dto/moving-average.dto';
+import { PotentialEntrypoint, PotentialEntrypointType } from './dto/potential-entrypoint.dto';
+
+const CROSSOVER_OR_BOUNCE_THRESHOLD = 0.01;
 
 @Injectable()
 export class PatternsService {
@@ -10,17 +14,87 @@ export class PatternsService {
         readonly tickerRepository: Repository<Ticker>
     ) { }
 
-    async isPotentialBreak(closings: number[]): Promise<boolean> {
+    detectPotentialEntrypoints(closings: number[], sma: MovingAverageDTO[]): PotentialEntrypoint[] {
+        const result = this.detectCloseBounces(closings, sma);
+        const potentialBreak = this.detectPotentialBreak(closings);
+
+        if (potentialBreak.type !== PotentialEntrypointType.NONE) {
+            result.push(potentialBreak);
+        }
+
+        return result;
+    }
+
+    private detectCloseBounces(prices: number[], smas: MovingAverageDTO[]): PotentialEntrypoint[] {
+        const result: PotentialEntrypoint[] = [];
+        const relevantSMAs = smas.filter(sma => sma.length !== 10);
+
+        for (const sma of relevantSMAs) {
+            const { values, name } = sma;
+            const potentialBounce = this.detectBounceNearSMA(name, prices, values);
+
+            if (potentialBounce.type !== PotentialEntrypointType.NONE) {
+                result.push(potentialBounce);
+            }
+        }
+
+        return result;
+    }
+
+    private detectBounceNearSMA(smaType: string, prices: number[], smaValues: number[], threshold = CROSSOVER_OR_BOUNCE_THRESHOLD): PotentialEntrypoint {
+        let isNearSMA = false;
+
+        for (let i = 1; i < prices.length; i++) {
+            const price = prices[i];
+            const smaValue = smaValues[i];
+            const smaThreshold = smaValue * threshold;
+
+            const priceDiff = Math.abs(price - smaValue);
+
+            if (priceDiff <= smaThreshold) {
+                isNearSMA = true;
+            }
+
+            if (isNearSMA && price > smaValue + smaThreshold) {
+                const pricesContext = prices.slice(i - 5, i + 5);
+                const smaContext = smaValues.slice(i - 5, i + 5);
+
+                return {
+                    type: PotentialEntrypointType.BOUNCE,
+                    context: {
+                        smaType, index: i, price, pricesContext, smaValue, smaContext
+                    },
+                };
+            }
+        }
+
+        return {
+            type: PotentialEntrypointType.NONE,
+            context: {},
+        };
+    }
+
+    private detectPotentialBreak(closings: number[]): PotentialEntrypoint {
         const peaks = this.findMaxPeaks(closings);
-        const [lastPrice] = closings.slice(-1);
+        const lastPrice = closings.at(-1);
 
         const isOverTrendLine = this.isCurrentPriceOverTrendLine(peaks, lastPrice);
         const isOverLastPeak = this.isCurrentPriceOverLastPeak(peaks, lastPrice);
 
-        return isOverTrendLine && isOverLastPeak;
+        if (isOverTrendLine && isOverLastPeak) {
+            return {
+                type: PotentialEntrypointType.BREAK,
+                context: { peaks, lastPrice },
+            };
+        }
+
+        return {
+            type: PotentialEntrypointType.NONE,
+            context: {},
+        };
     }
 
-    findMaxPeaks(prices: number[]): number[] {
+    private findMaxPeaks(prices: number[]): number[] {
         if (prices.length < 3) {
             return [];
         }
@@ -36,24 +110,24 @@ export class PatternsService {
         return peaks;
     }
 
-    isCurrentPriceOverLastPeak(peaks: number[], lastPrice: number): boolean {
+    private isCurrentPriceOverLastPeak(peaks: number[], lastPrice: number | undefined): boolean {
         const peakCount = peaks.length;
         let result = false;
 
         if (peakCount > 0) {
             const lastPeak = peaks.at(-1);
-            result = lastPeak !== undefined && lastPrice >= lastPeak;
+            result = (lastPeak !== undefined && lastPrice !== undefined && lastPrice >= lastPeak);
         }
 
         return result
     }
 
-    isCurrentPriceOverTrendLine(peaks: number[], lastPrice: number): boolean {
+    private isCurrentPriceOverTrendLine(peaks: number[], lastPrice: number | undefined): boolean {
         const nextPeak = this.calculateNextPointInTendencyLine(peaks);
-        return lastPrice > nextPeak;
+        return lastPrice !== undefined && lastPrice > nextPeak;
     }
 
-    calculateNextPointInTendencyLine(peaks: number[]): number {
+    private calculateNextPointInTendencyLine(peaks: number[]): number {
         const [penultimatePeak, lastPeak] = peaks.slice(-2);
         const slope = penultimatePeak - lastPeak
 

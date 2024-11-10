@@ -14,7 +14,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
 
   const appPort = parseInt(process.env.APP_PORT ?? DEFAULT_VALUES.APP_PORT);
-  console.log(`Service listening on port ${appPort}`);
+  console.debug(`Service listening on port ${appPort}`);
 
   await app.listen(appPort);
 }

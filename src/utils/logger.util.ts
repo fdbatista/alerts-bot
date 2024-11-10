@@ -4,7 +4,7 @@ import { StringUtil } from './string.util';
 export class LoggerUtil {
     static log(message: string, data?: any): void {
         const logMessage = this.formatMessage(message);
-        console.log(logMessage, data ?? StringUtil.EMPTY_STRING);
+        console.debug(logMessage, data ?? StringUtil.EMPTY_STRING);
     }
 
     static debug(message: string, data?: object): void {

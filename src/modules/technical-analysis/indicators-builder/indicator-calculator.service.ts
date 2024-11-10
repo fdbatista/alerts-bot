@@ -10,8 +10,6 @@ import { from } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 import { AssetDTO } from 'src/modules/ticker/dto/asset.dto';
 import { IndicatorsDTO } from '../dto/indicators.dto';
-import { EntrypointDetectorService } from '../entrypoint-detector.service';
-import { LoggerUtil } from 'src/utils/logger.util';
 
 const intervals = [1, 5, 30, 60, 1440]
 const smaLengths = [10, 50, 200];
@@ -27,9 +25,7 @@ export class IndicatorCalculatorService {
   @OnEvent(BUILD_INDICATORS, { async: true })
   async processIndicators(assets: AssetDTO[]) {
     from(assets)
-      .pipe(
-        mergeMap(asset => this.detectPotentialEntrypoints(asset))
-      )
+      .pipe(mergeMap(asset => this.detectPotentialEntrypoints(asset)))
       .subscribe(() => { });
   }
 
@@ -53,6 +49,7 @@ export class IndicatorCalculatorService {
       results.push({
         interval,
         candlesticks,
+        closings,
         rsi: rsiResult,
         stoch: {
           k: stochResult.k,

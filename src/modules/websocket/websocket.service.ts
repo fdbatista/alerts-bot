@@ -16,16 +16,16 @@ export class WebsocketService implements OnGatewayConnection, OnGatewayDisconnec
     server: Server;
 
     handleConnection(client: Socket) {
-        console.log(`Client connected: ${client.id}`);
+        console.debug(`Client connected: ${client.id}`);
     }
 
     handleDisconnect(client: Socket) {
-        console.log(`Client disconnected: ${client.id}`);
+        console.debug(`Client disconnected: ${client.id}`);
     }
 
     @SubscribeMessage('message')
     handleMessage(client: Socket, payload: any): void {
-        console.log(`Message received from client ${client.id}: ${JSON.stringify(payload)}`);
+        console.debug(`Message received from client ${client.id}: ${JSON.stringify(payload)}`);
     }
 
     @OnEvent(BROADCAST_TECHNICAL_DATA, { async: true })
