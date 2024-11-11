@@ -9,7 +9,7 @@ import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { TechnicalAnalysisResult } from './dto/technical-analysis-result.dto';
 
 @Injectable()
-export class EntrypointDetectorService {
+export class TechnicalAnalysisService {
 
     constructor(
         private readonly patternsService: PatternsService,

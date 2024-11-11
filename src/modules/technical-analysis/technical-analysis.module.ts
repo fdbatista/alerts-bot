@@ -3,7 +3,7 @@ import { IndicatorsController } from './indicator.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Ticker } from 'src/database/entities/ticker';
 import { PatternsService } from './patterns.service';
-import { EntrypointDetectorService } from './entrypoint-detector.service';
+import { TechnicalAnalysisService } from './technical-analysis.service';
 import { TickerModule } from '../ticker/ticker.module';
 import { Rsi } from 'src/database/entities/rsi';
 import { Stoch } from 'src/database/entities/stoch';
@@ -21,13 +21,13 @@ import { IndicatorCalculatorService } from './indicators-builder/indicator-calcu
     ],
   providers: [
     PatternsService,
-    EntrypointDetectorService,
+    TechnicalAnalysisService,
     IndicatorCalculatorService,
     RsiRepository,
     StochRepository,
     EmaRepository,
   ],
   controllers: [IndicatorsController],
-  exports: [PatternsService, EntrypointDetectorService],
+  exports: [PatternsService, TechnicalAnalysisService],
 })
 export class TechnicalAnalysisModule { }
