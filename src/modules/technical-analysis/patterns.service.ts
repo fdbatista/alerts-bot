@@ -33,7 +33,7 @@ export class PatternsService {
 
         for (const sma of relevantSMAs) {
             const { values, name } = sma;
-            
+
             const lastValues = values.slice(-10);
             const potentialBounce = this.detectBounceNearSMA(name, prices, lastValues);
 
@@ -62,7 +62,7 @@ export class PatternsService {
             if (isNearSMA && price > smaValue + smaThreshold) {
                 return {
                     type: `${PotentialEntrypointType.BOUNCE} near ${smaType}`,
-                    context: { price, sma: smaValue },
+                    context: { index: i, price, sma: smaValue },
                 };
             }
         }
