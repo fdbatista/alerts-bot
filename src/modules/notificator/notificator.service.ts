@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { MESSAGES } from './_config';
 import { OnEvent } from '@nestjs/event-emitter';
 import { NOTIFY_TECHNICAL_RESULT } from '../technical-analysis/indicators-builder/config';
 import { TelegramService } from './telegram/telegram.service';
 import { IndicatorsDTO } from '../technical-analysis/dto/indicators.dto';
-import { PotentialEntrypoint } from '../technical-analysis/dto/potential-entrypoint.dto';
+import { TechnicalAnalysisResult } from '../technical-analysis/dto/technical-analysis-result.dto';
+import { getIntervalAggregation } from '../_common/util/date.util';
 
 @Injectable()
 export class NotificatorService {
@@ -13,26 +13,19 @@ export class NotificatorService {
     ) { }
 
     @OnEvent(NOTIFY_TECHNICAL_RESULT, { async: true })
-    async analyzeTechnicalResults(entrypoints: PotentialEntrypoint[], indicators: IndicatorsDTO[]): Promise<void> {
-        // const positiveValidations = entrypoints.map(result => {
-        //     const { asset } = result;
+    async analyzeTechnicalResults(entrypoints: TechnicalAnalysisResult[], indicators: IndicatorsDTO[]): Promise<void> {
+        for (const entrypoint of entrypoints) {
+            const { asset, interval, potentialEntrypoints } = entrypoint;
 
-        //     const positiveValidations = Object.entries(result)
-        //         .filter(([, value]) => value === true)
-        //         .map(([key]) => MESSAGES[key as keyof typeof MESSAGES]);
+            const entrypoints = potentialEntrypoints.map(potentialEntrypoint => {
+                return `\n---------------------------\nType: ${potentialEntrypoint.type}\nContext: ${JSON.stringify(potentialEntrypoint.context)}`;
+            }).join('\n');
 
-        //     if (positiveValidations.length > 0) {
-        //         const validationsString = positiveValidations.join(', ');
-        //         return `Potential entrypoint for ${asset.symbol} by ${validationsString}`;
-        //     }
+            const timeFrame = getIntervalAggregation(interval);
+            const message = `Asset: ${asset.symbol}\nInterval: ${timeFrame}\nEntrypoints:\n${entrypoints}`;
 
-        //     return null;
-        // }).filter(message => message);
-
-        // if (positiveValidations.length > 0) {
-        //     const message = positiveValidations.join('\n');
-        //     this.telegramService.sendMessage(message);
-        // }
+            await this.telegramService.sendMessage(message);
+        }
     }
 
 }

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { StringUtil } from '../../../utils/string.util';
 import { LoggerUtil } from '../../../utils/logger.util';
 import { HttpService } from '@nestjs/axios';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class TelegramService {
@@ -20,7 +21,8 @@ export class TelegramService {
         const params = { chat_id: this.recipient, text };
 
         try {
-            await this.httpService.post(url, params);
+            const request = this.httpService.post(url, params);
+            await lastValueFrom(request);
         } catch (error) {
             const { message } = error
             LoggerUtil.error(`Error sending Telegram message: ${message}`);

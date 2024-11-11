@@ -55,7 +55,7 @@ export class TickerService {
 
     @Cron('0 0 * * *')
     cleanUp() {
-        this.deleteOldTickers()
+        this.tickerRepository.deleteOldTickers();
     }
 
     private async loadAllAssetsTickers() {
@@ -68,16 +68,16 @@ export class TickerService {
         this.processTickers(assets)
     }
 
-    private async deleteOldTickers(): Promise<void> {
-        await this.tickerRepository.deleteOldTickers();
-    }
-
     private async processTickers(assets: AssetDTO[]): Promise<void> {
         try {
             const tickers = await this.webullService.fetchTickers(assets);
             await this.tickerRepository.upsertTickers(tickers);
 
-            this.eventEmitter.emit(BUILD_INDICATORS, assets);
+            const currentSeconds = new Date().getSeconds();
+
+            if (currentSeconds < 5) {
+                this.eventEmitter.emit(BUILD_INDICATORS, assets);
+            }
         } catch (error) {
             const { message } = error;
             LoggerUtil.error(message);

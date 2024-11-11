@@ -11,7 +11,7 @@ import { mergeMap } from 'rxjs/operators';
 import { AssetDTO } from 'src/modules/ticker/dto/asset.dto';
 import { IndicatorsDTO } from '../dto/indicators.dto';
 
-const intervals = [1, 5, 30, 60, 1440]
+const intervals = [1, 5, 60, 1440]
 const smaLengths = [10, 50, 200];
 const emaLengths = [45, 200];
 

@@ -15,7 +15,7 @@ export class PatternsService {
     ) { }
 
     detectPotentialEntrypoints(closings: number[], sma: MovingAverageDTO[]): PotentialEntrypoint[] {
-        const result = this.detectCloseBounces(closings, sma);
+        const result = this.detectBounceNearSMAs(closings, sma);
         const potentialBreak = this.detectPotentialBreak(closings);
 
         if (potentialBreak.type !== PotentialEntrypointType.NONE) {
@@ -25,7 +25,7 @@ export class PatternsService {
         return result;
     }
 
-    private detectCloseBounces(prices: number[], smas: MovingAverageDTO[]): PotentialEntrypoint[] {
+    private detectBounceNearSMAs(prices: number[], smas: MovingAverageDTO[]): PotentialEntrypoint[] {
         const result: PotentialEntrypoint[] = [];
         const relevantSMAs = smas.filter(sma => sma.length !== 10);
 
@@ -56,14 +56,9 @@ export class PatternsService {
             }
 
             if (isNearSMA && price > smaValue + smaThreshold) {
-                const pricesContext = prices.slice(i - 5, i + 5);
-                const smaContext = smaValues.slice(i - 5, i + 5);
-
                 return {
-                    type: PotentialEntrypointType.BOUNCE,
-                    context: {
-                        smaType, index: i, price, pricesContext, smaValue, smaContext
-                    },
+                    type: `${PotentialEntrypointType.BOUNCE} near ${smaType}`,
+                    context: { price, sma: smaValue },
                 };
             }
         }
@@ -84,7 +79,7 @@ export class PatternsService {
         if (isOverTrendLine && isOverLastPeak) {
             return {
                 type: PotentialEntrypointType.BREAK,
-                context: { peaks, lastPrice },
+                context: { previousPeak: peaks.at(-1), lastPrice },
             };
         }
 

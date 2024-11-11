@@ -36,12 +36,10 @@ export class TickerRepository {
         const startDate = new Date();
         startDate.setDate(startDate.getDate() - 3650);
 
-        const timestamp = startDate.getTime();
-
         await this.tickerRepository
             .createQueryBuilder('ticker')
             .delete()
-            .where('ticker.timestamp < :timestamp', { timestamp })
+            .where('ticker.timestamp < :timestamp', { startDate })
             .execute();
     }
 
