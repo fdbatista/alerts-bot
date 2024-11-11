@@ -15,8 +15,10 @@ export class PatternsService {
     ) { }
 
     detectPotentialEntrypoints(closings: number[], sma: MovingAverageDTO[]): PotentialEntrypoint[] {
-        const result = this.detectBounceNearSMAs(closings, sma);
-        const potentialBreak = this.detectPotentialBreak(closings);
+        const lastClosings = closings.slice(-10);
+
+        const result = this.detectBounceNearSMAs(lastClosings, sma);
+        const potentialBreak = this.detectPotentialBreak(lastClosings);
 
         if (potentialBreak.type !== PotentialEntrypointType.NONE) {
             result.push(potentialBreak);
@@ -31,7 +33,9 @@ export class PatternsService {
 
         for (const sma of relevantSMAs) {
             const { values, name } = sma;
-            const potentialBounce = this.detectBounceNearSMA(name, prices, values);
+            
+            const lastValues = values.slice(-10);
+            const potentialBounce = this.detectBounceNearSMA(name, prices, lastValues);
 
             if (potentialBounce.type !== PotentialEntrypointType.NONE) {
                 result.push(potentialBounce);
