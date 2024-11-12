@@ -25,7 +25,13 @@ export class AssetRepository {
     ) { }
 
     async getActiveAssets(type?: string): Promise<AssetDTO[]> {
-        const query = `${ASSET_QUERY}${type ? ASSET_BY_TYPE_FILTER : ''}`; 
-        return await this.assetRepository.query(query, [type]);
+        let query = ASSET_QUERY
+        
+        if (type) {
+            query = `${query} ${ASSET_BY_TYPE_FILTER}`;   
+            return await this.assetRepository.query(query, [type]);
+        }
+
+        return await this.assetRepository.query(query);
     }
 }
