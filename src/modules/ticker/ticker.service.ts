@@ -23,7 +23,7 @@ export class TickerService {
         return this.tickerRepository.generateCandlesticks(assetId, interval, length);
     }
 
-    @Cron('*/5 * 0-14 * * 1-5')  // Every minute from 00:00 to 14:59 on Monday to Friday
+    @Cron('*/5 * 0-14 * * 1-5')  // From 00:00 to 14:59 on Monday to Friday
     async loadCryptosFrom00To14() {
         this.loadCryptoTickers()
     }
@@ -38,17 +38,17 @@ export class TickerService {
         this.loadAllAssetsTickers()
     }
 
-    @Cron('*/5 * 16-21 * * 1-5') // Every minute from 16:00 to 21:59 on Monday to Friday
+    @Cron('*/5 * 16-21 * * 1-5') // From 16:00 to 21:59 on Monday to Friday
     async loadAllAssetsFrom14To21() {
         this.loadAllAssetsTickers()
     }
 
-    @Cron('*/5 * 22-23 * * 1-5')  // Every minute from 22:00 to 23:59 on Monday to Friday
+    @Cron('*/5 * 22-23 * * 1-5')  // From 22:00 to 23:59 on Monday to Friday
     async loadCryptosFrom22To23() {
         this.loadCryptoTickers()
     }
 
-    @Cron('*/5 * * * * 6,7')  // Every minute on Saturday and Sunday
+    @Cron('*/5 * * * * 6,7')  // On Saturday and Sunday
     async loadCryptosOnWeekends() {
         this.loadCryptoTickers()
     }
