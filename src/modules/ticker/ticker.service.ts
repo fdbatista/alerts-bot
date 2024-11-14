@@ -5,7 +5,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
 import { AssetRepository } from './asset.repository';
 import { ASSET_TYPES } from 'src/modules/_common/util/asset-types.util';
-import { BUILD_INDICATORS } from '../technical-analysis/indicators-builder/config';
+import { BUILD_INDICATORS } from '../websocket/_config';
 import { WebullService } from '../exchange/webull/webull.service';
 import { CandlestickDTO } from '../_common/dto/ticker-dto';
 import { AssetDTO } from './dto/asset.dto';

@@ -4,7 +4,7 @@ import { PatternsService } from './patterns.service';
 import * as _ from 'lodash';
 import { IndicatorsDTO } from './dto/indicators.dto';
 import { AssetDTO } from '../ticker/dto/asset.dto';
-import { NOTIFY_TECHNICAL_RESULT, RUN_TECHNICAL_ANALYSIS } from './indicators-builder/config';
+import { NOTIFY_TECHNICAL_RESULT, RUN_TECHNICAL_ANALYSIS } from '../websocket/_config';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { TechnicalAnalysisResult } from './dto/technical-analysis-result.dto';
 

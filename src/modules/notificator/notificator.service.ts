@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { NOTIFY_TECHNICAL_RESULT } from '../technical-analysis/indicators-builder/config';
+import { NOTIFY_TECHNICAL_RESULT } from '../websocket/_config';
 import { TelegramService } from './telegram/telegram.service';
 import { IndicatorsDTO } from '../technical-analysis/dto/indicators.dto';
 import { TechnicalAnalysisResult } from '../technical-analysis/dto/technical-analysis-result.dto';

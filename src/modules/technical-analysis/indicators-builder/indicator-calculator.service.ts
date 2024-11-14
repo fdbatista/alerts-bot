@@ -4,7 +4,7 @@ import { TickerService } from 'src/modules/ticker/ticker.service';
 import { rsi, stoch, ema, sma } from 'indicatorts';
 import { MovingAverageDTO } from '../dto/moving-average.dto';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { BUILD_INDICATORS, RUN_TECHNICAL_ANALYSIS } from './config';
+import { BUILD_INDICATORS, RUN_TECHNICAL_ANALYSIS } from '../../websocket/_config';
 
 import { from } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';

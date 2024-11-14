@@ -4,7 +4,7 @@ import { Server, Socket } from 'socket.io';
 import { OnEvent } from '@nestjs/event-emitter';
 import { TechnicalAnalysisDTO } from '../technical-analysis/indicators-builder/indicators-updated-payload.dto';
 import { TickerDTO } from '../_common/dto/ticker-dto';
-import { BROADCAST_TECHNICAL_DATA } from '../technical-analysis/indicators-builder/config';
+import { BROADCAST_TECHNICAL_DATA } from './_config';
 import { Rsi } from 'src/database/entities/rsi';
 import { Stoch } from 'src/database/entities/stoch';
 import { Ema } from 'src/database/entities/ema';
