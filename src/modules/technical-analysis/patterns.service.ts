@@ -24,21 +24,67 @@ export class PatternsService {
             entrypoints.push(potentialBreak);
         }
 
+        const crossovers = this.detectBullishCrossovers(sma);
+        entrypoints.push(...crossovers);
+
         return entrypoints;
     }
 
     private detectBounceNearSMAs(prices: number[], smas: MovingAverageDTO[]): PotentialEntrypoint[] {
         const result: PotentialEntrypoint[] = [];
-        const relevantSMAs = smas.filter(sma => sma.length !== 10);
 
-        for (const sma of relevantSMAs) {
-            const { values, name } = sma;
+        const sma200 = smas.filter(sma => sma.length === 200);
+        const isBullishTrend = this.isCurrentPriceOverSma200(prices, sma200);
 
-            const lastValues = values.slice(-10);
-            const potentialBounce = this.detectBounceNearSMA(name, prices, lastValues);
+        if (isBullishTrend) {
+            const relevantSMAs = smas.filter(sma => sma.length !== 10);
 
-            if (potentialBounce.type !== PotentialEntrypointType.NONE) {
-                result.push(potentialBounce);
+            for (const sma of relevantSMAs) {
+                const { values, name } = sma;
+
+                const lastValues = values.slice(-10);
+                const potentialBounce = this.detectBounceNearSMA(name, prices, lastValues);
+
+                if (potentialBounce.type !== PotentialEntrypointType.NONE) {
+                    result.push(potentialBounce);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private isCurrentPriceOverSma200(prices: number[], sma: MovingAverageDTO[]): boolean {
+        const lastPrice = prices.at(-1) as number;
+        const sma200 = sma.find(sma => sma.length === 200)?.values.at(-1) as number;
+
+        return lastPrice > sma200;
+    }
+
+    private detectBullishCrossovers(sma: MovingAverageDTO[]): PotentialEntrypoint[] {
+        const result = [];
+
+        const smaOrderedByLength = sma.sort((a, b) => a.length - b.length);
+        const smaTypes = sma.length;
+
+        for (let i = 0; i < smaTypes - 1; i++) {
+            const lowLengthSma = smaOrderedByLength[i].values;
+
+            const lowLengthSmaLastValue = lowLengthSma.at(-1) as number;
+            const lowLengthSmaPenultimateValue = lowLengthSma.at(-2) as number;
+
+            for (let j = i + 1; j < smaTypes; j++) {
+                const highLengthSma = smaOrderedByLength[j].values;
+
+                const highLengthSmaLastValue = highLengthSma.at(-1) as number;
+                const highLengthSmaPenultimateValue = highLengthSma.at(-2) as number;
+
+                if (lowLengthSmaPenultimateValue < highLengthSmaPenultimateValue && lowLengthSmaLastValue > highLengthSmaLastValue) {
+                    result.push({
+                        type: PotentialEntrypointType.GOLDEN_CROSS,
+                        context: `${sma[i].name} crossover ${sma[j].name}`,
+                    });
+                }
             }
         }
 
