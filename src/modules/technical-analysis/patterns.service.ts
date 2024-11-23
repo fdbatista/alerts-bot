@@ -123,12 +123,12 @@ export class PatternsService {
 
     private detectPotentialBreak(closings: number[]): PotentialEntrypoint {
         const peaks = this.findMaxPeaks(closings);
-        const lastPrice = closings.at(-1);
+        const lastPrice = closings.at(-1) as number;
 
-        const isOverTrendLine = this.isCurrentPriceOverTrendLine(peaks, lastPrice);
         const isOverLastPeak = this.isCurrentPriceOverLastPeak(peaks, lastPrice);
+        const isOverTrendLine = this.isCurrentPriceOverTrendLine(peaks, lastPrice);
 
-        if (isOverTrendLine && isOverLastPeak) {
+        if (isOverLastPeak && isOverTrendLine) {
             return {
                 type: PotentialEntrypointType.BREAK,
                 context: { previousPeak: peaks.at(-1), lastPrice },
@@ -157,16 +157,26 @@ export class PatternsService {
         return peaks;
     }
 
-    private isCurrentPriceOverLastPeak(peaks: number[], lastPrice: number | undefined): boolean {
-        const peakCount = peaks.length;
+    private isCurrentPriceOverLastPeak(peaks: number[], lastPrice: number): boolean {
+        const { length: peakCount } = peaks;
+
         let result = false;
 
-        if (peakCount > 0) {
-            const lastPeak = peaks.at(-1);
-            result = (lastPeak !== undefined && lastPrice !== undefined && lastPrice >= lastPeak);
+        if (peakCount > 1 && this.isDescending(peaks)) {
+            const [lastPeak] = peaks.slice(-1);
+            result = lastPrice >= lastPeak;
         }
 
         return result
+    }
+    
+    private isDescending(peaks: number[]): boolean {
+        for (let i = 0; i < peaks.length - 1; i++) {
+            if (peaks[i] < peaks[i + 1]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private isCurrentPriceOverTrendLine(peaks: number[], lastPrice: number | undefined): boolean {
