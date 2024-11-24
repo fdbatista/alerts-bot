@@ -5,7 +5,7 @@ import { Ticker } from '../../database/entities/ticker';
 import { MovingAverageDTO } from './dto/moving-average.dto';
 import { PotentialEntrypoint, PotentialEntrypointType } from './dto/potential-entrypoint.dto';
 
-const CROSSOVER_OR_BOUNCE_THRESHOLD = 0.005;
+const CROSSOVER_OR_BOUNCE_THRESHOLD = 0.0015;
 
 @Injectable()
 export class PatternsService {
