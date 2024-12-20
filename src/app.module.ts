@@ -16,6 +16,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { ExchangeModule } from './modules/exchange/exchange.module';
 import { ConfigModule } from '@nestjs/config';
+import { TrendAnalysisModule } from './modules/trend-analysis/trend-analysis.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { ConfigModule } from '@nestjs/config';
     AuthModule,
     UserModule,
     ExchangeModule,
+    TrendAnalysisModule,
   ],
   controllers: [AppController],
   providers: [AppService],
