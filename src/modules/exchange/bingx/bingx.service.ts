@@ -21,20 +21,24 @@ export class BingxService {
     }
 
     async fetchUserBalance() {
-        const timestamp = new Date().getTime()
-        const payload = { timestamp }
-
         try {
-            const queryParams = HttpUtil.buildQueryParams(payload, false)
-            const signature = CryptoUtil.signRequest(queryParams, this.apiSecret)
-            const url = BINGX_API_PROTOCOL + "://" + BINGX_API_HOST + BINGX_USER_BALANCE_URI + "?" + queryParams + "&signature=" + signature
-
+            const url = this.buildSignedUrl(BINGX_USER_BALANCE_URI)
             const promise = this.httpService.get(url, { headers: this.headers });
             const { data } = await firstValueFrom(promise);
 
             return data;
         } catch (error) {
-            throw new HttpException(error.response.data, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new HttpException(error.response?.data || 'Error fetching balance', HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private buildSignedUrl(uri: string): string { 
+        const timestamp = new Date().getTime()
+        const payload = { timestamp }
+
+        const queryParams = HttpUtil.buildQueryParams(payload, false)
+        const signature = CryptoUtil.signRequest(queryParams, this.apiSecret)
+
+        return `${BINGX_API_PROTOCOL}://${BINGX_API_HOST}${uri}?${queryParams}&signature=${signature}`
     }
 }
