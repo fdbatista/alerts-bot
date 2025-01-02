@@ -22,4 +22,8 @@ export class DateUtil {
 
         return formatInTimeZone(date, timezone, DATE_UNTIL_MINUTES_FORMAT);
     }
+
+    static getCurrentMillis(): number {
+        return new Date().getTime();
+    }
 }

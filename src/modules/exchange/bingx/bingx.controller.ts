@@ -5,9 +5,15 @@ import { BingxService } from './bingx.service';
 export class BingxController {
     constructor(private readonly bingxService: BingxService) { }
 
-    @Get()
-    async test(@Res() response: any) {
+    @Get('balance')
+    async fetchUserBalance(@Res() response: any) {
         const result = await this.bingxService.fetchUserBalance();
+        response.send(result);
+    }
+
+    @Get('fees')
+    async fetchTradingFees(@Res() response: any) {
+        const result = await this.bingxService.fetchTradingFees();
         response.send(result);
     }
 }
