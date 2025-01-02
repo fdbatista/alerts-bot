@@ -1,12 +1,13 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Res } from '@nestjs/common';
 import { BingxService } from './bingx.service';
 
 @Controller('bingx')
 export class BingxController {
-    constructor(private readonly bingxService: BingxService) {}
+    constructor(private readonly bingxService: BingxService) { }
 
     @Get()
-    async test() {
-        return await this.bingxService.getUserBalance()
+    async test(@Res() response: any) {
+        const result = await this.bingxService.fetchUserBalance();
+        response.send(result);
     }
 }
