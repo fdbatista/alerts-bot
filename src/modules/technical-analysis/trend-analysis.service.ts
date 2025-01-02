@@ -3,25 +3,18 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class TrendAnalysisService {
     // Detect bearish trend and potential trend change
-    analyzeBearishTrend(closingPrices: number[]): { bearish: boolean; trendChange: boolean } {
+    analyzeBearishTrend(closingPrices: number[]): boolean {
         const peaks = this.findPeaks(closingPrices);
 
         if (peaks.length < 2) {
-            return { bearish: false, trendChange: false };
+            return false;
         }
 
-        let bearish = true;
+        const bearish = this.arePeaksDescending(peaks);
+        const priceOverTrendline = this.detectTrendlineCross(closingPrices);
+        const priceOverLastPeak = this.isCurrentPriceOverLastPeak(peaks, closingPrices.at(-1) as number);
 
-        for (let i = 1; i < peaks.length; i++) {
-            if (peaks[i] >= peaks[i - 1]) {
-                bearish = false;
-                break;
-            }
-        }
-
-        const trendChange = this.detectTrendlineCross(closingPrices) && this.isPeakHigher(peaks, closingPrices);
-
-        return { bearish, trendChange };
+        return bearish && priceOverTrendline && priceOverLastPeak;
     }
 
     // Detect SMA crossovers
@@ -63,6 +56,15 @@ export class TrendAnalysisService {
         return peaks;
     }
 
+    private arePeaksDescending(peaks: number[]): boolean {
+        for (let i = 0; i < peaks.length - 1; i++) {
+            if (peaks[i] < peaks[i + 1]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     // Helper to detect trendline crossing
     private detectTrendlineCross(closingPrices: number[]): boolean {
         const trendline = this.calculateTrendline(closingPrices);
@@ -90,10 +92,12 @@ export class TrendAnalysisService {
     }
 
     // Helper to check if a new peak is higher than the previous one
-    private isPeakHigher(peaks: number[], closingPrices: number[]): boolean {
-        const lastPeak = peaks.at(-1) as number;
-        const lastPrice = closingPrices.at(-1) as number;
+    private isCurrentPriceOverLastPeak(peaks: number[], lastPrice: number): boolean {
+        if (peaks.length === 0) {
+            return false;
+        }
 
+        const lastPeak = peaks.at(-1) as number;
         return lastPrice > lastPeak;
     }
 

@@ -1,29 +1,45 @@
 import { Injectable } from '@nestjs/common';
 
-import { PatternsService } from './patterns.service';
 import * as _ from 'lodash';
-import { IndicatorsDTO } from './dto/indicators.dto';
+import { IntervalDataDTO } from './dto/indicators.dto';
 import { AssetDTO } from '../ticker/dto/asset.dto';
 import { NOTIFY_TECHNICAL_RESULT, RUN_TECHNICAL_ANALYSIS } from '../websocket/_config';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { TechnicalAnalysisResult } from './dto/technical-analysis-result.dto';
+import { TrendAnalysisService } from './trend-analysis.service';
+import { PotentialEntrypoint, PotentialEntrypointType } from './dto/potential-entrypoint.dto';
 
 @Injectable()
 export class TechnicalAnalysisService {
 
     constructor(
-        private readonly patternsService: PatternsService,
+        private readonly trendAnalysisService: TrendAnalysisService,
         private readonly eventEmitter: EventEmitter2,
     ) { }
 
     @OnEvent(RUN_TECHNICAL_ANALYSIS, { async: true })
-    runTechnicalAnalysis(asset: AssetDTO, indicators: IndicatorsDTO[]): void {
+    runTechnicalAnalysis(asset: AssetDTO, indicators: IntervalDataDTO[]): void {
         const result: TechnicalAnalysisResult[] = [];
 
         for (const indicator of indicators) {
-            const { interval, closings, sma } = indicator;
+            const { interval, closings } = indicator;
+            const potentialEntrypoints: PotentialEntrypoint[] = [];
 
-            const potentialEntrypoints = this.patternsService.detectPotentialEntrypoints(closings, sma);
+            const potentialTrendChange = this.trendAnalysisService.analyzeBearishTrend(closings);
+
+            if (potentialTrendChange) {
+                potentialEntrypoints.push({ type: PotentialEntrypointType.BREAK, context: null });
+            }
+
+            const smaCrossovers = this.trendAnalysisService.detectSMACrossovers(closings);
+
+            if (smaCrossovers.sma50Cross) {
+                potentialEntrypoints.push({ type: PotentialEntrypointType.GOLDEN_CROSS, context: 'SMA10 crosses above SMA50' });
+            }
+
+            if (smaCrossovers.sma200Cross) {
+                potentialEntrypoints.push({ type: PotentialEntrypointType.GOLDEN_CROSS, context: 'SMA10 crosses above SMA200' });
+            }
 
             if (potentialEntrypoints.length) {
                 result.push({ asset, interval, potentialEntrypoints });

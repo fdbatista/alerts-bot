@@ -29,7 +29,7 @@ export class TickerRepository {
             .replaceAll(':minutes', interval.toString())
             .replaceAll(':length', `${interval * length}`);
 
-        return this.tickerRepository.query(query, [assetId]);
+        return await this.tickerRepository.query(query, [assetId]);
     }
 
     public async deleteOldTickers(): Promise<void> {

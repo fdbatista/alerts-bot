@@ -13,6 +13,6 @@ export class IndicatorsController {
     @Version('1')
     @Get()
     async getIndicators() {
-        return await this.indicatorCalculatorService.calculateIndicators(8);
+        return await this.indicatorCalculatorService.getIntervalsData(8);
     }
 }

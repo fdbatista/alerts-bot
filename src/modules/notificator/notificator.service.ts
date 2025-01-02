@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { NOTIFY_TECHNICAL_RESULT } from '../websocket/_config';
 import { TelegramService } from './telegram/telegram.service';
-import { IndicatorsDTO } from '../technical-analysis/dto/indicators.dto';
+import { IntervalDataDTO } from '../technical-analysis/dto/indicators.dto';
 import { TechnicalAnalysisResult } from '../technical-analysis/dto/technical-analysis-result.dto';
 import { getIntervalAggregation } from '../_common/util/date.util';
 
@@ -13,7 +13,7 @@ export class NotificatorService {
     ) { }
 
     @OnEvent(NOTIFY_TECHNICAL_RESULT, { async: true })
-    async analyzeTechnicalResults(entrypoints: TechnicalAnalysisResult[], indicators: IndicatorsDTO[]): Promise<void> {
+    async analyzeTechnicalResults(entrypoints: TechnicalAnalysisResult[], indicators: IntervalDataDTO[]): Promise<void> {
         for (const entrypoint of entrypoints) {
             const { asset, interval, potentialEntrypoints } = entrypoint;
 
