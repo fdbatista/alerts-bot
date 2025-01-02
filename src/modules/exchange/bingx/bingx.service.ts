@@ -33,7 +33,7 @@ export class BingxService {
 
     async getUserBalance(): Promise<any> {
         try {
-            const timestamp = this.generateTimestamp();
+            const timestamp = Date.now();
             const params = { timestamp };
 
             const signature = this.generateSignature(params, timestamp);
@@ -44,24 +44,16 @@ export class BingxService {
 
             return response.data;
         } catch (error) {
-            // Handle errors from the API or HTTP request
-            throw new HttpException(
-                error.response?.data || 'Error fetching user balance from BingX',
-                HttpStatus.BAD_REQUEST,
-            );
+            const message = error.response?.data || 'Error fetching user balance from BingX';
+            throw new HttpException(message, HttpStatus.BAD_REQUEST);
         }
     }
 
-    private generateSignature(params: Record<string, any>, timestamp: string): string {
+    private generateSignature(params: Record<string, any>, timestamp: number): string {
         const queryString = querystring.stringify({ ...params, timestamp });
         const hmac = crypto.createHmac('sha256', this.apiSecret);
         hmac.update(queryString);
 
         return hmac.digest('hex');
     }
-
-    private generateTimestamp(): string {
-        return Date.now().toString(); // Return the current timestamp in milliseconds
-    }
-
 }
