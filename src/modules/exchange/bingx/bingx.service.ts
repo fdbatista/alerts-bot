@@ -27,7 +27,7 @@ export class BingxService {
             const payload = { timestamp }
 
             const url = this.buildSignedUrl(BINGX_ENDPOINTS.userBalance, payload);
-            const promise = this.httpService.get(url, { headers: this.headers });
+            const promise = this.httpService.request({ method: 'GET', url, headers: this.headers });
             const { data } = await firstValueFrom(promise);
 
             return data;
@@ -40,14 +40,34 @@ export class BingxService {
         try {
             const timestamp = DateUtil.getCurrentMillis()
             const payload = { timestamp, recvWindow: 5000 }
-
             const url = this.buildSignedUrl(BINGX_ENDPOINTS.tradingFees, payload);
-            const promise = this.httpService.get(url, { headers: this.headers });
+
+            const promise = this.httpService.request({ method: 'GET', url, headers: this.headers });
             const { data } = await firstValueFrom(promise);
 
             return data;
         } catch (error) {
             throw new HttpException(error.response?.data || 'Error fetching balance', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    async placeOrder() {
+        const payload = {  }
+        return await this.sendRequest(payload, BINGX_ENDPOINTS.placeOrder.uri);
+    }
+
+    private async sendRequest(params: Record<string, any>, uri: string) {
+        try {
+            const timestamp = DateUtil.getCurrentMillis()
+            const payload = { ...params, timestamp }
+
+            const url = this.buildSignedUrl(uri, payload);
+            const promise = this.httpService.get(url, { headers: this.headers });
+            const { data } = await firstValueFrom(promise);
+
+            return data;
+        } catch (error) {
+            throw new HttpException(error.response?.data || `Error consuming ${uri}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
