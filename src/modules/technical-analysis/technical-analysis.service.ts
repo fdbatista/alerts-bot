@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import * as _ from 'lodash';
 import { IntervalDataDTO } from './dto/indicators.dto';
 import { AssetDTO } from '../ticker/dto/asset.dto';
-import { NOTIFY_TECHNICAL_RESULT, RUN_TECHNICAL_ANALYSIS } from '../websocket/_config';
+import { PROCESS_ENTRYPOINTS, RUN_TECHNICAL_ANALYSIS } from '../websocket/_config';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { TechnicalAnalysisResult } from './dto/technical-analysis-result.dto';
 import { TrendAnalysisService } from './trend-analysis.service';
@@ -47,7 +47,7 @@ export class TechnicalAnalysisService {
         }
 
         if (result.length) {
-            this.eventEmitter.emit(NOTIFY_TECHNICAL_RESULT, result, indicators);
+            this.eventEmitter.emit(PROCESS_ENTRYPOINTS, result, indicators);
         }
     }
 

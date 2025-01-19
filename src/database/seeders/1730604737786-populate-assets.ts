@@ -9,10 +9,10 @@ const DATA = [
     { type_id: 5, external_id: 913354090, name: 'NASDAQ', symbol: 'IXIC', is_active: true },
     { type_id: 2, external_id: 913303964, name: 'GOOGLE', symbol: 'GOOG', is_active: true },
     { type_id: 2, external_id: 913323997, name: 'MICROSOFT', symbol: 'MSFT', is_active: true },
-    { type_id: 1, external_id: 950160802, name: 'BITCOIN', symbol: 'BTCUSD', is_active: true },
-    { type_id: 1, external_id: 950190134, name: 'SOLANA', symbol: 'SOLUSD', is_active: true },
-    { type_id: 1, external_id: 950160801, name: 'LITECOIN', symbol: 'LTCUSD', is_active: true },
-    { type_id: 1, external_id: 950160804, name: 'ETHEREUM', symbol: 'ETHUSD', is_active: true },
+    { type_id: 1, external_id: 950160802, name: 'BITCOIN', symbol: 'BTC-USD', is_active: true },
+    { type_id: 1, external_id: 950190134, name: 'SOLANA', symbol: 'SOL-USD', is_active: true },
+    { type_id: 1, external_id: 950160801, name: 'LITECOIN', symbol: 'LTC-USD', is_active: true },
+    { type_id: 1, external_id: 950160804, name: 'ETHEREUM', symbol: 'ETH-USD', is_active: true },
 ]
 
 const UP_QUERY = `

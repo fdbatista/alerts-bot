@@ -4,6 +4,12 @@ import { ConfigService } from '@nestjs/config';
 import { BINGX_ENDPOINTS } from '../_config';
 import { firstValueFrom } from 'rxjs';
 import { BingXService } from './bingx.service';
+import { OnEvent } from '@nestjs/event-emitter';
+import { PROCESS_ENTRYPOINTS } from 'src/modules/websocket/_config';
+import { IntervalDataDTO } from 'src/modules/technical-analysis/dto/indicators.dto';
+import { TechnicalAnalysisResult } from 'src/modules/technical-analysis/dto/technical-analysis-result.dto';
+
+const CRYPTO_ASSET_TYPE = 1;
 
 @Injectable()
 export class BingXTradingService extends BingXService {
@@ -12,9 +18,19 @@ export class BingXTradingService extends BingXService {
         super(httpService, configService);
     }
 
-    async placeMarketOrderWithTrailingStop(symbol: string, side: string, quantity: number): Promise<any> {
-        const marketOrder = await this.placeMarketOrder(symbol, side, quantity);
-        const trailingStopOrder = await this.sendTrailingStopMarketOrder(symbol, side === 'BUY' ? 'SELL' : 'BUY', quantity, 0.005);
+    @OnEvent(PROCESS_ENTRYPOINTS, { async: true })
+    async placeMarketOrderWithTrailingStop(entrypoints: TechnicalAnalysisResult[], indicators: IntervalDataDTO[]): Promise<any> {
+        const [{ asset }] = entrypoints;
+
+        if (asset.typeId !== CRYPTO_ASSET_TYPE) {
+            return;
+        }
+        
+        const side = 'BUY';
+        const quantity = 0.0001;
+
+        const marketOrder = await this.placeMarketOrder(asset.symbol, side, quantity);
+        const trailingStopOrder = await this.sendTrailingStopMarketOrder(asset.symbol, 'SELL', quantity, 0.005);
 
         return { marketOrder, trailingStopOrder };
     }
