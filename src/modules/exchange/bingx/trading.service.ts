@@ -38,7 +38,14 @@ export class TradingService {
         }
     }
 
-    async placeMarketOrder(symbol: string, side: string, quantity: number) {
+    async placeMarketOrderWithTrailingStop(symbol: string, side: string, quantity: number): Promise<any> {
+        const marketOrder = await this.placeMarketOrder(symbol, side, quantity);
+        const trailingStopOrder = await this.sendTrailingStopMarketOrder(symbol, side === 'BUY' ? 'SELL' : 'BUY', quantity, 0.005);
+
+        return { marketOrder, trailingStopOrder };
+    }
+
+    private async placeMarketOrder(symbol: string, side: string, quantity: number) {
         const timestamp = Date.now();
 
         const payload = {
@@ -67,7 +74,7 @@ export class TradingService {
         }
     }
 
-    async sendTrailingStopMarketOrder(
+    private async sendTrailingStopMarketOrder(
         symbol: string,
         side: 'BUY' | 'SELL',
         quantity: number,
