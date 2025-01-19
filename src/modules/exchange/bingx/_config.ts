@@ -1,7 +1,5 @@
-export const BINGX_API_PROTOCOL = 'https'
-export const BINGX_API_HOST = 'open-api.bingx.com'
-
-export const BINGX_ENDPOINTS_CONFIG = {
+export const BINGX_ENDPOINTS = {
+    baseUrl: 'https://open-api.bingx.com',
     userBalance: {
         method: 'GET',
         uri: '/openApi/swap/v3/user/balance'
