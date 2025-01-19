@@ -4,8 +4,6 @@ import { Ticker } from 'src/database/entities/ticker';
 import { Asset } from 'src/database/entities/asset';
 import { EnvModule } from '../_common/env/env.module';
 import { AssetType } from 'src/database/entities/asset-type';
-import { Strategy } from 'src/database/entities/strategy';
-import { StrategySignal } from 'src/database/entities/strategy-signal';
 import { TickerRepository } from './ticker.repository';
 import { Rsi } from 'src/database/entities/rsi';
 import { Stoch } from 'src/database/entities/stoch';
@@ -21,8 +19,6 @@ import { HttpModule } from '@nestjs/axios';
       Ticker,
       Asset,
       AssetType,
-      Strategy,
-      StrategySignal,
       Rsi,
       Stoch,
     ]),

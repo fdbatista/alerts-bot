@@ -11,7 +11,6 @@ import { AssetType } from "./asset-type";
 import { Ema } from "./ema";
 import { Rsi } from "./rsi";
 import { Stoch } from "./stoch";
-import { StrategySignal } from "./strategy-signal";
 import { Ticker } from "./ticker";
 
 @Index("asset_external_id_key", ["externalId"], { unique: true })
@@ -50,11 +49,6 @@ export class Asset {
 
   @OneToMany(() => Stoch, (stoch) => stoch.asset, { lazy: true })
   stoches: Promise<Stoch[]>;
-
-  @OneToMany(() => StrategySignal, (strategySignal) => strategySignal.asset, {
-    lazy: true,
-  })
-  strategySignals: Promise<StrategySignal[]>;
 
   @OneToMany(() => Ticker, (ticker) => ticker.asset, { lazy: true })
   tickers: Promise<Ticker[]>;
