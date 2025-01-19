@@ -1,6 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import * as crypto from 'crypto';
-import axios from 'axios';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { StringUtil } from 'src/utils/string.util';
@@ -58,7 +57,9 @@ export class TradingService {
 
         try {
             const endpoint = `${BINGX_ENDPOINTS.baseUrl}${BINGX_ENDPOINTS.placeOrder.uri}?${params}`;
-            const response = await axios.post(`${endpoint}`, null, { headers: this.headers });
+            const promise = this.httpService.post(endpoint, null, { headers: this.headers });
+            const response = await firstValueFrom(promise);
+
             return response.data;
         } catch (error) {
             console.error('Error placing market order:', error.response?.data || error.message);
@@ -91,7 +92,9 @@ export class TradingService {
             params.append('signature', signature);
 
             const endpoint = `${BINGX_ENDPOINTS.baseUrl}${BINGX_ENDPOINTS.placeOrder.uri}?${params}`
-            const response = await axios.post(endpoint, null, { headers: this.headers });
+            
+            const promise = this.httpService.post(endpoint, null, { headers: this.headers });
+            const response = await firstValueFrom(promise);
 
             const { data } = response;
 
