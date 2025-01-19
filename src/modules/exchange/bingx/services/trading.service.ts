@@ -1,41 +1,15 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import * as crypto from 'crypto';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
-import { StringUtil } from 'src/utils/string.util';
-import { DateUtil } from 'src/utils/date.util';
-import { BINGX_ENDPOINTS } from './_config';
+import { BINGX_ENDPOINTS } from '../_config';
 import { firstValueFrom } from 'rxjs';
+import { BingXService } from './bingx.service';
 
 @Injectable()
-export class TradingService {
-    private apiSecret: string;
-    private headers: Record<string, string>;
-    
-    constructor(private httpService: HttpService, private configService: ConfigService) {
-        this.apiSecret = this.configService.get<string>('BINGX_API_SECRET') || StringUtil.EMPTY_STRING;
+export class BingXTradingService extends BingXService {
 
-        const apiKey = this.configService.get<string>('BINGX_API_KEY') || StringUtil.EMPTY_STRING;
-        this.headers = { 'X-BX-APIKEY': apiKey };
-    }
-
-    async fetchUserBalance() {
-        try {
-            const timestamp = DateUtil.getCurrentMillis();
-            const queryString = `timestamp=${timestamp}`;
-            const signature = this.generateSignature(queryString);
-
-            const endpoint = `${BINGX_ENDPOINTS.baseUrl}${BINGX_ENDPOINTS.userBalance.uri}`;
-            const url = `${endpoint}?${queryString}&signature=${signature}`;
-
-            const promise = this.httpService.get(url, { headers: this.headers });
-            const response = await firstValueFrom(promise);
-
-            return response.data;
-        } catch (error) {
-            console.error('Error fetching user balance:', error.response?.data || error.message);
-            throw error;
-        }
+    constructor(httpService: HttpService, configService: ConfigService) {
+        super(httpService, configService);
     }
 
     async placeMarketOrderWithTrailingStop(symbol: string, side: string, quantity: number): Promise<any> {
@@ -99,7 +73,7 @@ export class TradingService {
             params.append('signature', signature);
 
             const endpoint = `${BINGX_ENDPOINTS.baseUrl}${BINGX_ENDPOINTS.placeOrder.uri}?${params}`
-            
+
             const promise = this.httpService.post(endpoint, null, { headers: this.headers });
             const response = await firstValueFrom(promise);
 
@@ -112,12 +86,5 @@ export class TradingService {
                 error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
             );
         }
-    }
-
-    private generateSignature(queryString: string): string {
-        return crypto
-            .createHmac('sha256', this.apiSecret)
-            .update(queryString)
-            .digest('hex');
     }
 }
