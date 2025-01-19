@@ -15,11 +15,11 @@ export class BingxController {
 
     @Get('order')
     async placeOrder(@Res() response: any) {
-        // await this.tradingService.placeMarketOrder(
-        //     'BTC-USDT', // symbol
-        //     'BUY', // side
-        //     0.0001 // quantity
-        // );
+        await this.tradingService.placeMarketOrder(
+            'BTC-USDT', // symbol
+            'BUY', // side
+            0.0001 // quantity
+        );
 
         await this.tradingService.sendTrailingStopMarketOrder(
             'BTC-USDT',
@@ -27,5 +27,7 @@ export class BingxController {
             0.0001,
             0.005,
         );
+
+        response.send();  
     }
 }

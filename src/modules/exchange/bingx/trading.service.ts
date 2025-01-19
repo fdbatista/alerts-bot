@@ -10,7 +10,6 @@ import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class TradingService {
-    private apiKey: string;
     private apiSecret: string;
     private headers: Record<string, string>;
     
@@ -71,7 +70,7 @@ export class TradingService {
         symbol: string,
         side: 'BUY' | 'SELL',
         quantity: number,
-        callbackRate: number,
+        priceRate: number,
     ): Promise<any> {
         try {
             const timestamp = Date.now();
@@ -82,7 +81,7 @@ export class TradingService {
                 positionSide: 'LONG',
                 type: 'TRAILING_STOP_MARKET',
                 quantity: quantity.toString(),
-                priceRate: '0.005',
+                priceRate: priceRate.toString(),
                 timestamp: timestamp.toString(),
             };
 
