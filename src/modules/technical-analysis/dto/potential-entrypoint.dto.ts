@@ -9,4 +9,5 @@ export enum PotentialEntrypointType {
 export interface PotentialEntrypoint {
     type: string;
     context: any;
+    currentPrice: number;
 }

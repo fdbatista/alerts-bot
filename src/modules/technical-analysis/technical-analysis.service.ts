@@ -23,22 +23,24 @@ export class TechnicalAnalysisService {
 
         for (const indicator of indicators) {
             const { interval, closings } = indicator;
+            const currentPrice = closings.at(-1) as number;
+
             const potentialEntrypoints: PotentialEntrypoint[] = [];
 
             const potentialTrendChange = this.trendAnalysisService.analyzeBearishTrend(closings);
 
             if (potentialTrendChange) {
-                potentialEntrypoints.push({ type: PotentialEntrypointType.BREAK, context: null });
+                potentialEntrypoints.push({ type: PotentialEntrypointType.BREAK, context: null, currentPrice });
             }
 
             const smaCrossovers = this.trendAnalysisService.detectSMACrossovers(closings);
 
             if (smaCrossovers.sma50Cross) {
-                potentialEntrypoints.push({ type: PotentialEntrypointType.GOLDEN_CROSS, context: 'SMA10 crosses above SMA50' });
+                potentialEntrypoints.push({ type: PotentialEntrypointType.GOLDEN_CROSS, context: 'SMA10 crosses above SMA50', currentPrice });
             }
 
             if (smaCrossovers.sma200Cross) {
-                potentialEntrypoints.push({ type: PotentialEntrypointType.GOLDEN_CROSS, context: 'SMA10 crosses above SMA200' });
+                potentialEntrypoints.push({ type: PotentialEntrypointType.GOLDEN_CROSS, context: 'SMA10 crosses above SMA200', currentPrice });
             }
 
             if (potentialEntrypoints.length) {

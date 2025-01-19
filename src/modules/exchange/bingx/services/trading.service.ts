@@ -20,14 +20,17 @@ export class BingXTradingService extends BingXService {
 
     @OnEvent(PROCESS_ENTRYPOINTS, { async: true })
     async placeMarketOrderWithTrailingStop(entrypoints: TechnicalAnalysisResult[], indicators: IntervalDataDTO[]): Promise<any> {
-        const [{ asset }] = entrypoints;
+        const [firstEntrypoint] = entrypoints;
+        const { asset, potentialEntrypoints } = firstEntrypoint;
+        const [{ currentPrice }] = potentialEntrypoints;
 
         if (asset.typeId !== CRYPTO_ASSET_TYPE) {
             return;
         }
-        
+
         const side = 'BUY';
-        const quantity = 0.0001;
+
+        const quantity = 10 / currentPrice;
 
         const marketOrder = await this.placeMarketOrder(asset.symbol, side, quantity);
         const trailingStopOrder = await this.sendTrailingStopMarketOrder(asset.symbol, 'SELL', quantity, 0.005);
