@@ -33,7 +33,7 @@ export class BingXTradingService extends BingXService {
         const quantity = 10 / currentPrice;
 
         const marketOrder = await this.placeMarketOrder(asset.symbol, side, quantity);
-        const trailingStopOrder = await this.sendTrailingStopMarketOrder(asset.symbol, 'SELL', quantity, 0.005);
+        const trailingStopOrder = await this.sendTrailingStopMarketOrder(asset.symbol, 'SELL', quantity, 0.01);
 
         return { marketOrder, trailingStopOrder };
     }
