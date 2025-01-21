@@ -30,10 +30,10 @@ export class BingXTradingService extends BingXService {
         const side = 'BUY';
         const quantity = 10 / currentPrice;
 
-        const activatePrice = currentPrice + (currentPrice * 0.003);
-
         const marketOrder = await this.placeMarketOrder(asset.symbol, side, quantity);
-        const tpSlOrder = await this.placeTrailingTPSLOrder(asset.symbol, 'SELL', quantity, activatePrice, 0.01);
+        // const activatePrice = currentPrice + (currentPrice * 0.003);
+        // const tpSlOrder = await this.placeTrailingTPSLOrder(asset.symbol, 'SELL', quantity, activatePrice, 0.01);
+        const tpSlOrder = await this.placeTrailingStopMarketOrder(asset.symbol, 'SELL', quantity, 0.01);
 
         console.log('Orders: ', { marketOrder, tpSlOrder });
     }
@@ -84,6 +84,42 @@ export class BingXTradingService extends BingXService {
                 type: 'TRAILING_TP_SL',
                 quantity: quantity.toString(),
                 activatePrice: activatePrice.toString(),
+                priceRate: priceRate.toString(),
+                timestamp: timestamp.toString(),
+            };
+
+            const params = new URLSearchParams(payload);
+            const signature = this.generateSignature(params.toString());
+            params.append('signature', signature);
+
+            const endpoint = `${BINGX_ENDPOINTS.baseUrl}${BINGX_ENDPOINTS.placeOrder.uri}?${params}`;
+
+            const response = await firstValueFrom(this.httpService.post(endpoint, null, { headers: this.headers }));
+
+            return response.data;
+        } catch (error) {
+            throw new HttpException(
+                error.response?.data || 'Failed to place order',
+                error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
+    }
+
+    async placeTrailingStopMarketOrder(
+        symbol: string,
+        side: 'BUY' | 'SELL',
+        quantity: number,
+        priceRate: number
+    ): Promise<any> {
+        try {
+            const timestamp = Date.now();
+
+            const payload = {
+                symbol,
+                side,
+                positionSide: side === 'BUY' ? 'LONG' : 'SHORT',
+                type: 'TRAILING_STOP_MARKET',
+                quantity: quantity.toString(),
                 priceRate: priceRate.toString(),
                 timestamp: timestamp.toString(),
             };

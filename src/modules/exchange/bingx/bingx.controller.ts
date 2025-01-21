@@ -15,16 +15,16 @@ export class BingxController {
         response.send(result);
     }
 
-    @Get('test')
-    async test(@Res() response: any) {
-        // const a = await this.tradingService.placeMarketOrder(
-        //     'BTC-USDT', 'BUY', 0.0001
-        // );
+    // @Get('test')
+    // async test(@Res() response: any) {
+    //     const a = await this.tradingService.placeMarketOrder(
+    //         'BTC-USDT', 'BUY', 0.0001
+    //     );
 
-        // const b = await this.tradingService.placeTrailingTPSLOrder(
-        //     'BTC-USDT', 'BUY', 0.0001, 102200, 0.01
-        // );
+    //     const b = await this.tradingService.placeTrailingStopMarketOrder(
+    //         'BTC-USDT', 'SELL', 0.0001, 0.01
+    //     );
 
-        response.send({  });
-    }
+    //     response.send({ a, b });
+    // }
 }
