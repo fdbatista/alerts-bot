@@ -117,6 +117,6 @@ export class TrendAnalysisService {
 
         const lastClosingDifferencePercentOverLongSma = Math.abs((lastClosing - lastLong) / lastLong) * 100;
 
-        return prevShort < prevLong && lastShort > lastLong && lastClosingDifferencePercentOverLongSma >= 0.3;
+        return prevShort < prevLong && lastShort > lastLong && lastClosingDifferencePercentOverLongSma >= 0.1;
     }
 }
