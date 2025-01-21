@@ -21,10 +21,14 @@ export class BingxController {
     //         'BTC-USDT', 'BUY', 0.0001
     //     );
 
-    //     const b = await this.tradingService.placeTrailingStopMarketOrder(
-    //         'BTC-USDT', 'SELL', 0.0001, 0.01
+    //     const b = await this.tradingService.placeStopMarketOrder(
+    //         'BTC-USDT', 'SELL', 0.0001, 105500
     //     );
 
-    //     response.send({ a, b });
+    //     const c = await this.tradingService.placeTakeProfitMarketOrder(
+    //         'BTC-USDT', 'SELL', 0.0001, 107000
+    //     );
+
+    //     response.send({ a, b, c });
     // }
 }

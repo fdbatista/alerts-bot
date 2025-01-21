@@ -27,15 +27,20 @@ export class BingXTradingService extends BingXService {
             return;
         }
 
-        const side = 'BUY';
         const quantity = 10 / currentPrice;
 
-        const marketOrder = await this.placeMarketOrder(asset.symbol, side, quantity);
+        const marketOrder = await this.placeMarketOrder(asset.symbol, 'BUY', quantity);
         // const activatePrice = currentPrice + (currentPrice * 0.003);
         // const tpSlOrder = await this.placeTrailingTPSLOrder(asset.symbol, 'SELL', quantity, activatePrice, 0.01);
-        const tpSlOrder = await this.placeTrailingStopMarketOrder(asset.symbol, 'SELL', quantity, 0.01);
+        // const tpSlOrder = await this.placeTrailingStopMarketOrder(asset.symbol, 'SELL', quantity, 0.01);
 
-        console.log('Orders: ', { marketOrder, tpSlOrder });
+        const stopLoss = currentPrice - (currentPrice * 0.002);
+        const slOrder = await this.placeStopMarketOrder(asset.symbol, 'SELL', quantity, stopLoss);
+
+        const takeProfit = currentPrice + (currentPrice * 0.005);
+        const tpOrder = await this.placeTakeProfitMarketOrder(asset.symbol, 'SELL', quantity, takeProfit);
+
+        console.log('Orders: ', { marketOrder, slOrder, tpOrder });
     }
 
     async placeMarketOrder(symbol: string, side: string, quantity: number) {
@@ -121,6 +126,78 @@ export class BingXTradingService extends BingXService {
                 type: 'TRAILING_STOP_MARKET',
                 quantity: quantity.toString(),
                 priceRate: priceRate.toString(),
+                timestamp: timestamp.toString(),
+            };
+
+            const params = new URLSearchParams(payload);
+            const signature = this.generateSignature(params.toString());
+            params.append('signature', signature);
+
+            const endpoint = `${BINGX_ENDPOINTS.baseUrl}${BINGX_ENDPOINTS.placeOrder.uri}?${params}`;
+
+            const response = await firstValueFrom(this.httpService.post(endpoint, null, { headers: this.headers }));
+
+            return response.data;
+        } catch (error) {
+            throw new HttpException(
+                error.response?.data || 'Failed to place order',
+                error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
+    }
+
+    async placeTakeProfitMarketOrder(
+        symbol: string,
+        side: 'BUY' | 'SELL',
+        quantity: number,
+        priceRate: number
+    ): Promise<any> {
+        try {
+            const timestamp = Date.now();
+
+            const payload = {
+                symbol,
+                side,
+                positionSide: 'LONG',
+                type: 'TAKE_PROFIT_MARKET',
+                quantity: quantity.toString(),
+                stopPrice: priceRate.toString(),
+                timestamp: timestamp.toString(),
+            };
+
+            const params = new URLSearchParams(payload);
+            const signature = this.generateSignature(params.toString());
+            params.append('signature', signature);
+
+            const endpoint = `${BINGX_ENDPOINTS.baseUrl}${BINGX_ENDPOINTS.placeOrder.uri}?${params}`;
+
+            const response = await firstValueFrom(this.httpService.post(endpoint, null, { headers: this.headers }));
+
+            return response.data;
+        } catch (error) {
+            throw new HttpException(
+                error.response?.data || 'Failed to place order',
+                error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
+    }
+
+    async placeStopMarketOrder(
+        symbol: string,
+        side: 'BUY' | 'SELL',
+        quantity: number,
+        priceRate: number
+    ): Promise<any> {
+        try {
+            const timestamp = Date.now();
+
+            const payload = {
+                symbol,
+                side,
+                positionSide: 'LONG',
+                type: 'STOP_MARKET',
+                quantity: quantity.toString(),
+                stopPrice: priceRate.toString(),
                 timestamp: timestamp.toString(),
             };
 
