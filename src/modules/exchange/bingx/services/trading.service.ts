@@ -35,7 +35,7 @@ export class BingXTradingService extends BingXService {
         const marketOrder = await this.placeMarketOrder(asset.symbol, side, quantity);
         const tpSlOrder = await this.placeTrailingTPSLOrder(asset.symbol, 'SELL', quantity, activatePrice, 0.01);
 
-        return { marketOrder, tpSlOrder };
+        console.log('Orders: ', { marketOrder, tpSlOrder });
     }
 
     async placeMarketOrder(symbol: string, side: string, quantity: number) {
