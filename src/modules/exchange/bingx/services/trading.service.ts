@@ -6,7 +6,6 @@ import { firstValueFrom } from 'rxjs';
 import { BingXService } from './bingx.service';
 import { OnEvent } from '@nestjs/event-emitter';
 import { PROCESS_ENTRYPOINTS } from 'src/modules/websocket/_config';
-import { IntervalDataDTO } from 'src/modules/technical-analysis/dto/indicators.dto';
 import { TechnicalAnalysisResult } from 'src/modules/technical-analysis/dto/technical-analysis-result.dto';
 
 const CRYPTO_ASSET_TYPE = 1;
@@ -19,7 +18,7 @@ export class BingXTradingService extends BingXService {
     }
 
     @OnEvent(PROCESS_ENTRYPOINTS, { async: true })
-    async placeMarketOrderWithTrailingStop(entrypoints: TechnicalAnalysisResult[], indicators: IntervalDataDTO[]): Promise<any> {
+    async placeOrders(entrypoints: TechnicalAnalysisResult[]): Promise<any> {
         const [firstEntrypoint] = entrypoints;
         const { asset, potentialEntrypoints } = firstEntrypoint;
         const [{ currentPrice }] = potentialEntrypoints;
@@ -29,16 +28,17 @@ export class BingXTradingService extends BingXService {
         }
 
         const side = 'BUY';
-
         const quantity = 10 / currentPrice;
 
-        const marketOrder = await this.placeMarketOrder(asset.symbol, side, quantity);
-        const trailingStopOrder = await this.sendTrailingStopMarketOrder(asset.symbol, 'SELL', quantity, 0.01);
+        const activatePrice = currentPrice + (currentPrice * 0.003);
 
-        return { marketOrder, trailingStopOrder };
+        const marketOrder = await this.placeMarketOrder(asset.symbol, side, quantity);
+        const tpSlOrder = await this.placeTrailingTPSLOrder(asset.symbol, 'SELL', quantity, activatePrice, 0.01);
+
+        return { marketOrder, tpSlOrder };
     }
 
-    private async placeMarketOrder(symbol: string, side: string, quantity: number) {
+    async placeMarketOrder(symbol: string, side: string, quantity: number) {
         const timestamp = Date.now();
 
         const payload = {
@@ -67,11 +67,12 @@ export class BingXTradingService extends BingXService {
         }
     }
 
-    private async sendTrailingStopMarketOrder(
+    async placeTrailingTPSLOrder(
         symbol: string,
         side: 'BUY' | 'SELL',
         quantity: number,
-        priceRate: number,
+        activatePrice: number,
+        priceRate: number
     ): Promise<any> {
         try {
             const timestamp = Date.now();
@@ -79,26 +80,23 @@ export class BingXTradingService extends BingXService {
             const payload = {
                 symbol,
                 side,
-                positionSide: 'LONG',
-                type: 'TRAILING_STOP_MARKET',
+                positionSide: side === 'BUY' ? 'LONG' : 'SHORT',
+                type: 'TRAILING_TP_SL',
                 quantity: quantity.toString(),
+                activatePrice: activatePrice.toString(),
                 priceRate: priceRate.toString(),
                 timestamp: timestamp.toString(),
             };
 
             const params = new URLSearchParams(payload);
-
             const signature = this.generateSignature(params.toString());
             params.append('signature', signature);
 
-            const endpoint = `${BINGX_ENDPOINTS.baseUrl}${BINGX_ENDPOINTS.placeOrder.uri}?${params}`
+            const endpoint = `${BINGX_ENDPOINTS.baseUrl}${BINGX_ENDPOINTS.placeOrder.uri}?${params}`;
 
-            const promise = this.httpService.post(endpoint, null, { headers: this.headers });
-            const response = await firstValueFrom(promise);
+            const response = await firstValueFrom(this.httpService.post(endpoint, null, { headers: this.headers }));
 
-            const { data } = response;
-
-            return data;
+            return response.data;
         } catch (error) {
             throw new HttpException(
                 error.response?.data || 'Failed to place order',
