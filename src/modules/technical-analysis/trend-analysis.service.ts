@@ -18,13 +18,15 @@ export class TrendAnalysisService {
     }
 
     // Detect SMA crossovers
-    detectSMACrossovers(data: number[]): { sma50Cross: boolean; sma200Cross: boolean } {
-        const sma10 = this.calculateSMA(data, 10);
-        const sma50 = this.calculateSMA(data, 50);
-        const sma200 = this.calculateSMA(data, 200);
+    detectSMACrossovers(closings: number[]): { sma50Cross: boolean; sma200Cross: boolean } {
+        const sma10 = this.calculateSMA(closings, 10);
+        const sma50 = this.calculateSMA(closings, 50);
+        const sma200 = this.calculateSMA(closings, 200);
 
-        const sma50Cross = this.checkCrossover(sma10, sma50);
-        const sma200Cross = this.checkCrossover(sma10, sma200);
+        const lastClosing = closings.at(-1) as number;
+
+        const sma50Cross = this.checkCrossover(sma10, sma50, lastClosing);
+        const sma200Cross = this.checkCrossover(sma10, sma200, lastClosing);
 
         return { sma50Cross, sma200Cross };
     }
@@ -102,17 +104,19 @@ export class TrendAnalysisService {
     }
 
     // Helper to detect crossover between two SMAs
-    private checkCrossover(smaShort: number[], smaLong: number[]): boolean {
-        if (smaShort.length < 2 || smaLong.length < 2) {
+    private checkCrossover(shortSma: number[], longSma: number[], lastClosing: number): boolean {
+        if (shortSma.length < 2 || longSma.length < 2) {
             return false;
         }
 
-        const lastShort = smaShort.at(-1) as number;
-        const lastLong = smaLong.at(-1) as number;
+        const lastShort = shortSma.at(-1) as number;
+        const lastLong = longSma.at(-1) as number;
 
-        const prevShort = smaShort.at(-2) as number;
-        const prevLong = smaLong.at(-2) as number;
+        const prevShort = shortSma.at(-2) as number;
+        const prevLong = longSma.at(-2) as number;
 
-        return prevShort < prevLong && lastShort > lastLong;
+        const lastClosingDifferencePercentOverLongSma = Math.abs((lastClosing - lastLong) / lastLong) * 100;
+
+        return prevShort < prevLong && lastShort > lastLong && lastClosingDifferencePercentOverLongSma >= 0.3;
     }
 }
