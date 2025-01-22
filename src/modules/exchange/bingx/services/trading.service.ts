@@ -10,6 +10,11 @@ import { TechnicalAnalysisResult } from 'src/modules/technical-analysis/dto/tech
 
 const CRYPTO_ASSET_TYPE = 1;
 
+const MIN_QUANTITIES: Record<string, number> = {
+    ['BTC-USDT']: 0.001,
+    ['LTC-USDT']: 0.1,
+};
+
 @Injectable()
 export class BingXTradingService extends BingXService {
 
@@ -23,11 +28,12 @@ export class BingXTradingService extends BingXService {
         const { asset, potentialEntrypoints } = firstEntrypoint;
         const [{ currentPrice }] = potentialEntrypoints;
 
-        if (asset.typeId !== CRYPTO_ASSET_TYPE) {
+        const quantity = MIN_QUANTITIES[asset.symbol];
+        // const quantity = 10 / currentPrice;
+
+        if (!quantity) {
             return;
         }
-
-        const quantity = 10 / currentPrice;
 
         const marketOrder = await this.placeMarketOrder(asset.symbol, 'BUY', quantity);
         // const activatePrice = currentPrice + (currentPrice * 0.003);
