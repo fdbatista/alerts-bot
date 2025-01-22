@@ -52,5 +52,4 @@ export class TechnicalAnalysisService {
             this.eventEmitter.emit(PROCESS_ENTRYPOINTS, result, indicators);
         }
     }
-
 }
