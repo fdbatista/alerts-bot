@@ -40,10 +40,10 @@ export class BingXTradingService extends BingXService {
         // const tpSlOrder = await this.placeTrailingTPSLOrder(asset.symbol, 'SELL', quantity, activatePrice, 0.01);
         // const tpSlOrder = await this.placeTrailingStopMarketOrder(asset.symbol, 'SELL', quantity, 0.01);
 
-        const stopLoss = currentPrice - (currentPrice * 0.005);
+        const stopLoss = currentPrice - (currentPrice * 0.7);
         const slOrder = await this.placeStopMarketOrder(asset.symbol, 'SELL', quantity, stopLoss);
 
-        const takeProfit = currentPrice + (currentPrice * 0.002);
+        const takeProfit = currentPrice + (currentPrice * 0.03);
         const tpOrder = await this.placeTakeProfitMarketOrder(asset.symbol, 'SELL', quantity, takeProfit);
 
         console.log('Orders: ', { marketOrder, slOrder, tpOrder });
