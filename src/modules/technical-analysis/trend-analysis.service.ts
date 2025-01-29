@@ -20,12 +20,16 @@ export class TrendAnalysisService {
     // Detect SMA crossovers
     detectSMACrossovers(closings: number[]): { sma50Cross: boolean; sma200Cross: boolean } {
         const sma10 = this.calculateSMA(closings, 10);
-        const sma50 = this.calculateSMA(closings, 30);
+        const sma30 = this.calculateSMA(closings, 30);
         const sma200 = this.calculateSMA(closings, 200);
 
         const lastClosing = closings.at(-1) as number;
 
-        const sma50Cross = this.checkCrossover(sma10, sma50, lastClosing);
+        const lastSma200 = sma200.at(-1) as number;
+        const sma50Cross = lastClosing > lastSma200
+            ? this.checkCrossover(sma10, sma30, lastClosing)
+            : false;
+
         const sma200Cross = this.checkCrossover(sma10, sma200, lastClosing);
 
         return { sma50Cross, sma200Cross };
