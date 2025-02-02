@@ -11,8 +11,8 @@ import { mergeMap } from 'rxjs/operators';
 import { AssetDTO } from 'src/modules/ticker/dto/asset.dto';
 import { IntervalDataDTO } from '../dto/indicators.dto';
 
-const intervals = [1]
-const smaLengths = [10, 50, 200];
+const intervals = [5]
+const smaLengths = [10, 30, 200];
 
 @Injectable()
 export class IndicatorCalculatorService {
