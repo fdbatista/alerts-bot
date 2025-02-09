@@ -1,12 +1,13 @@
-import { Controller, Get, Res } from '@nestjs/common';
+import { Controller, Get, Query, Res } from '@nestjs/common';
 import { BingXBalanceService } from './services/balance.service';
-import { BingXTradingService } from './services/trading.service';
+import { BingXPositionsService } from './services/positions.service';
 
 @Controller('bingx')
 export class BingxController {
     constructor(
-        private readonly tradingService: BingXTradingService,
         private readonly balanceService: BingXBalanceService,
+        private readonly ledgerService: BingXPositionsService,
+
     ) { }
 
     @Get('balance')
@@ -15,20 +16,14 @@ export class BingxController {
         response.send(result);
     }
 
-    // @Get('test')
-    // async test(@Res() response: any) {
-    //     const a = await this.tradingService.placeMarketOrder(
-    //         'BTC-USDT', 'BUY', 0.0001
-    //     );
+    @Get('positions/open')
+    async getOpenOrders(@Query('symbol') symbol: string, @Res() response: any) {
+        const result = await this.ledgerService.fetchOpenPositions(symbol);
+        response.send(result);
+    }
 
-    //     const b = await this.tradingService.placeStopMarketOrder(
-    //         'BTC-USDT', 'SELL', 0.0001, 105500
-    //     );
-
-    //     const c = await this.tradingService.placeTakeProfitMarketOrder(
-    //         'BTC-USDT', 'SELL', 0.0001, 107000
-    //     );
-
-    //     response.send({ a, b, c });
-    // }
+    @Get('test')
+    async test(@Res() response: any) {
+        response.send({});
+    }
 }

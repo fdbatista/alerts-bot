@@ -7,8 +7,7 @@ import { BingXService } from './bingx.service';
 import { OnEvent } from '@nestjs/event-emitter';
 import { PROCESS_ENTRYPOINTS } from 'src/modules/websocket/_config';
 import { TechnicalAnalysisResult } from 'src/modules/technical-analysis/dto/technical-analysis-result.dto';
-
-const CRYPTO_ASSET_TYPE = 1;
+import { BingXPositionsService } from './positions.service';
 
 const MIN_QUANTITIES: Record<string, number> = {
     ['BTC-USDT']: 0.001,
@@ -18,7 +17,11 @@ const MIN_QUANTITIES: Record<string, number> = {
 @Injectable()
 export class BingXTradingService extends BingXService {
 
-    constructor(httpService: HttpService, configService: ConfigService) {
+    constructor(
+        httpService: HttpService,
+        configService: ConfigService,
+        private readonly positionsService: BingXPositionsService,
+    ) {
         super(httpService, configService);
     }
 
@@ -29,27 +32,39 @@ export class BingXTradingService extends BingXService {
         const [{ currentPrice }] = potentialEntrypoints;
 
         const quantity = MIN_QUANTITIES[asset.symbol];
-        // const quantity = 10 / currentPrice;
 
         if (!quantity) {
-            return;
+            return { error: 'Minimum quantity not set for asset' };
+        }
+
+        const openPositions = await this.positionsService.fetchOpenPositions(asset.symbol);
+
+        if (openPositions.length) {
+            console.log(`Open positions found for ${asset.symbol}`);
+            return { error: 'Open positions found for asset' };
         }
 
         const marketOrder = await this.placeMarketOrder(asset.symbol, 'BUY', quantity);
-        // const activatePrice = currentPrice + (currentPrice * 0.003);
-        // const tpSlOrder = await this.placeTrailingTPSLOrder(asset.symbol, 'SELL', quantity, activatePrice, 0.01);
-        // const tpSlOrder = await this.placeTrailingStopMarketOrder(asset.symbol, 'SELL', quantity, 0.01);
 
-        const stopLoss = currentPrice - (currentPrice * 0.01);
-        const slOrder = await this.placeStopMarketOrder(asset.symbol, 'SELL', quantity, stopLoss);
+        if (marketOrder.code === 0) {
+            const stopLoss = currentPrice - (currentPrice * 0.01);
+            const slOrder = await this.placeStopMarketOrder(asset.symbol, 'SELL', quantity, stopLoss);
 
-        const takeProfit = currentPrice + (currentPrice * 0.02);
-        const tpOrder = await this.placeTakeProfitMarketOrder(asset.symbol, 'SELL', quantity, takeProfit);
+            const takeProfit = currentPrice + (currentPrice * 0.02);
+            const tpOrder = await this.placeTakeProfitMarketOrder(asset.symbol, 'SELL', quantity, takeProfit);
 
-        console.log('Orders: ', { marketOrder, slOrder, tpOrder });
+            // const activatePrice = currentPrice + (currentPrice * 0.01);
+            // const tpSlOrder = await this.placeTrailingTPSLOrder(asset.symbol, 'SELL', quantity, activatePrice, 0.01);
+
+            console.log('Orders: ', { marketOrder, slOrder, tpOrder });
+            return { marketOrder, slOrder, tpOrder };
+        }
+
+        console.log('Error placing order: ', marketOrder);
+        return marketOrder;
     }
 
-    async placeMarketOrder(symbol: string, side: string, quantity: number) {
+    private async placeMarketOrder(symbol: string, side: string, quantity: number) {
         const timestamp = Date.now();
 
         const payload = {
@@ -78,7 +93,7 @@ export class BingXTradingService extends BingXService {
         }
     }
 
-    async placeTrailingTPSLOrder(
+    private async placeTrailingTPSLOrder(
         symbol: string,
         side: 'BUY' | 'SELL',
         quantity: number,
@@ -116,41 +131,41 @@ export class BingXTradingService extends BingXService {
         }
     }
 
-    async placeTrailingStopMarketOrder(
-        symbol: string,
-        side: 'BUY' | 'SELL',
-        quantity: number,
-        priceRate: number
-    ): Promise<any> {
-        try {
-            const timestamp = Date.now();
+    // private async placeTrailingStopMarketOrder(
+    //     symbol: string,
+    //     side: 'BUY' | 'SELL',
+    //     quantity: number,
+    //     priceRate: number
+    // ): Promise<any> {
+    //     try {
+    //         const timestamp = Date.now();
 
-            const payload = {
-                symbol,
-                side,
-                positionSide: side === 'BUY' ? 'LONG' : 'SHORT',
-                type: 'TRAILING_STOP_MARKET',
-                quantity: quantity.toString(),
-                priceRate: priceRate.toString(),
-                timestamp: timestamp.toString(),
-            };
+    //         const payload = {
+    //             symbol,
+    //             side,
+    //             positionSide: side === 'BUY' ? 'LONG' : 'SHORT',
+    //             type: 'TRAILING_STOP_MARKET',
+    //             quantity: quantity.toString(),
+    //             priceRate: priceRate.toString(),
+    //             timestamp: timestamp.toString(),
+    //         };
 
-            const params = new URLSearchParams(payload);
-            const signature = this.generateSignature(params.toString());
-            params.append('signature', signature);
+    //         const params = new URLSearchParams(payload);
+    //         const signature = this.generateSignature(params.toString());
+    //         params.append('signature', signature);
 
-            const endpoint = `${BINGX_ENDPOINTS.baseUrl}${BINGX_ENDPOINTS.placeOrder.uri}?${params}`;
+    //         const endpoint = `${BINGX_ENDPOINTS.baseUrl}${BINGX_ENDPOINTS.placeOrder.uri}?${params}`;
 
-            const response = await firstValueFrom(this.httpService.post(endpoint, null, { headers: this.headers }));
+    //         const response = await firstValueFrom(this.httpService.post(endpoint, null, { headers: this.headers }));
 
-            return response.data;
-        } catch (error) {
-            throw new HttpException(
-                error.response?.data || 'Failed to place order',
-                error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
-            );
-        }
-    }
+    //         return response.data;
+    //     } catch (error) {
+    //         throw new HttpException(
+    //             error.response?.data || 'Failed to place order',
+    //             error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+    //         );
+    //     }
+    // }
 
     async placeTakeProfitMarketOrder(
         symbol: string,
@@ -188,7 +203,7 @@ export class BingXTradingService extends BingXService {
         }
     }
 
-    async placeStopMarketOrder(
+    private async placeStopMarketOrder(
         symbol: string,
         side: 'BUY' | 'SELL',
         quantity: number,

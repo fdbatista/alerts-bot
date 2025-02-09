@@ -11,5 +11,10 @@ export const BINGX_ENDPOINTS = {
     placeOrder: {
         method: 'POST',
         uri: '/openApi/swap/v2/trade/order',
-    }
+    },
+    openPositions: {
+        method: 'GET',
+        // uri: '/openApi/swap/v2/trade/openOrders',
+        uri: '/openApi/swap/v2/user/positions',
+    },
 }
